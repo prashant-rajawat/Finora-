@@ -6,12 +6,15 @@ import {
   DashboardSummary,
   NavigationPage,
   TransactionType,
+  BudgetWithCalculations,
+  BudgetSummary,
 } from './types';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { TransactionsPage } from './pages/TransactionsPage';
+import { BudgetsPage } from './pages/BudgetsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -22,7 +25,6 @@ import {
   LayoutDashboard,
   ArrowLeftRight,
   Wallet,
-  FileText,
   Settings,
   Plus,
 } from 'lucide-react';
@@ -38,8 +40,16 @@ export default function App() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
 
+  // Budgets State
+  const [budgetSummary, setBudgetSummary] = useState<BudgetSummary | null>(null);
+  const [budgets, setBudgets] = useState<BudgetWithCalculations[]>([]);
+  const [budgetPeriod, setBudgetPeriod] = useState<string>('2026-10');
+  const [isBudgetsLoading, setIsBudgetsLoading] = useState<boolean>(false);
+
   // Filters for transactions & dashboard
   const [selectedMonth, setSelectedMonth] = useState('2026-10');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [selectedType, setSelectedType] = useState('all');
@@ -47,6 +57,7 @@ export default function App() {
   // Modal State
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [modalPresetType, setModalPresetType] = useState<TransactionType>('expense');
 
   // Toast Notification State
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -72,7 +83,6 @@ export default function App() {
           setCurrentUser(user);
           setCurrentPage('dashboard');
         } else {
-          // If no active session, start on landing
           setCurrentPage('landing');
         }
       } catch {
@@ -84,7 +94,25 @@ export default function App() {
     initAuth();
   }, []);
 
-  // Fetch dashboard summary and transactions whenever user or month filter changes
+  // Fetch budgets data
+  const loadBudgetData = useCallback(async (period: string = budgetPeriod) => {
+    if (!currentUser) return;
+    try {
+      setIsBudgetsLoading(true);
+      const [sumData, listData] = await Promise.all([
+        api.getBudgetSummary(period),
+        api.getBudgets(period),
+      ]);
+      setBudgetSummary(sumData);
+      setBudgets(listData);
+    } catch (err: any) {
+      console.error('Budget load error:', err);
+    } finally {
+      setIsBudgetsLoading(false);
+    }
+  }, [currentUser, budgetPeriod]);
+
+  // Fetch dashboard summary and transactions whenever filters change
   const loadFinancialData = useCallback(async () => {
     if (!currentUser) return;
     try {
@@ -93,6 +121,8 @@ export default function App() {
         api.getDashboardSummary(selectedMonth),
         api.getTransactions({
           month: selectedMonth,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
           category: selectedCategory,
           type: selectedType,
           search: searchQuery,
@@ -105,16 +135,17 @@ export default function App() {
     } finally {
       setIsDataLoading(false);
     }
-  }, [currentUser, selectedMonth, selectedCategory, selectedType, searchQuery]);
+  }, [currentUser, selectedMonth, startDate, endDate, selectedCategory, selectedType, searchQuery]);
 
   useEffect(() => {
     if (currentUser) {
       loadFinancialData();
+      loadBudgetData(budgetPeriod);
     }
-  }, [currentUser, loadFinancialData]);
+  }, [currentUser, loadFinancialData, loadBudgetData, budgetPeriod]);
 
   // Auth Handlers
-  const handleLogin = async (params: { email: string; password: string }) => {
+  const handleLogin = async (params: { email: string; password: string; rememberMe: boolean }) => {
     const { user } = await api.login(params);
     setCurrentUser(user);
     setCurrentPage('dashboard');
@@ -154,6 +185,8 @@ export default function App() {
     category: string;
     date: string;
     description: string;
+    paymentMethod?: string;
+    merchant?: string;
   }) => {
     if (data.id) {
       await api.updateTransaction(data.id, {
@@ -162,6 +195,8 @@ export default function App() {
         category: data.category,
         date: data.date,
         description: data.description,
+        paymentMethod: data.paymentMethod,
+        merchant: data.merchant,
       });
       addToast('success', 'Transaction updated successfully.');
     } else {
@@ -171,16 +206,45 @@ export default function App() {
         category: data.category,
         date: data.date,
         description: data.description,
+        paymentMethod: data.paymentMethod,
+        merchant: data.merchant,
       });
       addToast('success', `${data.type === 'income' ? 'Income' : 'Expense'} recorded.`);
     }
-    await loadFinancialData();
+    await Promise.all([loadFinancialData(), loadBudgetData(budgetPeriod)]);
   };
 
   const handleDeleteTransaction = async (id: string) => {
     await api.deleteTransaction(id);
     addToast('info', 'Transaction removed.');
-    await loadFinancialData();
+    await Promise.all([loadFinancialData(), loadBudgetData(budgetPeriod)]);
+  };
+
+  // Budget Actions
+  const handleCreateBudget = async (data: {
+    name: string;
+    type: any;
+    category?: string;
+    amount: number;
+    period: string;
+    alertThreshold?: number;
+    notes?: string;
+  }) => {
+    await api.createBudget(data);
+    addToast('success', `Budget "${data.name}" created successfully.`);
+    await loadBudgetData(data.period);
+  };
+
+  const handleUpdateBudget = async (id: string, data: any) => {
+    const updated = await api.updateBudget(id, data);
+    addToast('success', `Budget "${updated.name}" updated successfully.`);
+    await loadBudgetData(updated.period);
+  };
+
+  const handleDeleteBudget = async (id: string) => {
+    await api.deleteBudget(id);
+    addToast('info', 'Budget deleted.');
+    await loadBudgetData(budgetPeriod);
   };
 
   const handleExportCsv = async () => {
@@ -192,9 +256,14 @@ export default function App() {
     }
   };
 
+  const handleOpenAddModal = (presetType: TransactionType = 'expense') => {
+    setModalPresetType(presetType);
+    setEditingTransaction(null);
+    setIsTransactionModalOpen(true);
+  };
+
   // Global Navigation Guard
   const navigateTo = (page: NavigationPage) => {
-    // If not authenticated and trying to access protected pages
     const protectedPages: NavigationPage[] = [
       'dashboard',
       'transactions',
@@ -274,6 +343,7 @@ export default function App() {
           onLogout={handleLogout}
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           searchQuery={searchQuery}
+          budgetAlerts={budgetSummary?.alerts || []}
           onSearchChange={(q) => {
             setSearchQuery(q);
             if (currentPage !== 'transactions') {
@@ -290,12 +360,12 @@ export default function App() {
               summary={summary}
               isLoading={isDataLoading}
               onNavigate={navigateTo}
-              onOpenAddTransaction={() => {
-                setEditingTransaction(null);
-                setIsTransactionModalOpen(true);
-              }}
+              onOpenAddTransaction={handleOpenAddModal}
               selectedMonth={selectedMonth}
-              onSelectMonth={setSelectedMonth}
+              onSelectMonth={(m) => {
+                setSelectedMonth(m);
+                setBudgetPeriod(m);
+              }}
             />
           )}
 
@@ -303,10 +373,7 @@ export default function App() {
             <TransactionsPage
               transactions={transactions}
               isLoading={isDataLoading}
-              onOpenAddModal={() => {
-                setEditingTransaction(null);
-                setIsTransactionModalOpen(true);
-              }}
+              onOpenAddModal={handleOpenAddModal}
               onOpenEditModal={(tx) => {
                 setEditingTransaction(tx);
                 setIsTransactionModalOpen(true);
@@ -319,14 +386,33 @@ export default function App() {
               selectedType={selectedType}
               onSelectType={setSelectedType}
               selectedMonth={selectedMonth}
-              onSelectMonth={setSelectedMonth}
+              onSelectMonth={(m) => {
+                setSelectedMonth(m);
+                setBudgetPeriod(m);
+              }}
+              startDate={startDate}
+              endDate={endDate}
+              onDateRangeChange={(s, e) => {
+                setStartDate(s);
+                setEndDate(e);
+              }}
             />
           )}
 
           {currentPage === 'budgets' && (
-            <ComingSoonView
-              page="budgets"
-              onBackToDashboard={() => navigateTo('dashboard')}
+            <BudgetsPage
+              summary={budgetSummary}
+              budgets={budgets}
+              isLoading={isBudgetsLoading}
+              selectedPeriod={budgetPeriod}
+              onPeriodChange={(period) => {
+                setBudgetPeriod(period);
+                loadBudgetData(period);
+              }}
+              onCreateBudget={handleCreateBudget}
+              onUpdateBudget={handleUpdateBudget}
+              onDeleteBudget={handleDeleteBudget}
+              onNavigateToTransactions={() => navigateTo('transactions')}
             />
           )}
 
@@ -365,7 +451,7 @@ export default function App() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#DCE6F2] py-2 px-4 flex items-center justify-around shadow-lg">
         <button
           onClick={() => navigateTo('dashboard')}
-          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors ${
+          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors cursor-pointer ${
             currentPage === 'dashboard' ? 'text-[#1677F2]' : 'text-[#718096]'
           }`}
         >
@@ -375,7 +461,7 @@ export default function App() {
 
         <button
           onClick={() => navigateTo('transactions')}
-          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors ${
+          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors cursor-pointer ${
             currentPage === 'transactions' ? 'text-[#1677F2]' : 'text-[#718096]'
           }`}
         >
@@ -385,11 +471,8 @@ export default function App() {
 
         {/* Central Add Action Button on Mobile */}
         <button
-          onClick={() => {
-            setEditingTransaction(null);
-            setIsTransactionModalOpen(true);
-          }}
-          className="w-10 h-10 -mt-4 rounded-full bg-[#1677F2] text-white flex items-center justify-center shadow-md active:scale-95 transition-transform"
+          onClick={() => handleOpenAddModal('expense')}
+          className="w-10 h-10 -mt-4 rounded-full bg-[#1677F2] text-white flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer"
           aria-label="Add Transaction"
         >
           <Plus size={22} strokeWidth={2.5} />
@@ -397,7 +480,7 @@ export default function App() {
 
         <button
           onClick={() => navigateTo('budgets')}
-          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors ${
+          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors cursor-pointer ${
             currentPage === 'budgets' ? 'text-[#1677F2]' : 'text-[#718096]'
           }`}
         >
@@ -407,7 +490,7 @@ export default function App() {
 
         <button
           onClick={() => navigateTo('settings')}
-          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors ${
+          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors cursor-pointer ${
             currentPage === 'settings' ? 'text-[#1677F2]' : 'text-[#718096]'
           }`}
         >
@@ -425,6 +508,7 @@ export default function App() {
         }}
         onSave={handleSaveTransaction}
         initialData={editingTransaction}
+        presetType={modalPresetType}
       />
 
       {/* Toast Notification Container */}

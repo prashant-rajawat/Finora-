@@ -4,24 +4,27 @@ import {
   TrendingDown,
   ShieldCheck,
   Plus,
+  Minus,
   Layers,
   FileText,
   Target,
   ArrowRight,
   ChevronDown,
   Sparkles,
+  ArrowUpRight,
+  ArrowDownLeft,
 } from 'lucide-react';
 import { StatCard } from '../components/StatCard';
 import { MonthlyChart } from '../components/MonthlyChart';
 import { CategoryDonutChart } from '../components/CategoryDonutChart';
-import { DashboardSummary, User, NavigationPage, Transaction } from '../types';
+import { DashboardSummary, User, NavigationPage, TransactionType } from '../types';
 
 interface DashboardPageProps {
   user: User;
   summary: DashboardSummary | null;
   isLoading: boolean;
   onNavigate: (page: NavigationPage) => void;
-  onOpenAddTransaction: () => void;
+  onOpenAddTransaction: (presetType?: TransactionType) => void;
   selectedMonth: string;
   onSelectMonth: (month: string) => void;
 }
@@ -61,7 +64,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Dashboard Top Greeting & Month Filter */}
+      {/* Dashboard Top Greeting & Month Filter matching Panel 4 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#203451] flex items-center gap-2">
@@ -69,7 +72,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             <span className="text-2xl select-none">👋</span>
           </h1>
           <p className="text-xs sm:text-sm text-[#718096] mt-0.5">
-            Here's your financial overview for this month.
+            Here's your financial overview for this {selectedMonth === 'all' ? 'year' : 'month'}.
           </p>
         </div>
 
@@ -77,7 +80,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <div className="relative shrink-0">
           <button
             onClick={() => setShowMonthMenu(!showMonthMenu)}
-            className="flex items-center gap-2 px-3.5 py-2 bg-white border border-[#DCE6F2] rounded-xl text-xs font-semibold text-[#203451] hover:bg-[#F8FAFC] transition-colors shadow-2xs"
+            className="flex items-center gap-2 px-3.5 py-2 bg-white border border-[#DCE6F2] rounded-xl text-xs font-semibold text-[#203451] hover:bg-[#F8FAFC] transition-colors shadow-2xs cursor-pointer"
           >
             <span>{currentMonthLabel}</span>
             <ChevronDown size={14} className="text-[#718096]" />
@@ -92,7 +95,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     onSelectMonth(opt.value);
                     setShowMonthMenu(false);
                   }}
-                  className={`w-full text-left px-3.5 py-2 text-xs font-medium transition-colors ${
+                  className={`w-full text-left px-3.5 py-2 text-xs font-medium transition-colors cursor-pointer ${
                     selectedMonth === opt.value
                       ? 'bg-[#E5F0FF] text-[#1677F2] font-semibold'
                       : 'text-[#203451] hover:bg-[#F2F7FF]'
@@ -159,13 +162,22 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <p className="text-xs text-[#718096] leading-relaxed">
                 Your financial overview will appear here once transaction tracking is available. Record your first income or expense entry to see your dashboard come to life.
               </p>
-              <button
-                onClick={onOpenAddTransaction}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1677F2] hover:bg-[#1260C4] text-white font-semibold text-xs rounded-xl shadow-xs transition-colors"
-              >
-                <Plus size={16} />
-                <span>Add Your First Transaction</span>
-              </button>
+              <div className="flex items-center justify-center gap-3 pt-1">
+                <button
+                  onClick={() => onOpenAddTransaction('income')}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                >
+                  <Plus size={15} />
+                  <span>Add First Income</span>
+                </button>
+                <button
+                  onClick={() => onOpenAddTransaction('expense')}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#EF5360] hover:bg-rose-600 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                >
+                  <Minus size={15} />
+                  <span>Add First Expense</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -190,7 +202,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 <h3 className="font-bold text-[#203451] text-base">Recent Transactions</h3>
                 <button
                   onClick={() => onNavigate('transactions')}
-                  className="text-xs font-semibold text-[#1677F2] hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-[#1677F2] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <span>View All</span>
                   <ArrowRight size={13} />
@@ -215,14 +227,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                                 : 'bg-rose-50 text-[#EF5360]'
                             }`}
                           >
-                            {isIncome ? '₹+' : '₹-'}
+                            {isIncome ? <ArrowUpRight size={16} /> : <ArrowDownLeft size={16} />}
                           </div>
                           <div>
                             <div className="text-xs font-bold text-[#203451]">
-                              {tx.description || tx.category}
+                              {tx.description || tx.merchant || tx.category}
                             </div>
                             <div className="text-[11px] text-[#718096]">
-                              {tx.category} · {tx.date}
+                              {tx.category} · {tx.date} {tx.paymentMethod ? `· ${tx.paymentMethod}` : ''}
                             </div>
                           </div>
                         </div>
@@ -248,16 +260,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               </div>
             </div>
 
-            {/* Quick Actions matching Panel 4 */}
+            {/* Quick Actions matching Panel 4 with direct Add Income / Add Expense */}
             <div className="lg:col-span-5 bg-white rounded-2xl p-5 border border-[#DCE6F2] shadow-xs flex flex-col justify-between">
-              <div className="mb-4">
+              <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-bold text-[#203451] text-base">Quick Actions</h3>
+                <span className="text-[11px] text-[#718096]">Financial Shortcuts</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3.5">
                 {/* 1. Add Transaction */}
                 <button
-                  onClick={onOpenAddTransaction}
+                  onClick={() => onOpenAddTransaction()}
                   className="p-4 rounded-2xl bg-[#F8FAFC] hover:bg-[#E5F0FF] border border-[#DCE6F2] hover:border-[#1677F2]/40 transition-all flex flex-col items-center justify-center text-center gap-2 group cursor-pointer shadow-2xs"
                 >
                   <div className="w-10 h-10 rounded-xl bg-[#1677F2] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">

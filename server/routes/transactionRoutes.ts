@@ -11,10 +11,12 @@ transactionRouter.use(requireAuth);
 transactionRouter.get('/', (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const { month, category, type, search } = req.query;
+    const { month, startDate, endDate, category, type, search } = req.query;
 
     const transactions = database.getTransactions(userId, {
       month: typeof month === 'string' ? month : undefined,
+      startDate: typeof startDate === 'string' ? startDate : undefined,
+      endDate: typeof endDate === 'string' ? endDate : undefined,
       category: typeof category === 'string' ? category : undefined,
       type: type === 'income' || type === 'expense' ? type : 'all',
       search: typeof search === 'string' ? search : undefined,
@@ -52,7 +54,7 @@ transactionRouter.get('/summary', (req: AuthRequest, res: Response) => {
 transactionRouter.post('/', (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const { type, amount, category, date, description } = req.body;
+    const { type, amount, category, date, description, paymentMethod, merchant } = req.body;
 
     if (!type || (type !== 'income' && type !== 'expense')) {
       res.status(400).json({ success: false, error: 'Transaction type must be either income or expense.' });
@@ -60,7 +62,7 @@ transactionRouter.post('/', (req: AuthRequest, res: Response) => {
     }
 
     const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
+    if (isNaN(numAmount) || !isFinite(numAmount) || numAmount <= 0) {
       res.status(400).json({ success: false, error: 'Amount must be a positive number greater than 0.' });
       return;
     }
@@ -81,6 +83,8 @@ transactionRouter.post('/', (req: AuthRequest, res: Response) => {
       category: category.trim(),
       date,
       description: description ? description.trim() : '',
+      paymentMethod: paymentMethod ? paymentMethod.trim() : undefined,
+      merchant: merchant ? merchant.trim() : undefined,
     });
 
     res.status(201).json({
@@ -99,12 +103,12 @@ transactionRouter.put('/:id', (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
     const txId = req.params.id;
-    const { type, amount, category, date, description } = req.body;
+    const { type, amount, category, date, description, paymentMethod, merchant } = req.body;
 
     let parsedAmount: number | undefined;
     if (amount !== undefined) {
       parsedAmount = parseFloat(amount);
-      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      if (isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0) {
         res.status(400).json({ success: false, error: 'Amount must be a positive number.' });
         return;
       }
@@ -116,6 +120,8 @@ transactionRouter.put('/:id', (req: AuthRequest, res: Response) => {
       category,
       date,
       description,
+      paymentMethod,
+      merchant,
     });
 
     if (!updated) {

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Bell, Info, ChevronDown, Menu, User as UserIcon, Settings as SettingsIcon, LogOut, Check } from 'lucide-react';
-import { User, NavigationPage } from '../types';
+import { User, NavigationPage, BudgetAlert } from '../types';
 
 interface HeaderProps {
   user: User;
@@ -9,6 +9,7 @@ interface HeaderProps {
   onOpenMobileMenu: () => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
+  budgetAlerts?: BudgetAlert[];
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,11 +19,16 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMobileMenu,
   searchQuery = '',
   onSearchChange,
+  budgetAlerts = [],
 }) => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(3);
+  const [unreadCount, setUnreadCount] = useState<number>(3 + (budgetAlerts?.length || 0));
+
+  useEffect(() => {
+    setUnreadCount(3 + (budgetAlerts?.length || 0));
+  }, [budgetAlerts]);
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const notifDropdownRef = useRef<HTMLDivElement>(null);
@@ -47,29 +53,40 @@ export const Header: React.FC<HeaderProps> = ({
     .substring(0, 2)
     .toUpperCase() || 'U';
 
-  const notifications = [
+  const defaultNotifications = [
     {
-      id: 1,
+      id: 'n1',
       title: 'Salary Credited',
       time: 'Oct 01, 2026',
       desc: '+₹40,000 received from Monthly Salary Credit',
       type: 'income',
     },
     {
-      id: 2,
+      id: 'n2',
       title: 'Electricity Bill Paid',
       time: 'Oct 10, 2026',
       desc: '-₹1,200 payment for Utilities',
       type: 'expense',
     },
     {
-      id: 3,
+      id: 'n3',
       title: 'Monthly Spending Update',
       time: 'Yesterday',
       desc: 'You have utilized 63% of your estimated monthly budget',
       type: 'info',
     },
   ];
+
+  const alertNotifications = (budgetAlerts || []).map((alert, idx) => ({
+    id: `alert-${idx}`,
+    title: alert.level === 'danger' ? `🚨 Budget Exceeded: ${alert.budgetName}` : `⚠️ Budget Alert: ${alert.budgetName}`,
+    time: 'Budget Warning',
+    desc: alert.message,
+    type: alert.level === 'danger' ? 'danger' : 'warning',
+    isBudgetAlert: true,
+  }));
+
+  const allNotifications = [...alertNotifications, ...defaultNotifications];
 
   return (
     <>
@@ -106,13 +123,13 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => {
                 setShowNotifications(!showNotifications);
-                if (unreadNotifications > 0) setUnreadNotifications(0);
+                if (unreadCount > 0) setUnreadCount(0);
               }}
               className="relative p-2 rounded-xl text-[#718096] hover:text-[#203451] hover:bg-[#F2F7FF] transition-colors focus:outline-none"
               title="Notifications"
             >
               <Bell size={19} />
-              {unreadNotifications > 0 && (
+              {unreadCount > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#EF5360] ring-2 ring-white" />
               )}
             </button>
@@ -122,15 +139,37 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="absolute right-0 mt-2 w-80 md:w-88 bg-white border border-[#DCE6F2] rounded-2xl shadow-xl py-3 z-30">
                 <div className="px-4 py-2 border-b border-[#F2F7FF] flex items-center justify-between">
                   <span className="font-semibold text-sm text-[#203451]">Notifications</span>
-                  <span className="text-xs text-[#1677F2] font-medium cursor-pointer hover:underline">
+                  <span
+                    onClick={() => setUnreadCount(0)}
+                    className="text-xs text-[#1677F2] font-medium cursor-pointer hover:underline"
+                  >
                     Mark all read
                   </span>
                 </div>
                 <div className="divide-y divide-[#F8FAFC] max-h-72 overflow-y-auto">
-                  {notifications.map((item) => (
-                    <div key={item.id} className="p-3.5 hover:bg-[#F8FAFC] transition-colors">
+                  {allNotifications.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        if ((item as any).isBudgetAlert) {
+                          setShowNotifications(false);
+                          onNavigate('budgets');
+                        }
+                      }}
+                      className={`p-3.5 transition-colors ${
+                        (item as any).isBudgetAlert
+                          ? item.type === 'danger'
+                            ? 'bg-rose-50/50 hover:bg-rose-50 cursor-pointer border-l-3 border-[#EF5360]'
+                            : 'bg-amber-50/50 hover:bg-amber-50 cursor-pointer border-l-3 border-amber-500'
+                          : 'hover:bg-[#F8FAFC]'
+                      }`}
+                    >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-semibold text-[#203451]">{item.title}</span>
+                        <span className={`text-xs font-semibold ${
+                          item.type === 'danger' ? 'text-[#EF5360]' : item.type === 'warning' ? 'text-amber-800' : 'text-[#203451]'
+                        }`}>
+                          {item.title}
+                        </span>
                         <span className="text-[11px] text-[#94A3B8]">{item.time}</span>
                       </div>
                       <p className="text-xs text-[#718096]">{item.desc}</p>

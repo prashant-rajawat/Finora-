@@ -9,12 +9,12 @@
       "updatedAt": "2026-10-24T00:00:00.000Z"
     },
     {
-      "id": "usr_1792840525953_qe8hf",
+      "id": "usr_1792842646165_a1vmm",
       "fullName": "Priya Sharma",
-      "email": "tester_1792840525845@example.com",
-      "passwordHash": "$2b$10$qiENR4grKNaL1499P75z5.eH59l/n7C5hgNgS3jrMMmrGIj0G2sWq",
-      "createdAt": "2026-10-24T11:15:25.954Z",
-      "updatedAt": "2026-10-24T11:15:25.954Z"
+      "email": "priya_1792842646061@example.com",
+      "passwordHash": "$2b$10$lnDR8.3HUugcLs7po8G/WeIFQORhAgDb.oOYOAU3AaqjemqjH/jLq",
+      "createdAt": "2026-10-24T11:50:46.165Z",
+      "updatedAt": "2026-10-24T11:50:46.165Z"
     }
   ],
   "transactions": [
@@ -160,6 +160,85 @@
       "description": "Consulting Gig",
       "createdAt": "2026-10-24T11:15:25.964Z",
       "updatedAt": "2026-10-24T11:15:25.964Z"
+    },
+    {
+      "id": "tx_1792841730772_zwej",
+      "userId": "usr_1792841730296_b5j94",
+      "type": "income",
+      "amount": 50000,
+      "category": "Salary",
+      "date": "2026-10-01",
+      "description": "Monthly Tech Salary",
+      "paymentMethod": "Bank Transfer",
+      "merchant": "Acme Corp",
+      "createdAt": "2026-10-24T11:35:30.772Z",
+      "updatedAt": "2026-10-24T11:35:30.772Z"
+    }
+  ],
+  "budgets": [
+    {
+      "id": "bgt_01",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Food & Dining Budget",
+      "type": "category",
+      "category": "Food & Dining",
+      "amount": 10000,
+      "period": "2026-10",
+      "notes": "Monthly allowance for restaurants and groceries",
+      "alertThreshold": 90,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_02",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Transport Cap",
+      "type": "category",
+      "category": "Transport",
+      "amount": 6000,
+      "period": "2026-10",
+      "notes": "Fuel, metro pass, and cab rides",
+      "alertThreshold": 90,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_03",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Shopping Allowance",
+      "type": "category",
+      "category": "Shopping",
+      "amount": 5000,
+      "period": "2026-10",
+      "notes": "Apparel, gadgets, and home decor",
+      "alertThreshold": 85,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_04",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Utilities & Bills Limit",
+      "type": "category",
+      "category": "Bills & Utilities",
+      "amount": 4000,
+      "period": "2026-10",
+      "notes": "Electricity, water, and broadband subscriptions",
+      "alertThreshold": 85,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_05",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Overall Monthly Budget",
+      "type": "overall",
+      "amount": 32000,
+      "period": "2026-10",
+      "notes": "Total monthly spending ceiling across all categories",
+      "alertThreshold": 90,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
     }
   ]
 }

@@ -1,16 +1,31 @@
-import { User, Transaction, DashboardSummary } from './types';
+import {
+  User,
+  Transaction,
+  DashboardSummary,
+  Budget,
+  BudgetType,
+  BudgetWithCalculations,
+  BudgetSummary,
+} from './types';
 
 const TOKEN_KEY = 'finora_auth_token';
 
 export const authStorage = {
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
   },
-  setToken(token: string): void {
-    localStorage.setItem(TOKEN_KEY, token);
+  setToken(token: string, remember = true): void {
+    if (remember) {
+      localStorage.setItem(TOKEN_KEY, token);
+      sessionStorage.removeItem(TOKEN_KEY);
+    } else {
+      sessionStorage.setItem(TOKEN_KEY, token);
+      localStorage.removeItem(TOKEN_KEY);
+    }
   },
   removeToken(): void {
     localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
   },
 };
 
@@ -58,17 +73,39 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(params),
     });
-    authStorage.setToken(res.token);
+    authStorage.setToken(res.token, true);
     return { user: res.user, token: res.token };
   },
 
-  async login(params: { email: string; password: string }): Promise<{ user: User; token: string }> {
+  async login(params: {
+    email: string;
+    password: string;
+    rememberMe?: boolean;
+  }): Promise<{ user: User; token: string }> {
     const res = await apiFetch<{ success: boolean; user: User; token: string }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: params.email, password: params.password }),
+    });
+    authStorage.setToken(res.token, params.rememberMe ?? true);
+    return { user: res.user, token: res.token };
+  },
+
+  async forgotPassword(email: string): Promise<{ success: boolean; message: string; resetCode?: string }> {
+    return apiFetch<{ success: boolean; message: string; resetCode?: string }>('/api/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  async resetPassword(params: {
+    token: string;
+    newPassword: string;
+    confirmPassword: string;
+  }): Promise<{ success: boolean; message: string }> {
+    return apiFetch<{ success: boolean; message: string }>('/api/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify(params),
     });
-    authStorage.setToken(res.token);
-    return { user: res.user, token: res.token };
   },
 
   async getCurrentUser(): Promise<User | null> {
@@ -104,12 +141,16 @@ export const api = {
   // Transactions
   async getTransactions(filters?: {
     month?: string;
+    startDate?: string;
+    endDate?: string;
     category?: string;
     type?: string;
     search?: string;
   }): Promise<Transaction[]> {
     const params = new URLSearchParams();
     if (filters?.month) params.append('month', filters.month);
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
     if (filters?.category) params.append('category', filters.category);
     if (filters?.type) params.append('type', filters.type);
     if (filters?.search) params.append('search', filters.search);
@@ -125,6 +166,8 @@ export const api = {
     category: string;
     date: string;
     description?: string;
+    paymentMethod?: string;
+    merchant?: string;
   }): Promise<Transaction> {
     const res = await apiFetch<{ success: boolean; transaction: Transaction; message: string }>(
       '/api/transactions',
@@ -144,6 +187,8 @@ export const api = {
       category?: string;
       date?: string;
       description?: string;
+      paymentMethod?: string;
+      merchant?: string;
     }
   ): Promise<Transaction> {
     const res = await apiFetch<{ success: boolean; transaction: Transaction; message: string }>(
@@ -193,5 +238,73 @@ export const api = {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  },
+
+  // Budgets
+  async getBudgets(period = '2026-10'): Promise<BudgetWithCalculations[]> {
+    const res = await apiFetch<{ success: boolean; budgets: BudgetWithCalculations[] }>(
+      `/api/budgets?month=${encodeURIComponent(period)}`
+    );
+    return res.budgets;
+  },
+
+  async getBudgetSummary(period = '2026-10'): Promise<BudgetSummary> {
+    const res = await apiFetch<{ success: boolean; summary: BudgetSummary }>(
+      `/api/budgets/summary?month=${encodeURIComponent(period)}`
+    );
+    return res.summary;
+  },
+
+  async getBudgetDetails(
+    id: string
+  ): Promise<{ budget: BudgetWithCalculations; transactions: Transaction[] }> {
+    return apiFetch<{ success: boolean; budget: BudgetWithCalculations; transactions: Transaction[] }>(
+      `/api/budgets/${id}`
+    );
+  },
+
+  async createBudget(data: {
+    name: string;
+    type: BudgetType;
+    category?: string;
+    amount: number;
+    period: string;
+    notes?: string;
+    alertThreshold?: number;
+  }): Promise<Budget> {
+    const res = await apiFetch<{ success: boolean; budget: Budget; message: string }>('/api/budgets', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return res.budget;
+  },
+
+  async updateBudget(
+    id: string,
+    data: {
+      name?: string;
+      type?: BudgetType;
+      category?: string;
+      amount?: number;
+      period?: string;
+      notes?: string;
+      alertThreshold?: number;
+    }
+  ): Promise<Budget> {
+    const res = await apiFetch<{ success: boolean; budget: Budget; message: string }>(
+      `/api/budgets/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }
+    );
+    return res.budget;
+  },
+
+  async deleteBudget(id: string): Promise<boolean> {
+    const res = await apiFetch<{ success: boolean; message: string }>(`/api/budgets/${id}`, {
+      method: 'DELETE',
+    });
+    return res.success;
   },
 };

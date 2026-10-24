@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
 import { authRouter } from './server/routes/authRoutes.js';
 import { transactionRouter } from './server/routes/transactionRoutes.js';
+import { budgetRouter } from './server/routes/budgetRoutes.js';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ async function startServer() {
   // Mount API endpoints
   app.use('/api/auth', authRouter);
   app.use('/api/transactions', transactionRouter);
+  app.use('/api/budgets', budgetRouter);
 
   // Health check endpoint
   app.get('/api/health', (_req, res) => {
