@@ -1,0 +1,6 @@
+{
+  "name": "Finora — Personal Finance Tracker",
+  "description": "Track smarter, plan better, and grow confidently with Finora's personal finance dashboard. Complete income, expense tracking, and financial analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

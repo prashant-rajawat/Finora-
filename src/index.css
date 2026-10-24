@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --finora-primary: #1677F2;
+    --finora-primary-hover: #1260C4;
+    --finora-navy: #203451;
+    --finora-bg: #F2F7FF;
+    --finora-surface: #E5F0FF;
+    --finora-income: #16A66A;
+    --finora-expense: #EF5360;
+    --finora-secondary: #718096;
+    --finora-border: #DCE6F2;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #F2F7FF;
+    color: #203451;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbars for clean UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}

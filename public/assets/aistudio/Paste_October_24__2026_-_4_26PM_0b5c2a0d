@@ -1,0 +1,1107 @@
+# FINORA — MASTER DEVELOPMENT PROMPT 01
+## Full-Stack Foundation, Premium UI/UX, Authentication, and Connected Dashboard
+
+You are acting as a senior full-stack software engineer, software architect, UI/UX designer, database engineer, security engineer, and QA engineer. Your task is to build the first fully working milestone of **Finora — Personal Finance Tracker**.
+
+This is not a request to create a static design, a frontend-only mockup, a backend-only API, a plan, or a report describing changes. You must implement real, connected, testable application functionality in the existing project.
+
+The frontend and backend must be developed together. Every visible control must either work or display a polished, informative Coming Soon state. Never leave dead buttons, silent form submissions, broken routes, misleading success messages, or UI elements that imply functionality that does not exist.
+
+Do not claim that a feature is complete unless you have implemented and verified it.
+
+---
+
+# SECTION A — PRODUCT IDENTITY AND PROJECT OBJECTIVE
+
+## A1. Product name
+
+Application name: Finora
+
+Full project name: Finora — Personal Finance Tracker
+
+Tagline: Track smarter. Plan better. Grow confidently.
+
+The name Finora must appear consistently in the browser title, login and registration screens, dashboard header, sidebar branding, application metadata, and README.
+
+Use a professional financial-product identity. Avoid generic templates that look like an unfinished student dashboard.
+
+Do not rename the application later unless explicitly instructed.
+
+## A2. Product objective
+
+Finora helps individual users manage their personal finances by recording income and expenses, reviewing their financial position, analyzing spending patterns, and managing budgets.
+
+The complete product will eventually include:
+
+1. Secure registration and login.
+2. A personalized financial dashboard.
+3. Income and expense management.
+4. Transaction history, searching, sorting, and filtering.
+5. Income, expense, and balance summaries.
+6. Category-wise spending charts.
+7. Monthly income and expense analytics.
+8. Budget management and spending alerts.
+9. Recurring transactions.
+10. Savings goals.
+11. CSV and PDF reports.
+12. User profile and preferences.
+13. Optional monthly reports and installable PWA support.
+
+However, this milestone must not pretend that all these modules are already implemented.
+
+Implement the foundation and authentication completely, establish the dashboard structure, and display the remaining unimplemented modules as Coming Soon.
+
+The architecture must make future development possible without rewriting the entire application.
+
+## A3. Development philosophy
+
+Follow these non-negotiable rules throughout this task and all subsequent development prompts.
+
+RULE 1: FRONTEND AND BACKEND TOGETHER
+
+For each feature, implement its UI, user interactions, API endpoints, backend validation, database integration where applicable, error handling, loading states, and successful end-to-end flow together.
+
+RULE 2: NO STATIC FUNCTIONALITY CLAIMS
+
+Do not use fake API responses, hardcoded successful logins, simulated database persistence, fake financial totals, or fake transaction records in the real application.
+
+A design preview may use clearly labelled illustrative data, but the actual authenticated application must use real backend responses.
+
+RULE 3: COMING SOON FOR UNIMPLEMENTED MODULES
+
+Every planned module visible on the dashboard must provide a meaningful interaction.
+
+If the module is not implemented, clicking it must open a polished Coming Soon page, panel, or modal that explains that the feature is planned and provides a Back to Dashboard action.
+
+Do not show a fake transaction list, pretend that a report was downloaded, or claim that a budget was saved when the relevant feature does not exist.
+
+RULE 4: NO SILENT FAILURES
+
+Every form submission and user-triggered asynchronous action must show an appropriate loading state and either a visible success result or a useful error message.
+
+Never swallow an error and leave the user wondering whether the action worked.
+
+RULE 5: PRESERVE EXISTING FUNCTIONALITY
+
+Before changing files, inspect the existing repository and understand its architecture.
+
+Do not blindly replace configuration files, package manifests, authentication logic, database connections, routing, or environment variables.
+
+If this repository is already partially implemented, reuse working components and improve them safely. Do not create duplicate applications or competing authentication systems.
+
+RULE 6: NO DESTRUCTIVE DATABASE OPERATIONS
+
+Never drop a database, delete existing production records, reset a database, remove collections, or overwrite user records to make the implementation easier.
+
+Use safe, additive database changes when necessary.
+
+RULE 7: FEATURE IS NOT COMPLETE UNTIL VERIFIED
+
+A successful build alone does not prove that registration, login, session persistence, API connectivity, or database persistence works.
+
+Verify the actual workflows and report exactly what was tested, what passed, and what still requires manual configuration.
+
+RULE 8: MAINTAIN A CONSISTENT THEME
+
+Use the Finora design system described below throughout the entire application.
+
+Do not switch randomly to a white-and-red theme, navy-and-cyan theme, or unrelated colors.
+
+RULE 9: FUTURE FEATURES MUST NOT BREAK EXISTING FEATURES
+
+Use reusable components, typed interfaces where supported, clear API contracts, and modular architecture.
+
+After each change, run the relevant tests and build checks. Fix regressions before reporting completion.
+
+RULE 10: IMPLEMENT, DO NOT JUST EXPLAIN
+
+Do not respond with a list of suggested changes while leaving the application unchanged.
+
+Make the actual code changes using the available project-editing capabilities.
+
+If something cannot be completed because a required service, credential, or permission is unavailable, implement the portions that can be completed, explain the exact blocker, and give the precise manual setup instructions.
+
+---
+
+# SECTION B — INSPECT THE EXISTING PROJECT FIRST
+
+Before implementation, inspect the complete relevant project structure.
+
+Identify:
+
+- Frontend framework and version.
+- Existing routing approach.
+- Existing styling framework.
+- Current package manager and package scripts.
+- Existing backend framework and server entry point.
+- Existing authentication implementation.
+- Existing database provider and database models.
+- Existing API client and API base URL configuration.
+- Existing environment variable names.
+- Existing tests and build commands.
+- Existing deployment configuration.
+- Existing reusable components.
+- Existing README and setup instructions.
+
+Do not assume that the project uses a particular database or authentication provider merely because a previous prompt mentioned one.
+
+The intended stack for a new implementation is React.js, Tailwind CSS, Node.js, Express.js, MongoDB, and Mongoose, with JWT authentication. If the current repository already has a functioning alternative or an established compatible implementation, preserve it unless a migration is necessary and explicitly justified.
+
+Do not introduce Firebase simply because authentication is needed. Firebase is not a required component of this project.
+
+Do not migrate between databases, authentication providers, routing libraries, or build tools without a clear technical need.
+
+If a migration is unavoidable, explain the impact, preserve existing records, and update all affected frontend and backend code consistently.
+
+Before making changes, determine the smallest safe implementation plan. Then execute it.
+
+Do not stop after inspection. Continue to implementation and verification.
+
+---
+
+# SECTION C — FINORA VISUAL DESIGN SYSTEM
+
+## C1. Theme identity
+
+Create a premium, modern, dark financial dashboard.
+
+The interface should feel like a carefully designed fintech SaaS product: elegant, clean, trustworthy, data-focused, and easy to navigate.
+
+Use the following design tokens as the initial design system:
+
+- Main background: #0B1220
+- Secondary background: #101827
+- Sidebar background: #0A1020
+- Card background: #151F32
+- Elevated surface: #1B2940
+- Primary blue: #3B82F6
+- Primary blue hover: #2563EB
+- Light blue highlight: #60A5FA
+- Primary text: #F8FAFC
+- Secondary text: #94A3B8
+- Muted text: #64748B
+- Border: #29364B
+- Positive income: #34D399
+- Negative expense: #F87171
+- Warning: #FBBF24
+- Information: #60A5FA
+
+Use CSS variables or Tailwind theme configuration where appropriate so the design can be maintained centrally.
+
+Do not scatter inconsistent hardcoded colors across unrelated components.
+
+## C2. Typography
+
+Use a professional, readable sans-serif typeface.
+
+Use consistent typography for:
+
+- Application branding.
+- Main page headings.
+- Section headings.
+- Card labels.
+- Financial amounts.
+- Form labels.
+- Helper text.
+- Error messages.
+- Buttons and navigation.
+
+Financial figures should be prominent but not oversized to the point of damaging layout.
+
+Use tabular numerals for balances and totals when supported by the chosen font.
+
+Maintain readable contrast and avoid overly faint labels.
+
+## C3. Cards and layout
+
+Use consistent card radius, padding, borders, and spacing.
+
+Cards should have subtle borders and restrained shadows. Avoid excessive glass effects, excessive gradients, oversized glowing elements, or unnecessary animations.
+
+Use responsive grids that adapt to the available width.
+
+Desktop dashboards may use a sidebar and multiple content columns. On tablets and mobile devices, the layout must adapt naturally without horizontal overflow.
+
+The interface must not depend on a fixed desktop width.
+
+## C4. Interaction design
+
+Every interactive component must provide appropriate hover, focus, active, disabled, and loading states.
+
+Provide keyboard-visible focus indicators.
+
+Use accessible labels for inputs and buttons.
+
+Use icons consistently, with text labels wherever an icon alone would be ambiguous.
+
+Avoid using color as the only way to communicate financial status.
+
+Respect reduced-motion preferences.
+
+Animations should be subtle and brief.
+
+## C5. Responsive requirements
+
+Test layouts at approximately:
+
+- 360px mobile width.
+- 390px mobile width.
+- 768px tablet width.
+- 1024px laptop width.
+- 1440px desktop width.
+
+The application must not have clipped headings, overlapping buttons, inaccessible forms, broken charts, or horizontal page scrolling at these sizes.
+
+On mobile, the sidebar should become a drawer or use a compact navigation layout.
+
+Do not simply shrink the desktop layout. Rearrange the components to preserve usability.
+
+---
+
+# SECTION D — APPLICATION STRUCTURE AND NAVIGATION
+
+Create a coherent application shell with the following main navigation destinations:
+
+1. Dashboard
+2. Transactions
+3. Budgets
+4. Analytics
+5. Savings Goals
+6. Reports & Export
+7. Settings
+
+Dashboard is the implemented landing destination after successful authentication.
+
+Transactions, Budgets, Analytics, Savings Goals, and Reports & Export are future modules in this first milestone unless an existing working implementation is found and verified.
+
+Do not build fake versions of these modules.
+
+When an unimplemented module is selected:
+
+- Show a polished Coming Soon page or modal.
+- Display the module name.
+- Include a short description of its intended purpose.
+- Clearly indicate that it is not available yet.
+- Provide a Back to Dashboard action.
+- Preserve the user's authenticated session.
+- Keep the shared application navigation available.
+- Do not display fake financial results.
+
+Settings should only expose settings that genuinely work in this milestone. Other settings can be marked Coming Soon individually.
+
+The application header should include:
+
+- Finora logo and name.
+- Current page title.
+- User avatar or initials.
+- Authenticated user's display name when available.
+- Account menu.
+- Logout action.
+
+The navigation and header must use shared reusable components rather than separate duplicated implementations for every page.
+
+Use the routing library already established in the project.
+
+Protected pages must not become accessible merely by manually entering their URLs.
+
+---
+
+# SECTION E — AUTHENTICATION: COMPLETE FRONTEND AND BACKEND IMPLEMENTATION
+
+Authentication is the first complete functional feature.
+
+Build registration, login, logout, session restoration, protected routes, validation, error handling, and user-specific dashboard access.
+
+Do not create a login page that only looks functional.
+
+## E1. Registration page
+
+Create a premium registration page with:
+
+- Finora branding.
+- A concise welcome heading.
+- A short description of the application.
+- Full name input.
+- Email input.
+- Password input.
+- Confirm password input.
+- Show/hide password control.
+- Password requirements.
+- Terms acknowledgement if required by the existing product policy.
+- Create Account button.
+- Link to the existing-user login page.
+- Loading and error states.
+
+Validate required fields and email format.
+
+Validate that the password meets the defined password policy.
+
+Validate that the password and confirmation match.
+
+Prevent duplicate submissions while a request is in progress.
+
+Use both client-side and server-side validation. Client-side validation must never be the only protection.
+
+When registration succeeds:
+
+- Show a real success message.
+- Establish the correct authentication state.
+- Redirect to the dashboard when the registration flow permits immediate authenticated access.
+- If email verification is required by the selected provider, show the correct verification-pending state instead of pretending the account is already verified.
+
+If registration fails because the email is already registered, show an understandable message.
+
+Do not expose raw database errors, internal stack traces, or secret configuration details to the user.
+
+## E2. Login page
+
+Create a polished login screen with:
+
+- Finora logo and name.
+- Welcome-back heading.
+- Email field.
+- Password field.
+- Show/hide password control.
+- Remember-me option only if its behavior is genuinely implemented.
+- Forgot-password link.
+- Sign In button.
+- Link to registration.
+- Form validation.
+- Loading state.
+- Inline error messages or an accessible alert.
+- Responsive layout.
+
+A user must be able to enter valid credentials and actually sign in.
+
+When the login request succeeds:
+
+- Store or establish the authenticated session using the selected authentication strategy.
+- Retrieve the authenticated user's profile.
+- Redirect to the protected dashboard.
+- Display the correct user identity.
+- Load data only for that authenticated user.
+
+When credentials are invalid, display a useful generic error without exposing sensitive account details.
+
+When the backend is unreachable, display an appropriate connection error.
+
+Never redirect to the dashboard after an unsuccessful login.
+
+Never display a success toast merely because the Sign In button was clicked.
+
+## E3. Backend authentication
+
+Implement the appropriate backend routes for the selected authentication architecture.
+
+For a custom JWT implementation, the minimum routes should include:
+
+- POST /api/auth/register
+- POST /api/auth/login
+- GET /api/auth/me
+- POST /api/auth/logout if the session architecture requires a server-side logout endpoint
+
+Add a password-reset flow only if it can be implemented with the required secure token and delivery configuration. Otherwise, show a clearly explained Coming Soon state rather than a fake reset success.
+
+Adapt route names to the existing API conventions if necessary.
+
+The backend must:
+
+- Validate request bodies.
+- Normalize email addresses consistently.
+- Enforce unique account identities.
+- Hash passwords using a suitable password-hashing algorithm and library.
+- Never store plain-text passwords.
+- Never return password hashes in API responses.
+- Sign JWTs using a strong server-side secret when using JWT.
+- Verify token signature and expiration.
+- Validate the authenticated identity for protected routes.
+- Return appropriate HTTP status codes.
+- Use a consistent error response structure.
+- Avoid logging passwords, tokens, or sensitive authentication data.
+
+If the project uses Clerk or another existing authentication provider, use its official authentication and token-verification mechanism instead of creating an unnecessary competing login system.
+
+Do not run two independent authentication systems for the same user without a documented and tested reason.
+
+## E4. Authentication state and session restoration
+
+Implement a single reliable authentication state source.
+
+The frontend must distinguish between:
+
+- Initial authentication loading.
+- Authenticated user.
+- Unauthenticated user.
+- Authentication error.
+
+Do not briefly show protected dashboard content while authentication is still being checked.
+
+On a page refresh, the application should restore the session if the authentication strategy supports persistence.
+
+If the session is invalid or expired, clear invalid client-side state and redirect the user to login.
+
+If using JWTs, carefully evaluate secure cookie storage versus other token-storage approaches. Prefer appropriately configured HttpOnly, Secure, SameSite cookies where compatible with the architecture. If bearer tokens are required, document the chosen storage and its security trade-offs. Do not expose authentication secrets in source code.
+
+If using cookie-based authentication, configure credentialed requests, CORS, cookie attributes, and CSRF protections as appropriate.
+
+Logout must clear or invalidate the actual session using the selected architecture, clear user-specific cached state, and return the user to login.
+
+After logout, manually opening a protected URL must not expose private data.
+
+## E5. Protected API access
+
+Every protected backend route must authenticate the caller.
+
+Do not trust a user ID sent in a request body as proof of ownership.
+
+Derive the authenticated identity from the verified session or token.
+
+For future financial routes, use the authenticated user identity to scope all queries.
+
+Implement a reusable authentication middleware rather than duplicating token parsing logic across route handlers.
+
+---
+
+# SECTION F — DATABASE AND DATA MODEL FOUNDATION
+
+Use MongoDB and Mongoose for a new implementation, unless the existing project has a functioning, deliberately selected alternative that should be preserved.
+
+Configure the database through environment variables.
+
+For example:
+
+MONGODB_URI=<your MongoDB connection string>
+JWT_SECRET=<a strong secret if using custom JWT authentication>
+FRONTEND_URL=<your frontend origin>
+PORT=<server port>
+
+These are examples of configuration names. Inspect the current project before deciding which names should actually be used.
+
+Never insert real credentials into source code.
+
+Never put server secrets into VITE_ variables or expose them through frontend bundles.
+
+## F1. User model
+
+Create or adapt a User model with appropriate fields, such as:
+
+- Full name.
+- Normalized email.
+- Password hash if using custom authentication.
+- Created timestamp.
+- Updated timestamp.
+- Account status where appropriate.
+
+Add suitable indexes and unique constraints.
+
+Do not return sensitive fields to the frontend.
+
+If an external authentication provider is used, store the provider's stable user identifier and the required application profile fields instead of duplicating passwords.
+
+## F2. Future transaction model
+
+Plan a compatible Transaction model for subsequent milestones.
+
+Suggested fields:
+
+- User reference.
+- Type: income or expense.
+- Amount.
+- Category.
+- Transaction date.
+- Optional description or notes.
+- Created timestamp.
+- Updated timestamp.
+
+The transaction model should support ownership checks and efficient filtering by user, date, and category.
+
+Do not implement fake transactions to populate the real user's dashboard.
+
+## F3. Future budget model
+
+Plan a compatible Budget model with:
+
+- User reference.
+- Budget name or category.
+- Spending limit.
+- Period, such as monthly.
+- Start date or period identifier.
+- Optional end date.
+- Created timestamp.
+- Updated timestamp.
+
+Avoid creating a budget model that cannot distinguish between different users or reporting periods.
+
+## F4. Data isolation
+
+Each user's future transactions, budgets, and reports must be isolated.
+
+All future queries must be scoped to the authenticated user.
+
+Do not rely on frontend filtering for security.
+
+Do not expose database connection strings or unrestricted database access to the frontend.
+
+## F5. Database connection behavior
+
+The application must distinguish between a connected database and a disconnected database.
+
+Do not silently fall back to an in-memory database in production.
+
+Do not return a fake successful registration when MongoDB is unavailable.
+
+Handle database errors gracefully and report them to the application logs without leaking credentials.
+
+If the database is unavailable, show an understandable service error and preserve the user's ability to retry.
+
+---
+
+# SECTION G — DASHBOARD FOUNDATION AND COMING SOON EXPERIENCE
+
+After successful authentication, show a complete, polished dashboard shell.
+
+The first milestone must not invent actual income, expenses, transactions, or budgets.
+
+## G1. Dashboard layout
+
+Create:
+
+- Greeting using the authenticated user's actual display name.
+- Main dashboard title.
+- A clear introductory message.
+- Financial summary card positions.
+- Chart section positions.
+- Recent transactions section.
+- Budget overview section.
+- Quick-action area.
+- Module navigation.
+- Responsive sidebar or mobile navigation.
+
+For sections that depend on financial records, show an honest empty state until real transaction functionality is implemented.
+
+Example:
+
+"Your financial overview will appear here once transaction tracking is available."
+
+For future module cards, show Coming Soon.
+
+Do not display ₹40,000 income, ₹12,000 expenses, or any other illustrative numbers as actual user finances.
+
+Do not use randomly generated transactions to make the interface appear populated.
+
+## G2. Planned dashboard modules
+
+Show the following module cards or navigation items:
+
+1. Transactions — Coming Soon if not implemented.
+2. Budgets — Coming Soon if not implemented.
+3. Analytics — Coming Soon if not implemented.
+4. Savings Goals — Coming Soon if not implemented.
+5. Reports & Export — Coming Soon if not implemented.
+
+The dashboard must make the product roadmap feel intentional and professional, not unfinished.
+
+Each module should have a consistent icon, concise description, and a clear status.
+
+A Coming Soon action should open a polished module-preview state.
+
+For example:
+
+Title: Budgets
+
+Description: Set spending limits and track your monthly progress.
+
+Status: Coming Soon
+
+Action: Back to Dashboard
+
+Do not display fake forms that appear to save data.
+
+## G3. Empty states
+
+Implement reusable empty-state components for:
+
+- No financial transactions yet.
+- No budget records yet.
+- No chart data available.
+- No search results.
+- Future modules.
+
+Use appropriate messaging and actions.
+
+Do not show error styling for a normal empty database.
+
+A valid empty state is different from an API failure. Handle them separately.
+
+## G4. Dashboard loading and errors
+
+Show loading skeletons or suitable loading indicators while the dashboard initializes.
+
+If an API fails, display a useful error and a Retry action.
+
+If a request returns no records, show an empty state.
+
+Never leave an infinite spinner without an explanation or retry path.
+
+---
+
+# SECTION H — API ARCHITECTURE AND FRONTEND CONNECTION
+
+The frontend must communicate with the backend through a centralized API client.
+
+Do not scatter hardcoded API URLs across components.
+
+Use environment-based configuration appropriate to the existing build tool.
+
+For example, a Vite frontend may use a public API base URL such as VITE_API_BASE_URL. This is a public configuration value, not a secret.
+
+Create reusable API request handling for:
+
+- Request configuration.
+- Authentication credentials or token handling.
+- JSON serialization.
+- Response parsing.
+- HTTP error handling.
+- Network error handling.
+- Request cancellation where appropriate.
+- Consistent error messages.
+
+Do not duplicate authentication headers or cookie configuration across dozens of components.
+
+Ensure the frontend and backend agree on endpoint paths, request fields, response fields, and status codes.
+
+If the backend returns a validation error, show an appropriate form-level or field-level message.
+
+If the backend returns an authentication error, update authentication state correctly.
+
+If the backend is unreachable, show a connection error instead of a false success.
+
+Do not treat an HTTP error response as a successful request.
+
+Do not assume that a request succeeded simply because no JavaScript exception was thrown.
+
+If the API returns an error, preserve form data where reasonable so the user does not have to re-enter everything.
+
+---
+
+# SECTION I — FORM VALIDATION AND USER FEEDBACK
+
+Create reusable validation and feedback patterns.
+
+All forms must support:
+
+- Required field validation.
+- Correct input types.
+- Clear field labels.
+- Accessible helper text.
+- Inline validation messages.
+- Disabled submission while processing.
+- Loading indicators.
+- Duplicate-submission prevention.
+- Visible success or failure feedback.
+- Keyboard accessibility.
+
+Use a consistent toast or notification system if the repository already has one, or add a lightweight suitable implementation.
+
+Use toasts for short confirmations and inline messages for errors that require the user's attention.
+
+Do not show a toast for every minor interaction.
+
+Do not show success messages before the backend confirms success.
+
+Do not hide server validation failures.
+
+For actions that cannot be completed in this milestone, use Coming Soon feedback rather than simulating completion.
+
+---
+
+# SECTION J — ERROR HANDLING AND APPLICATION STABILITY
+
+Build a consistent error-handling strategy.
+
+Frontend requirements:
+
+- Catch failed API requests.
+- Display meaningful error states.
+- Prevent unhandled promise rejections.
+- Handle loading and retry states.
+- Prevent stale user data from appearing after logout or account changes.
+- Use an error boundary where appropriate.
+- Avoid rendering assumptions about missing API fields.
+- Clean up subscriptions or event handlers when components unmount.
+
+Backend requirements:
+
+- Centralized error middleware.
+- Input validation.
+- Correct HTTP status codes.
+- Safe production error responses.
+- Detailed but sanitized server-side logs.
+- Authentication and authorization checks.
+- Database failure handling.
+- Request-size limits appropriate to the application.
+- CORS restricted to approved frontend origins in production.
+- Basic request-rate limiting for sensitive endpoints where appropriate.
+
+Do not disable security checks to make tests pass.
+
+Do not return HTTP 200 for failed login or failed database operations.
+
+Do not use empty catch blocks.
+
+If an unexpected error occurs, return a consistent response and log enough sanitized context to diagnose the problem.
+
+---
+
+# SECTION K — TESTING AND VERIFICATION
+
+Testing is part of the implementation, not an optional final report.
+
+Use the test framework already present when possible.
+
+Add or adapt automated tests for the implemented functionality.
+
+## K1. Registration tests
+
+Verify:
+
+- Valid registration creates an account.
+- Duplicate email is rejected.
+- Invalid email is rejected.
+- Missing fields are rejected.
+- Password confirmation mismatch is rejected by the frontend.
+- Password policy is enforced.
+- Password hashes are stored instead of plain-text passwords.
+- Sensitive fields are not returned in API responses.
+- Database failure does not produce fake success.
+
+## K2. Login tests
+
+Verify:
+
+- Valid credentials authenticate successfully.
+- Incorrect credentials are rejected.
+- Missing fields are rejected.
+- Expired or invalid tokens cannot access protected routes.
+- Authentication errors are visible to the user.
+- Successful login establishes the expected session.
+- Logout invalidates or clears the actual session.
+- Protected routes do not expose content after logout.
+
+## K3. User isolation tests
+
+Create two independent test users.
+
+Verify that user A cannot access user B's protected information.
+
+Test direct API requests, not just frontend navigation.
+
+Do not treat an opaque database identifier as authorization.
+
+## K4. Dashboard tests
+
+Verify:
+
+- The authenticated user's name appears correctly.
+- Unimplemented modules display Coming Soon.
+- Clicking a module produces a visible response.
+- Back to Dashboard works.
+- The dashboard does not invent financial records.
+- Loading, empty, and error states are distinguishable.
+- Authentication state survives refresh according to the selected session architecture.
+
+## K5. Integration tests
+
+Verify that the frontend can connect to the backend using the configured API base URL.
+
+Verify that the frontend handles successful and unsuccessful API responses.
+
+Verify that CORS and authentication configuration work with the actual development origins.
+
+Where feasible, run end-to-end tests using a real test database or an appropriately isolated test environment.
+
+Never run destructive tests against production data.
+
+## K6. Build checks
+
+Run the actual available commands for:
+
+- Frontend build.
+- Backend build or type checking if applicable.
+- Linting if configured.
+- Automated unit tests.
+- Integration tests.
+
+Do not invent package scripts.
+
+Inspect package.json before executing commands.
+
+Fix errors introduced by the changes.
+
+If a command cannot run because a dependency or environment variable is missing, report the exact blocker instead of claiming that it passed.
+
+---
+
+# SECTION L — DEPLOYMENT AND MANUAL CONFIGURATION
+
+Prepare the application for deployment without exposing credentials.
+
+For a new implementation, the intended deployment arrangement is:
+
+- Frontend: Vercel.
+- Backend: Render or Railway.
+- Database: MongoDB Atlas.
+
+If the repository already uses a working deployment provider, preserve that setup unless a change is necessary.
+
+## L1. Environment configuration
+
+Create or update a safe example environment file containing placeholder values only.
+
+Document required variables such as:
+
+- MONGODB_URI.
+- JWT_SECRET, if using custom JWT authentication.
+- FRONTEND_URL.
+- PORT.
+- Frontend API base URL, using the correct prefix for the selected frontend build tool.
+
+Only include variables actually required by the chosen implementation.
+
+Do not commit real credentials.
+
+Ensure that the frontend never receives the MongoDB URI or JWT signing secret.
+
+## L2. CORS and cookies
+
+Configure the backend for the actual frontend origin.
+
+If cookie-based authentication is used, configure credentials and cookie settings correctly for the development and production environments.
+
+Do not use permissive production CORS merely to avoid connection errors.
+
+Document any additional production requirements.
+
+## L3. Database setup
+
+Provide the exact steps for creating a MongoDB Atlas database and configuring the connection string if the database is not already configured.
+
+Explain which database user permissions are required.
+
+Do not instruct the user to expose unrestricted database access to the public internet.
+
+## L4. Deployment readiness
+
+Provide deployment instructions that explain:
+
+- Which repository or directory contains the frontend.
+- Which repository or directory contains the backend.
+- The correct build and start commands.
+- Required environment variables.
+- How to configure the production frontend origin.
+- How to test the deployed API.
+- How to verify registration and login after deployment.
+
+Do not state that deployment is complete until the deployed application has actually been tested.
+
+---
+
+# SECTION M — CODE QUALITY AND MAINTAINABILITY
+
+Keep the code modular and understandable.
+
+Use clear separation between:
+
+- Pages.
+- Shared UI components.
+- Layout components.
+- Authentication logic.
+- API client.
+- API routes.
+- Controllers.
+- Services.
+- Database models.
+- Validation.
+- Error handling.
+- Tests.
+
+Use TypeScript if the current repository already uses it or if it can be introduced without unnecessary migration risk.
+
+Otherwise, use consistent JavaScript conventions and JSDoc where useful.
+
+Avoid huge components that combine every feature into one file.
+
+Avoid duplicating the same authentication, API, and error-handling logic across components.
+
+Do not add dependencies without a reason.
+
+Do not remove existing dependencies unless they are genuinely unnecessary and safe to remove.
+
+Update documentation when configuration or behavior changes.
+
+Do not overwrite the existing README with unrelated generic content. Preserve useful information and update it carefully.
+
+---
+
+# SECTION N — CHANGE SAFETY AND REGRESSION PREVENTION
+
+Before editing:
+
+1. Inspect the relevant files.
+2. Identify existing working behavior.
+3. Determine which files actually need to change.
+4. Identify dependencies between frontend and backend.
+5. Plan the smallest coherent implementation.
+
+During editing:
+
+1. Reuse existing components and services where appropriate.
+2. Keep API contracts consistent.
+3. Preserve existing routes unless a change is required.
+4. Avoid unrelated refactoring.
+5. Never delete user data.
+6. Avoid overwriting configuration with placeholder values.
+7. Do not create a second API client or authentication provider when a working one exists.
+
+After editing:
+
+1. Run the frontend build.
+2. Run the backend build or type checks.
+3. Run relevant automated tests.
+4. Test registration and login.
+5. Test protected-route behavior.
+6. Test logout.
+7. Test the Coming Soon interactions.
+8. Check the responsive layout.
+9. Inspect the console and server logs for relevant errors.
+10. Correct regressions caused by the changes.
+
+If a test exposes a failure, fix the underlying issue instead of merely suppressing the error or changing the test to pass.
+
+Do not change unrelated financial calculation logic in this milestone.
+
+Do not create transaction or budget functionality prematurely if doing so risks destabilizing authentication. Prepare compatible architecture and implement only the explicitly required foundation.
+
+---
+
+# SECTION O — ACCEPTANCE CRITERIA
+
+This milestone is complete only when all applicable criteria below have been implemented and verified.
+
+## Application identity and interface
+
+- Finora branding appears consistently.
+- The dark navy, black, and blue design system is implemented.
+- The interface is responsive.
+- Navigation is consistent.
+- No broken buttons or dead interactive controls remain.
+- Unimplemented modules show Coming Soon.
+- Empty states are professional and truthful.
+
+## Registration
+
+- The form is connected to the real authentication backend.
+- Validation works.
+- Passwords are securely handled.
+- Duplicate accounts are rejected.
+- Success and failure feedback are visible.
+- No fake registration success is possible.
+
+## Login
+
+- The form calls the real authentication implementation.
+- Valid credentials establish an authenticated session.
+- Invalid credentials produce a visible error.
+- The dashboard is protected.
+- Authentication state is restored appropriately after refresh.
+- Logout works correctly.
+
+## Backend and database
+
+- Backend routes are connected to the configured database or existing authentication provider as appropriate.
+- Server-side authentication is enforced.
+- Errors are handled consistently.
+- Sensitive credentials are not exposed.
+- Database failures do not result in fake success.
+- Existing data and working features are preserved.
+
+## Quality
+
+- Frontend build passes, or the exact remaining build blocker is documented.
+- Backend build and type checks pass where applicable.
+- Relevant tests pass.
+- No claim of complete end-to-end verification is made without evidence.
+
+---
+
+# SECTION P — IMPLEMENTATION ORDER
+
+Execute the work in this order:
+
+PHASE 1: Inspect the existing project and determine its actual architecture.
+
+PHASE 2: Establish or refine the Finora theme, shared layout, routing, and reusable UI components.
+
+PHASE 3: Implement the complete registration frontend and its backend integration.
+
+PHASE 4: Implement the complete login frontend and its backend integration.
+
+PHASE 5: Implement session restoration, logout, protected routes, and authentication error handling.
+
+PHASE 6: Build the authenticated dashboard shell with truthful empty states and polished Coming Soon experiences.
+
+PHASE 7: Verify the API connection, database persistence where applicable, user isolation, responsive layouts, and the authentication lifecycle.
+
+PHASE 8: Run builds and tests, fix regressions, and document any required manual configuration.
+
+Do not stop after Phase 1 and return only an audit.
+
+Do not stop after creating the UI.
+
+Do not stop after adding backend routes.
+
+Continue until the implementation and verification are complete to the extent possible in the available environment.
+
+---
+
+# SECTION Q — FINAL DELIVERY REPORT
+
+After implementing the code, provide a concise, factual report containing:
+
+1. Features actually implemented.
+2. Frontend files created or changed.
+3. Backend files created or changed.
+4. Database models or migrations created or changed.
+5. API endpoints added or modified.
+6. Authentication provider and session strategy used.
+7. Environment variables required.
+8. Manual steps the user must complete.
+9. Build commands executed and their actual results.
+10. Tests executed and their actual results.
+11. Known issues or blockers.
+12. How to run the application locally.
+13. How to test registration, login, logout, and Coming Soon navigation.
+
+Clearly distinguish implemented features from planned features.
+
+Never say that a test passed unless it was actually executed and passed.
+
+Never say that an application is production-ready merely because it builds successfully.
+
+If the available environment cannot connect to MongoDB or an external authentication provider, explain what could be verified locally and what still requires manual testing.
+
+## FINAL INSTRUCTION
+
+Begin by inspecting the existing Finora repository. Then implement the complete first milestone using the current project's architecture and the requirements in this prompt.
+
+Build the frontend and backend together.
+
+Make every implemented interaction visibly work.
+
+Use Coming Soon for future modules instead of broken or fake functionality.
+
+Preserve existing data and working features.
+
+Verify the actual result.
+
+**Do not merely tell me what you would build. Make the changes, test them, and report the truth about what is working.**
