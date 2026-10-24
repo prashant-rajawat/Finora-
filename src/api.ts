@@ -14,6 +14,11 @@ import {
   GoalSummary,
   GoalFilterType,
   GoalSortType,
+  RecurringSchedule,
+  RecurringOccurrence,
+  RecurringSummary,
+  UpcomingOccurrenceProjected,
+  RecurrenceFrequency,
 } from './types';
 
 const TOKEN_KEY = 'finora_auth_token';
@@ -502,6 +507,125 @@ export const api = {
     await apiFetch('/api/settings/account', {
       method: 'DELETE',
     });
+  },
+
+  // Recurring Transactions
+  async getRecurringSchedules(filters?: {
+    status?: string;
+    type?: string;
+    frequency?: string;
+    search?: string;
+  }): Promise<RecurringSchedule[]> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.type) params.append('type', filters.type);
+    if (filters?.frequency) params.append('frequency', filters.frequency);
+    if (filters?.search) params.append('search', filters.search);
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const res = await apiFetch<{ success: boolean; schedules: RecurringSchedule[] }>(
+      `/api/recurring-transactions${query}`
+    );
+    return res.schedules;
+  },
+
+  async getRecurringSummary(): Promise<RecurringSummary> {
+    const res = await apiFetch<{ success: boolean; summary: RecurringSummary }>(
+      '/api/recurring-transactions/summary'
+    );
+    return res.summary;
+  },
+
+  async getUpcomingOccurrences(days = 30): Promise<UpcomingOccurrenceProjected[]> {
+    const res = await apiFetch<{ success: boolean; upcoming: UpcomingOccurrenceProjected[] }>(
+      `/api/recurring-transactions/upcoming?days=${days}`
+    );
+    return res.upcoming;
+  },
+
+  async getRecurringScheduleById(id: string): Promise<{ schedule: RecurringSchedule; history: RecurringOccurrence[] }> {
+    return apiFetch<{ success: boolean; schedule: RecurringSchedule; history: RecurringOccurrence[] }>(
+      `/api/recurring-transactions/${id}`
+    );
+  },
+
+  async createRecurringSchedule(data: {
+    name: string;
+    type: 'income' | 'expense';
+    amount: number;
+    category: string;
+    frequency: RecurrenceFrequency;
+    startDate: string;
+    endDate?: string;
+    maxOccurrences?: number;
+    dayOfWeek?: number;
+    dayOfMonth?: number;
+    paymentMethod?: string;
+    merchant?: string;
+    notes?: string;
+  }): Promise<RecurringSchedule> {
+    const res = await apiFetch<{ success: boolean; schedule: RecurringSchedule; message: string }>(
+      '/api/recurring-transactions',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    );
+    return res.schedule;
+  },
+
+  async updateRecurringSchedule(id: string, updates: Partial<RecurringSchedule>): Promise<RecurringSchedule> {
+    const res = await apiFetch<{ success: boolean; schedule: RecurringSchedule; message: string }>(
+      `/api/recurring-transactions/${id}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+      }
+    );
+    return res.schedule;
+  },
+
+  async pauseRecurringSchedule(id: string): Promise<RecurringSchedule> {
+    const res = await apiFetch<{ success: boolean; schedule: RecurringSchedule; message: string }>(
+      `/api/recurring-transactions/${id}/pause`,
+      { method: 'POST' }
+    );
+    return res.schedule;
+  },
+
+  async resumeRecurringSchedule(id: string): Promise<RecurringSchedule> {
+    const res = await apiFetch<{ success: boolean; schedule: RecurringSchedule; message: string }>(
+      `/api/recurring-transactions/${id}/resume`,
+      { method: 'POST' }
+    );
+    return res.schedule;
+  },
+
+  async cancelRecurringSchedule(id: string): Promise<RecurringSchedule> {
+    const res = await apiFetch<{ success: boolean; schedule: RecurringSchedule; message: string }>(
+      `/api/recurring-transactions/${id}/cancel`,
+      { method: 'POST' }
+    );
+    return res.schedule;
+  },
+
+  async deleteRecurringSchedule(id: string): Promise<boolean> {
+    const res = await apiFetch<{ success: boolean; message: string }>(
+      `/api/recurring-transactions/${id}`,
+      { method: 'DELETE' }
+    );
+    return res.success;
+  },
+
+  async triggerScheduler(asOfDate?: string): Promise<any> {
+    const res = await apiFetch<{ success: boolean; result: any }>(
+      '/api/recurring-transactions/process-scheduler',
+      {
+        method: 'POST',
+        body: JSON.stringify({ asOfDate }),
+      }
+    );
+    return res.result;
   },
 };
 

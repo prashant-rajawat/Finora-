@@ -2,6 +2,7 @@ import React from 'react';
 import {
   LayoutDashboard,
   ArrowLeftRight,
+  CalendarClock,
   Wallet,
   BarChart3,
   Target,
@@ -31,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = [
     { id: 'dashboard' as NavigationPage, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'transactions' as NavigationPage, label: 'Transactions', icon: ArrowLeftRight },
+    { id: 'recurring' as NavigationPage, label: 'Recurring', icon: CalendarClock },
     { id: 'budgets' as NavigationPage, label: 'Budgets', icon: Wallet },
     { id: 'analytics' as NavigationPage, label: 'Analytics', icon: BarChart3 },
     { id: 'goals' as NavigationPage, label: 'Goals', icon: Target },

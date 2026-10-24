@@ -33,6 +33,31 @@ transactionRouter.get('/', (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /api/transactions/:id
+transactionRouter.get('/:id', (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const txId = req.params.id;
+
+    // Skip special path 'summary'
+    if (txId === 'summary') return;
+
+    const tx = database.getTransactionById(userId, txId);
+    if (!tx) {
+      res.status(404).json({ success: false, error: 'Transaction not found.' });
+      return;
+    }
+
+    res.json({
+      success: true,
+      transaction: tx,
+    });
+  } catch (err: any) {
+    console.error('Failed to fetch single transaction:', err);
+    res.status(500).json({ success: false, error: 'Failed to retrieve transaction.' });
+  }
+});
+
 // GET /api/dashboard/summary
 transactionRouter.get('/summary', (req: AuthRequest, res: Response) => {
   try {

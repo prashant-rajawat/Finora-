@@ -10,6 +10,8 @@ import { analyticsRouter } from './server/routes/analyticsRoutes.js';
 import { goalRouter } from './server/routes/goalRoutes.js';
 import { reportRouter } from './server/routes/reportRoutes.js';
 import { settingsRouter } from './server/routes/settingsRoutes.js';
+import { recurringRouter } from './server/routes/recurringRoutes.js';
+import { database } from './server/db.js';
 
 dotenv.config();
 
@@ -31,6 +33,25 @@ async function startServer() {
   app.use('/api/goals', goalRouter);
   app.use('/api/reports', reportRouter);
   app.use('/api/settings', settingsRouter);
+  app.use('/api/recurring-transactions', recurringRouter);
+
+  // Background Scheduler Engine - runs on startup and every 60 seconds
+  try {
+    const initProcess = database.processDueRecurringSchedules();
+    if (initProcess.generatedTransactionsCount > 0) {
+      console.log(`[Scheduler] Startup process generated ${initProcess.generatedTransactionsCount} transaction(s).`);
+    }
+  } catch (err) {
+    console.error('[Scheduler] Initial run error:', err);
+  }
+
+  setInterval(() => {
+    try {
+      database.processDueRecurringSchedules();
+    } catch (err) {
+      console.error('[Scheduler] Periodic run error:', err);
+    }
+  }, 60000);
 
   // Health check endpoint
   app.get('/api/health', (_req, res) => {

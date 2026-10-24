@@ -1,0 +1,954 @@
+# FINORA — PHASE 8 MASTER IMPLEMENTATION PROMPT
+## Recurring Transactions, Scheduled Payments & Automated Income
+
+**Project:** Finora — Personal Finance Tracker  
+**Phase:** 8 — Recurring Transactions  
+**Implementation:** Frontend + Backend + Database + Scheduler + Testing  
+**Design:** Premium white and pale-blue theme, blue primary actions, subtle borders, rounded cards, clean typography, and responsive layouts.
+
+---
+
+## 1. PRIMARY OBJECTIVE
+
+Act as a senior full-stack engineer, backend automation engineer, database architect, and UI/UX designer.
+
+Implement a complete, production-minded Recurring Transactions system directly inside my existing Finora project.
+
+**Do not just analyze the code or generate a plan. Make actual code changes, connect the UI to the backend and database, implement the scheduling mechanism, and verify the results.**
+
+The feature must allow users to schedule regular income and expenses such as:
+
+- Monthly salary.
+- Rent.
+- Electricity and water bills.
+- Internet and phone bills.
+- Insurance payments.
+- Subscriptions.
+- Loan or EMI payments.
+- Regular savings-related transfers, if supported by the existing financial model.
+- Custom recurring income and expenses.
+
+Integrate this feature with the existing:
+
+- Authentication.
+- Dashboard.
+- Transactions.
+- Budgets.
+- Analytics.
+- Savings Goals.
+- Reports and exports.
+- Settings and user preferences.
+
+Preserve existing features, calculations, database records, and the approved Finora design.
+
+Do not rebuild the application from scratch.
+
+## 2. INSPECT THE EXISTING PROJECT FIRST
+
+Before making changes, inspect:
+
+- Frontend framework and routing.
+- Backend framework and API conventions.
+- Authentication provider and user identity model.
+- Existing transaction schema.
+- Existing category and account/payment-method models.
+- Transaction creation and editing logic.
+- Database migrations and security policies.
+- Existing dashboard and analytics calculations.
+- Budget periods and spending calculations.
+- User timezone and date-format preferences.
+- Existing background job, cron, or scheduler infrastructure.
+- Deployment configuration for the backend.
+- Testing framework and current test commands.
+
+Reuse the existing transaction model and business logic wherever possible.
+
+Do not create a separate, disconnected transaction system.
+
+If the application already contains recurring transaction functionality, extend it rather than duplicating it.
+
+If a schema change is necessary, create a safe, backward-compatible migration. Do not reset the database or delete existing financial data.
+
+## 3. RECURRING TRANSACTIONS PAGE
+
+Create a polished Recurring Transactions page using the application's existing routing conventions.
+
+Suggested route: `/recurring-transactions`
+
+Add a navigation item under the appropriate transaction or finance section.
+
+### Page header
+
+Include:
+
+- Page title: Recurring Transactions.
+- Description: “Manage regular income, bills, and scheduled expenses.”
+- Primary action: **Create Recurring Transaction**.
+- Search field.
+- Status filter.
+- Recurrence-frequency filter.
+- Type filter: Income or Expense.
+- Upcoming date-range filter.
+
+### Summary cards
+
+Display real values where meaningful:
+
+- Active recurring schedules.
+- Upcoming scheduled items.
+- Estimated recurring income.
+- Estimated recurring expenses.
+- Next upcoming payment.
+
+Clearly distinguish scheduled estimates from completed transactions and actual account balances.
+
+Do not add scheduled amounts to actual income or expenses before a transaction is genuinely generated.
+
+Use appropriate empty states when the user has not created any recurring schedules.
+
+## 4. CREATE RECURRING TRANSACTION
+
+Build a complete form or modal with proper validation.
+
+### Required fields
+
+- Transaction name or description.
+- Transaction type: Income or Expense.
+- Amount.
+- Category, using the existing category system.
+- Recurrence frequency.
+- Start date.
+- Applicable recurrence details.
+
+### Optional fields
+
+Where supported by the current application:
+
+- Account or payment method.
+- Notes.
+- End date.
+- Maximum number of occurrences.
+- Reminder preference.
+- Preferred processing time.
+- Tags.
+- Existing budget or savings-goal association, if appropriate.
+
+Use the existing transaction fields and category definitions. Do not invent duplicate categories or incompatible data structures.
+
+### Validation
+
+- Description must be valid and within a sensible length limit.
+- Amount must be a valid positive monetary value.
+- Category must be valid for the selected transaction type.
+- Start date must be valid.
+- End date, if supplied, must not precede the start date.
+- Recurrence rules must be complete.
+- Unsupported frequency values must be rejected.
+- The form must prevent accidental duplicate submissions.
+- Optional fields must not cause validation errors when legitimately empty.
+
+Show clear field-level validation messages.
+
+Do not create a transaction until the scheduler reaches a valid occurrence or the user explicitly chooses a supported immediate-generation action.
+
+## 5. RECURRENCE FREQUENCIES
+
+Implement these recurrence options:
+
+- Daily.
+- Weekly.
+- Every two weeks.
+- Monthly.
+- Every three months.
+- Every six months.
+- Yearly.
+- Custom interval, if practical and supported by the existing architecture.
+
+### Weekly schedules
+
+Allow the user to choose the applicable weekday or weekdays when appropriate.
+
+### Monthly schedules
+
+Support:
+
+- A selected day of the month.
+- A monthly pattern based on a weekday, if practical.
+- Last day of the month, if practical.
+
+Handle short months correctly.
+
+For example, a schedule set for the 31st must have a documented and consistent policy for months that do not contain that day. Prefer a safe last-day-of-month policy or an explicit user-selectable rule.
+
+Do not allow the scheduler to produce invalid dates or skip occurrences unpredictably.
+
+### Custom intervals
+
+If custom intervals are supported, define them explicitly, such as every N days or every N weeks.
+
+Validate interval limits and prevent unsupported or excessively frequent schedules.
+
+### Recurrence rule storage
+
+Store recurrence information in a structured and validated format compatible with the existing database.
+
+Do not rely exclusively on a display label such as “Monthly” to determine future dates.
+
+If using a standard recurrence-rule library or format, ensure it is compatible with the current backend and test its date behavior.
+
+## 6. SCHEDULE LIFECYCLE
+
+Every recurring schedule should have an appropriate lifecycle.
+
+Suggested states:
+
+- Active.
+- Paused.
+- Completed.
+- Cancelled.
+
+Use the existing application's conventions if similar statuses already exist.
+
+### Active
+
+The schedule is eligible for future processing.
+
+### Paused
+
+No new transactions should be generated while the schedule is paused.
+
+### Completed
+
+The schedule has reached its end date or occurrence limit.
+
+### Cancelled
+
+The user has stopped future occurrences.
+
+Cancellation must not silently delete transactions that were already generated.
+
+### Required actions
+
+Users should be able to:
+
+- View schedule details.
+- Edit a schedule.
+- Pause a schedule.
+- Resume a paused schedule.
+- Cancel future occurrences.
+- View its generation history.
+- Review the next scheduled date.
+- Delete a schedule only through an appropriately confirmed action, if deletion is supported.
+
+Use confirmation dialogs for potentially destructive actions.
+
+Never delete historical financial transactions merely because a recurring schedule is paused, cancelled, or removed.
+
+## 7. RECURRING TRANSACTION CARDS AND TABLE
+
+Display recurring schedules in a clean, readable layout.
+
+Show:
+
+- Name.
+- Income or expense indicator.
+- Amount.
+- Category.
+- Frequency.
+- Next scheduled date.
+- Status.
+- Last generated date, if available.
+- Relevant actions.
+
+Support both a card layout and a table/list layout if the existing design system makes this practical.
+
+### Status indicators
+
+Use clear labels and accessible styling:
+
+- Active.
+- Paused.
+- Completed.
+- Cancelled.
+- Needs attention, where genuine processing failures occur.
+
+Do not use color as the only way to distinguish statuses.
+
+### Sorting and filtering
+
+Support sorting or filtering by:
+
+- Next scheduled date.
+- Amount.
+- Name.
+- Category.
+- Frequency.
+- Status.
+- Transaction type.
+
+Search should match relevant text fields.
+
+All controls must update the actual displayed data.
+
+## 8. SCHEDULE DETAILS AND HISTORY
+
+Create a details view or modal for each recurring schedule.
+
+Display:
+
+- Schedule name and type.
+- Amount and category.
+- Frequency and recurrence configuration.
+- Start date.
+- End date, if any.
+- Current status.
+- Next occurrence.
+- Last successfully generated occurrence.
+- Number of completed occurrences, where available.
+- Remaining occurrences, if a maximum was configured.
+- Generation history.
+
+The history should identify each occurrence and its actual processing result.
+
+Possible history states:
+
+- Generated.
+- Skipped.
+- Failed.
+- Pending, only when genuinely supported.
+
+Include a link to the actual generated transaction when it exists.
+
+Do not display a generated-transaction link for a transaction that was never created.
+
+If a scheduled occurrence fails, display a useful reason without exposing stack traces, secrets, or sensitive backend details.
+
+## 9. BACKEND SCHEDULER — REAL AUTOMATION
+
+This is a critical requirement.
+
+Implement a genuine backend scheduling mechanism that processes due recurring transactions without requiring the user to keep the application open.
+
+Do not use browser timers, frontend intervals, page-load side effects, or React effects as the primary scheduler.
+
+### Inspect existing infrastructure
+
+First check whether the project already uses:
+
+- A backend cron service.
+- Scheduled cloud functions.
+- A task queue.
+- A managed scheduler.
+- A database-backed job processor.
+- A deployment platform's scheduled jobs.
+
+Reuse compatible infrastructure when possible.
+
+If no scheduler exists, choose an implementation compatible with the actual backend and deployment platform.
+
+Document the required deployment configuration.
+
+### Scheduler responsibilities
+
+For each eligible recurring schedule:
+
+1. Identify occurrences that are due.
+2. Validate the schedule and recurrence rule.
+3. Verify that the schedule is active.
+4. Verify that the occurrence has not already been processed.
+5. Determine the correct scheduled date.
+6. Create the corresponding transaction through the existing transaction business logic.
+7. Record successful processing.
+8. Advance the next scheduled occurrence.
+9. Update the schedule lifecycle if its end date or occurrence limit has been reached.
+10. Record failures safely and make recovery possible.
+
+The scheduler must not process paused or cancelled schedules.
+
+Do not mark an occurrence as successful before the transaction is durably saved.
+
+### Timezone and execution timing
+
+Use the user's saved timezone where applicable.
+
+Keep the scheduler's execution timing separate from the recurrence's calendar-date semantics.
+
+A monthly transaction scheduled for the first day of the month should not unexpectedly appear on the previous day because of a timezone conversion.
+
+For date-only schedules, use a consistent date-based calculation approach.
+
+Document the expected execution window. A scheduled transaction may be generated during the scheduler's processing window rather than at an exact second, unless the infrastructure supports precise execution.
+
+### Scheduler security
+
+If the scheduler is triggered through an HTTP endpoint:
+
+- Protect it with a secure server-side secret or the deployment platform's authenticated mechanism.
+- Never expose scheduler secrets to frontend code.
+- Reject unauthorized calls.
+- Avoid logging secrets.
+- Apply appropriate timeouts and processing limits.
+
+If the scheduler runs as a trusted internal worker, use the infrastructure's existing authentication and access controls.
+
+Do not leave an unauthenticated public endpoint that can trigger arbitrary transaction creation.
+
+## 10. DUPLICATE PREVENTION AND IDEMPOTENCY
+
+Recurring financial transactions must never be duplicated because a scheduler runs twice or retries after a failure.
+
+Implement idempotent processing.
+
+### Requirements
+
+Each schedule occurrence must have a unique, stable identity.
+
+Use a suitable combination of schedule identity and scheduled occurrence date or a dedicated occurrence identifier.
+
+Enforce uniqueness at the database level where appropriate.
+
+Use transactions or equivalent atomic operations so that creating the transaction and recording its occurrence cannot leave inconsistent state.
+
+If a scheduler retries an already completed occurrence, it must recognize the existing result and avoid creating another transaction.
+
+Handle:
+
+- Multiple scheduler instances running concurrently.
+- Retry after a timeout.
+- Temporary database failures.
+- Duplicate scheduled-job delivery.
+- Partial failures during transaction creation.
+- Delayed scheduler execution.
+
+If the application uses a database that supports transactions, use them appropriately.
+
+If the existing database or infrastructure does not support a fully atomic operation, implement a safe idempotency strategy suited to that system and document the remaining limitations.
+
+## 11. MISSED OCCURRENCES AND RECOVERY
+
+Implement a clear policy for delayed scheduler execution.
+
+For example, if the scheduler is unavailable for several days, the system should determine which occurrences are due and process them according to a documented catch-up policy.
+
+### Requirements
+
+- Do not silently lose eligible occurrences.
+- Do not create unlimited duplicate catch-up transactions.
+- Respect schedule start dates and end dates.
+- Respect maximum occurrence limits.
+- Respect paused and cancelled states.
+- Avoid processing dates outside the schedule's intended period.
+- Use a configurable processing limit for each scheduler run.
+- Continue remaining work safely in subsequent runs if necessary.
+- Record the status of each processed occurrence.
+- Make failures visible to the user where appropriate.
+
+For a missed daily schedule, determine each due date according to the configured catch-up policy rather than creating a single arbitrary transaction for the entire missed period.
+
+If a user pauses a schedule and later resumes it, do not automatically generate transactions for the paused period unless that behavior is explicitly supported and clearly communicated.
+
+Document how missed occurrences are handled.
+
+## 12. TRANSACTION GENERATION AND FINANCIAL INTEGRITY
+
+Generated transactions must use the same authoritative transaction creation logic as manually created transactions.
+
+Copy the appropriate schedule fields into each generated transaction, including:
+
+- Description.
+- Amount.
+- Income or expense type.
+- Category.
+- Account or payment method, if supported.
+- Notes, where appropriate.
+- Scheduled occurrence date.
+- A reference to the originating recurring schedule, if the existing data model can support it safely.
+
+Do not copy mutable authentication or internal security fields.
+
+### Financial rules
+
+- Generated expenses must affect expense totals only after creation.
+- Generated income must affect income totals only after creation.
+- Generated transactions must follow the existing transaction conventions.
+- Budget calculations must include generated transactions according to existing rules.
+- Analytics must include generated transactions according to their actual transaction dates.
+- Reports must include generated transactions without duplicating records.
+- Savings contributions must not be misclassified as ordinary income or expenses.
+- Account balances must not be updated twice if the existing transaction model already performs that update.
+
+Do not automatically mark an external bill as paid just because a transaction was generated.
+
+Finora's recurring transaction feature creates a record in the finance tracker. It does not transfer money or pay a real bill unless a genuine payment integration already exists and has been explicitly configured.
+
+Display this distinction clearly to users.
+
+## 13. DATABASE DESIGN AND MIGRATIONS
+
+Inspect the existing schema and choose the smallest safe extension.
+
+A recurring schedule model may require fields for:
+
+- Schedule ID.
+- Authenticated owner ID.
+- Description.
+- Transaction type.
+- Amount.
+- Category reference.
+- Account or payment-method reference, if supported.
+- Structured recurrence rule.
+- Start date.
+- Optional end date.
+- Optional occurrence limit.
+- Current status.
+- Next scheduled date.
+- Last processed occurrence, if useful.
+- Created and updated timestamps.
+
+A separate occurrence-history model may record:
+
+- Occurrence ID.
+- Schedule ID.
+- Scheduled date.
+- Processing status.
+- Generated transaction ID, when successful.
+- Attempt count, if needed.
+- Safe error information.
+- Processing timestamps.
+
+These are conceptual fields. Adapt them to the existing schema and naming conventions.
+
+### Database requirements
+
+- Use correct foreign keys where supported.
+- Enforce schedule ownership.
+- Enforce uniqueness for each schedule occurrence.
+- Add appropriate indexes for due-schedule lookup.
+- Validate amounts, dates, recurrence rules, and status values.
+- Preserve existing records.
+- Use migrations instead of destructive resets.
+- Apply row-level security or equivalent access controls.
+- Prevent users from accessing or modifying another user's schedules.
+- Do not expose internal processing metadata unnecessarily.
+
+Do not add a separate transaction table for generated transactions if the existing transaction model can be reused.
+
+## 14. BACKEND API IMPLEMENTATION
+
+Use the existing backend structure and authentication middleware.
+
+Potential API capabilities include:
+
+- List recurring schedules.
+- Create a schedule.
+- Retrieve schedule details.
+- Update schedule configuration.
+- Pause a schedule.
+- Resume a schedule.
+- Cancel future occurrences.
+- Retrieve occurrence history.
+- Retrieve upcoming schedules.
+- Request a safe retry of a failed occurrence, if supported.
+
+Suggested route patterns, to be adapted to the existing project:
+
+- `GET /api/recurring-transactions`
+- `POST /api/recurring-transactions`
+- `GET /api/recurring-transactions/:id`
+- `PATCH /api/recurring-transactions/:id`
+- `POST /api/recurring-transactions/:id/pause`
+- `POST /api/recurring-transactions/:id/resume`
+- `POST /api/recurring-transactions/:id/cancel`
+- `GET /api/recurring-transactions/:id/history`
+- `GET /api/recurring-transactions/upcoming`
+
+Do not implement these exact routes if the application already follows a different convention.
+
+### API requirements
+
+- Authenticate all user-facing endpoints.
+- Derive user identity from the trusted session.
+- Validate request bodies and query parameters.
+- Validate schedule ownership for every operation.
+- Use safe database access patterns.
+- Return consistent response formats.
+- Prevent duplicate creation caused by repeated requests.
+- Handle missing schedules and invalid state transitions.
+- Apply pagination when appropriate.
+- Never trust a client-supplied owner ID.
+- Keep scheduler-only functionality separate from ordinary user endpoints.
+
+## 15. EDITING EXISTING SCHEDULES
+
+Implement a safe editing workflow.
+
+When a user changes a recurring schedule, determine which fields should affect future occurrences.
+
+For example:
+
+- Changing the amount should affect future transactions.
+- Changing the category should affect future transactions.
+- Changing the recurrence rule should recalculate future dates.
+- Changing the end date should update the schedule's eligibility.
+- Changing the start date must not silently recreate historical occurrences.
+
+**Do not retroactively rewrite generated financial transactions simply because the schedule changes.**
+
+Previously generated transactions should remain unchanged unless the user explicitly edits those transactions through the existing transaction-management workflow.
+
+If changing a schedule creates an ambiguity about an already processed occurrence, preserve the historical occurrence and clearly define how future scheduling resumes.
+
+Do not delete existing transactions automatically during schedule editing.
+
+## 16. UPCOMING TRANSACTIONS AND REMINDERS
+
+Provide an upcoming schedule view showing expected income and expenses.
+
+Possible time windows:
+
+- Today.
+- Next 7 days.
+- Next 30 days.
+- Custom range.
+
+Display:
+
+- Expected date.
+- Schedule name.
+- Type.
+- Amount.
+- Category.
+- Status.
+
+Clearly label upcoming items as **Scheduled** or **Expected**, not as completed transactions.
+
+Do not mix upcoming schedules into actual transaction totals.
+
+### Reminders
+
+If the existing notification system supports in-app reminders, integrate with it.
+
+Otherwise, show upcoming scheduled items directly in Finora and leave unsupported external delivery clearly marked as unavailable.
+
+Do not claim that email, SMS, or push notifications work unless the corresponding service has actually been configured and tested.
+
+## 17. DASHBOARD AND MODULE INTEGRATION
+
+Integrate recurring transactions with the existing Finora dashboard and related pages.
+
+### Dashboard
+
+Where useful, add an upcoming recurring transactions section displaying the next few scheduled items.
+
+Show scheduled income and expenses separately from actual totals.
+
+### Transactions
+
+Allow users to identify generated transactions through a suitable label or detail field, if the existing UI supports it.
+
+Link generated transactions to their originating schedule where possible.
+
+### Budgets
+
+Generated expenses should be reflected in budget calculations according to the actual transaction date and existing budget rules.
+
+### Analytics
+
+Include generated transactions only after they have actually been created.
+
+Use the generated transaction's effective transaction date for reporting, following existing conventions.
+
+### Reports
+
+Generated transactions should appear in filtered reports and exports as ordinary transactions, with an optional indication that they came from a recurring schedule.
+
+Do not create duplicate report entries from both the schedule and generated transaction.
+
+### Savings goals
+
+Do not classify a recurring transfer as a savings contribution unless it is explicitly integrated with the existing savings-goal model.
+
+Avoid counting one transfer as income, an expense, and a savings contribution simultaneously.
+
+## 18. RESPONSIVE DESIGN
+
+Follow the approved Finora visual design:
+
+- White backgrounds.
+- Pale-blue accent surfaces.
+- Blue primary actions.
+- Readable dark text.
+- Subtle borders.
+- Rounded cards.
+- Clean typography.
+- Consistent spacing.
+
+Do not introduce a dark black/navy default theme.
+
+### Desktop
+
+- Display schedule summary cards.
+- Provide readable tables or cards.
+- Keep filters accessible.
+- Make schedule actions easy to locate.
+
+### Tablet
+
+- Adapt card grids.
+- Avoid cramped controls.
+- Keep recurrence forms readable.
+
+### Mobile
+
+- Stack forms vertically.
+- Use touch-friendly controls.
+- Prevent horizontal overflow.
+- Ensure dialogs fit the viewport.
+- Keep pause, resume, and edit actions accessible.
+- Display schedule dates and amounts clearly.
+
+Use existing shared components and styling tokens.
+
+## 19. LOADING, EMPTY, AND ERROR STATES
+
+Implement appropriate UI states for:
+
+- Loading schedules.
+- No schedules created.
+- No upcoming transactions.
+- No schedules matching filters.
+- Failed schedule creation.
+- Failed schedule update.
+- Failed pause or resume.
+- Failed cancellation.
+- Scheduler processing failures.
+- Missing categories or invalid schedule data.
+- Network failures.
+- Expired authentication sessions.
+
+Show useful error messages and preserve recoverable form input.
+
+Disable duplicate submissions while an operation is in progress.
+
+Do not display a successful operation unless the backend confirms it.
+
+## 20. AUTOMATED TESTING
+
+Use the existing test framework and implement actual tests.
+
+### Recurrence calculation tests
+
+Verify:
+
+- Daily schedules.
+- Weekly schedules.
+- Every-two-week schedules.
+- Monthly schedules.
+- Quarterly schedules.
+- Semiannual schedules.
+- Yearly schedules.
+- Leap years.
+- Month-end behavior.
+- Start and end dates.
+- Maximum occurrence limits.
+- Timezone and daylight-saving edge cases where applicable.
+
+### Schedule lifecycle tests
+
+Verify:
+
+- Create.
+- Edit.
+- Pause.
+- Resume.
+- Cancel.
+- Complete.
+- Invalid state transitions.
+- Schedule history.
+
+### Scheduler tests
+
+Verify:
+
+- Due occurrences are processed.
+- Future occurrences are not processed early.
+- Paused schedules are skipped.
+- Cancelled schedules are skipped.
+- Ended schedules complete correctly.
+- Missed occurrences follow the documented catch-up policy.
+- Multiple scheduler runs do not create duplicates.
+- Concurrent workers cannot create the same occurrence twice.
+- Failed processing can be safely retried.
+- Processing limits work correctly.
+
+### Financial integrity tests
+
+Verify:
+
+- Generated income updates actual income totals only once.
+- Generated expenses update actual expense totals only once.
+- Budget totals update correctly.
+- Analytics and reports include generated transactions correctly.
+- Scheduled items do not affect actual totals before generation.
+- Editing a schedule does not rewrite historical transactions.
+- Savings contributions are not double-counted.
+- Existing manual transaction functionality remains unchanged.
+
+### Security tests
+
+Verify:
+
+- Unauthenticated requests are rejected.
+- Users cannot access or modify another user's schedules.
+- Scheduler endpoints reject unauthorized calls.
+- Secrets are not exposed to the browser.
+- Invalid recurrence rules are rejected.
+- Duplicate creation is prevented.
+
+### UI tests
+
+Verify:
+
+- Schedule creation and editing.
+- Filters and search.
+- Pause/resume controls.
+- Cancellation confirmation.
+- Loading and error states.
+- Responsive layouts.
+
+Run the tests that the current environment supports and report their actual results.
+
+Do not claim tests passed if they were not executed.
+
+## 21. DEPLOYMENT AND SCHEDULER CONFIGURATION
+
+Inspect the current deployment setup before selecting a scheduling mechanism.
+
+If the frontend and backend are deployed separately, make sure the scheduler runs in the appropriate backend or managed scheduling environment.
+
+Document:
+
+- Required environment variables.
+- Scheduler configuration.
+- Cron expression or interval, where applicable.
+- Authentication for scheduled-job triggers.
+- Database migrations.
+- Dependency installation.
+- Deployment and verification steps.
+- Local development behavior.
+
+Do not place private scheduler secrets in frontend environment variables.
+
+Do not assume that a local cron job will run in production.
+
+If the hosting platform does not support persistent background workers, use an appropriate supported scheduler or managed job service.
+
+If real scheduling cannot be activated in the current environment, implement the compatible backend processing logic and explain the exact deployment step still required. Do not claim automatic processing is active until it is configured and verified.
+
+## 22. REQUIRED IMPLEMENTATION WORKFLOW
+
+Follow this workflow:
+
+**Step 1 — Inspect:** Review the existing application, transaction schema, authentication, and deployment architecture.
+
+**Step 2 — Design:** Define the minimal schedule and occurrence-history schema compatible with Finora.
+
+**Step 3 — Implement the backend:** Build recurrence calculations, APIs, idempotent occurrence processing, and lifecycle management.
+
+**Step 4 — Implement the frontend:** Build the Recurring Transactions page, creation form, details, history, and actions.
+
+**Step 5 — Integrate:** Connect generated transactions with existing budgets, analytics, reports, and dashboard functionality.
+
+**Step 6 — Secure:** Verify authorization, scheduler protection, ownership, and duplicate prevention.
+
+**Step 7 — Test:** Run automated recurrence, scheduler, financial-integrity, security, and UI tests.
+
+**Step 8 — Fix:** Correct failures and regression issues.
+
+**Step 9 — Deploy and verify:** Configure the scheduler where possible and verify a due occurrence through the real processing path.
+
+**Step 10 — Report:** Provide an accurate implementation and test summary.
+
+Do not stop after generating a plan or building only the frontend.
+
+## 23. STRICT RULES
+
+1. Do not replace the existing Finora project with a starter template.
+2. Do not delete or reset the database.
+3. Do not remove existing functionality.
+4. Do not create a disconnected recurring transaction system.
+5. Do not use browser timers as the production scheduler.
+6. Do not create duplicate transactions when a job retries.
+7. Do not generate transactions for paused or cancelled schedules.
+8. Do not silently rewrite historical transactions when schedules change.
+9. Do not include scheduled amounts in actual financial totals before generation.
+10. Do not count savings contributions twice.
+11. Do not expose scheduler secrets.
+12. Do not leave scheduler endpoints publicly unprotected.
+13. Do not claim external bills were paid automatically.
+14. Do not add fake processing history or fake upcoming payments.
+15. Do not add nonfunctional buttons.
+16. Do not claim success without verification.
+17. Do not introduce unnecessary dependencies.
+18. Preserve existing records and business rules.
+19. Keep the approved white-and-pale-blue theme.
+20. Document any incomplete deployment or provider requirements.
+
+Prioritize financial correctness, idempotency, security, real scheduling, and compatibility with existing Finora features.
+
+## 24. FINAL DELIVERY REPORT
+
+When implementation is finished, report:
+
+### A. Features implemented
+List the recurring schedules, recurrence rules, lifecycle actions, upcoming view, and history functionality that actually work.
+
+### B. Files changed
+List actual files created or modified.
+
+### C. Database changes
+Describe migrations, indexes, ownership constraints, and occurrence uniqueness.
+
+### D. API changes
+List implemented endpoints or reused APIs.
+
+### E. Scheduler implementation
+Explain which scheduler was implemented, how it is triggered, how it is secured, and whether it is actually active in the current environment.
+
+### F. Financial integration
+Explain how generated transactions affect budgets, analytics, reports, and dashboard totals.
+
+### G. Test results
+List executed tests and their actual outcomes.
+
+### H. Deployment requirements
+Describe required environment variables, scheduler configuration, migrations, and deployment steps.
+
+### I. Known limitations
+Identify anything unfinished or blocked.
+
+### J. Regression verification
+List existing Finora modules tested after implementation.
+
+Do not invent file paths, test results, deployment settings, or successful scheduler executions.
+
+## 25. DEFINITION OF DONE
+
+Phase 8 is complete when:
+
+- Users can create and manage recurring schedules.
+- Supported recurrence rules calculate correct dates.
+- The backend can process due occurrences.
+- Each occurrence can generate no more than one transaction.
+- Paused and cancelled schedules do not generate new transactions.
+- Missed occurrences follow a documented recovery policy.
+- Generated transactions use the existing transaction system.
+- Budgets, Analytics, and Reports reflect generated transactions correctly.
+- Scheduled estimates remain separate from actual financial totals.
+- Schedule ownership and scheduler security are enforced.
+- The UI is responsive and follows Finora's existing design.
+- Automated tests are run and accurately reported.
+- Existing functionality and financial records remain intact.
+- Any production scheduler configuration still required is clearly documented.
+
+**Begin by inspecting my current Finora project. Then implement Phase 8 directly, including frontend, backend, database, and real scheduling integration. Preserve existing functionality and data. Prioritize reliable date calculations, duplicate prevention, financial integrity, security, and verifiable results. Do not stop after creating a plan.**

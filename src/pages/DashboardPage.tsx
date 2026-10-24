@@ -312,6 +312,25 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   <span className="text-xs font-bold text-[#203451]">Manage Goals</span>
                 </button>
               </div>
+
+              {/* Recurring Schedules Banner Link */}
+              <div className="mt-4 pt-3 border-t border-[#F2F7FF]">
+                <button
+                  onClick={() => onNavigate('recurring')}
+                  className="w-full p-3 bg-[#E5F0FF]/60 hover:bg-[#E5F0FF] rounded-xl border border-[#1677F2]/20 flex items-center justify-between transition-colors cursor-pointer text-left"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 rounded-lg bg-[#1677F2] text-white">
+                      <Sparkles size={16} />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-[#203451]">Recurring Schedules</h4>
+                      <p className="text-[10px] text-[#718096]">Automate rent, bills & salary credits</p>
+                    </div>
+                  </div>
+                  <ArrowRight size={14} className="text-[#1677F2]" />
+                </button>
+              </div>
             </div>
           </div>
         </>

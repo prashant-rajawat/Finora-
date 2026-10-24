@@ -103,6 +103,7 @@ export type NavigationPage =
   | 'register'
   | 'dashboard'
   | 'transactions'
+  | 'recurring'
   | 'budgets'
   | 'analytics'
   | 'goals'
@@ -307,6 +308,75 @@ export interface GoalSummary {
   pausedCount: number;
   archivedCount: number;
   overallProgress: number;
+}
+
+// ==================== PHASE 8: RECURRING TRANSACTIONS TYPES ====================
+
+export type RecurrenceFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
+export type RecurringScheduleStatus = 'active' | 'paused' | 'completed' | 'cancelled';
+
+export interface RecurringSchedule {
+  id: string;
+  userId: string;
+  name: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  frequency: RecurrenceFrequency;
+  startDate: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+  maxOccurrences?: number;
+  dayOfWeek?: number;
+  dayOfMonth?: number;
+  status: RecurringScheduleStatus;
+  paymentMethod?: string;
+  merchant?: string;
+  notes?: string;
+  nextRunDate: string; // YYYY-MM-DD
+  lastRunDate?: string;
+  completedOccurrences: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RecurringOccurrence {
+  id: string;
+  scheduleId: string;
+  userId: string;
+  scheduledDate: string;
+  processedAt: string;
+  status: 'generated' | 'skipped' | 'failed';
+  transactionId?: string;
+  errorMessage?: string;
+}
+
+export interface RecurringSummary {
+  totalSchedulesCount: number;
+  activeCount: number;
+  pausedCount: number;
+  completedCount: number;
+  cancelledCount: number;
+  upcomingCount: number;
+  estMonthlyIncome: number;
+  estMonthlyExpense: number;
+  nextUpcomingPayment: {
+    name: string;
+    amount: number;
+    type: 'income' | 'expense';
+    date: string;
+    category: string;
+  } | null;
+}
+
+export interface UpcomingOccurrenceProjected {
+  scheduleId: string;
+  name: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  scheduledDate: string;
+  frequency: RecurrenceFrequency;
+  paymentMethod?: string;
 }
 
 

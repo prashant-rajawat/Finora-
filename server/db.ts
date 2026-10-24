@@ -125,6 +125,44 @@ export interface UserPreferences {
   updatedAt: string;
 }
 
+export type RecurrenceFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
+export type RecurringScheduleStatus = 'active' | 'paused' | 'completed' | 'cancelled';
+
+export interface RecurringSchedule {
+  id: string;
+  userId: string;
+  name: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  frequency: RecurrenceFrequency;
+  startDate: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+  maxOccurrences?: number;
+  dayOfWeek?: number; // 0=Sun .. 6=Sat
+  dayOfMonth?: number; // 1-31
+  status: RecurringScheduleStatus;
+  paymentMethod?: string;
+  merchant?: string;
+  notes?: string;
+  nextRunDate: string; // YYYY-MM-DD
+  lastRunDate?: string; // YYYY-MM-DD
+  completedOccurrences: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RecurringOccurrence {
+  id: string;
+  scheduleId: string;
+  userId: string;
+  scheduledDate: string; // YYYY-MM-DD
+  processedAt: string; // ISO
+  status: 'generated' | 'skipped' | 'failed';
+  transactionId?: string;
+  errorMessage?: string;
+}
+
 interface DatabaseSchema {
   users: User[];
   transactions: Transaction[];
@@ -132,6 +170,8 @@ interface DatabaseSchema {
   goals: Goal[];
   goalContributions: GoalContribution[];
   userPreferences: UserPreferences[];
+  recurringSchedules: RecurringSchedule[];
+  recurringOccurrences: RecurringOccurrence[];
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -150,6 +190,8 @@ let db: DatabaseSchema = {
   goals: [],
   goalContributions: [],
   userPreferences: [],
+  recurringSchedules: [],
+  recurringOccurrences: [],
 };
 
 // Seed initial data for demo user matching the reference design: Ansh Kumar
@@ -502,6 +544,139 @@ function seedInitialData() {
     updatedAt: '2026-10-24T00:00:00.000Z',
   };
 
+  const initialSchedules: RecurringSchedule[] = [
+    {
+      id: 'rec_01',
+      userId: demoUser.id,
+      name: 'Monthly Salary Credit',
+      type: 'income',
+      amount: 40000,
+      category: 'Salary',
+      frequency: 'monthly',
+      startDate: '2026-10-01',
+      dayOfMonth: 1,
+      status: 'active',
+      paymentMethod: 'Bank Transfer',
+      merchant: 'Acme Corp',
+      notes: 'Primary monthly employment income',
+      nextRunDate: '2026-11-01',
+      lastRunDate: '2026-10-01',
+      completedOccurrences: 1,
+      createdAt: '2026-09-01T08:00:00.000Z',
+      updatedAt: '2026-10-01T10:00:00.000Z',
+    },
+    {
+      id: 'rec_02',
+      userId: demoUser.id,
+      name: 'Apartment Rent',
+      type: 'expense',
+      amount: 12000,
+      category: 'Bills & Utilities',
+      frequency: 'monthly',
+      startDate: '2026-10-01',
+      dayOfMonth: 1,
+      status: 'active',
+      paymentMethod: 'UPI / NetBanking',
+      merchant: 'Landlord',
+      notes: 'Monthly residential house rent payment',
+      nextRunDate: '2026-11-01',
+      lastRunDate: '2026-10-01',
+      completedOccurrences: 1,
+      createdAt: '2026-09-01T08:00:00.000Z',
+      updatedAt: '2026-10-01T10:00:00.000Z',
+    },
+    {
+      id: 'rec_03',
+      userId: demoUser.id,
+      name: 'Netflix & Spotify Premium',
+      type: 'expense',
+      amount: 800,
+      category: 'Entertainment',
+      frequency: 'monthly',
+      startDate: '2026-10-05',
+      dayOfMonth: 5,
+      status: 'active',
+      paymentMethod: 'Credit Card',
+      merchant: 'Netflix Inc',
+      notes: 'Streaming & music subscriptions auto-pay',
+      nextRunDate: '2026-11-05',
+      lastRunDate: '2026-10-05',
+      completedOccurrences: 1,
+      createdAt: '2026-09-05T08:00:00.000Z',
+      updatedAt: '2026-10-05T08:00:00.000Z',
+    },
+    {
+      id: 'rec_04',
+      userId: demoUser.id,
+      name: 'Airtel Broadband Fiber',
+      type: 'expense',
+      amount: 1200,
+      category: 'Bills & Utilities',
+      frequency: 'monthly',
+      startDate: '2026-10-10',
+      dayOfMonth: 10,
+      status: 'active',
+      paymentMethod: 'UPI',
+      merchant: 'Airtel Payments',
+      notes: 'High speed fiber internet monthly bill',
+      nextRunDate: '2026-11-10',
+      lastRunDate: '2026-10-10',
+      completedOccurrences: 1,
+      createdAt: '2026-09-10T08:00:00.000Z',
+      updatedAt: '2026-10-10T08:00:00.000Z',
+    },
+    {
+      id: 'rec_05',
+      userId: demoUser.id,
+      name: 'SIP Mutual Fund Auto-Debit',
+      type: 'expense',
+      amount: 5000,
+      category: 'Investments',
+      frequency: 'monthly',
+      startDate: '2026-10-15',
+      dayOfMonth: 15,
+      status: 'active',
+      paymentMethod: 'Bank Auto-Debit',
+      merchant: 'Zerodha Coin',
+      notes: 'Index Fund SIP monthly investment',
+      nextRunDate: '2026-11-15',
+      lastRunDate: '2026-10-15',
+      completedOccurrences: 1,
+      createdAt: '2026-09-15T08:00:00.000Z',
+      updatedAt: '2026-10-15T08:00:00.000Z',
+    },
+  ];
+
+  const initialOccurrences: RecurringOccurrence[] = [
+    {
+      id: 'occ_01',
+      scheduleId: 'rec_01',
+      userId: demoUser.id,
+      scheduledDate: '2026-10-01',
+      processedAt: '2026-10-01T10:00:00.000Z',
+      status: 'generated',
+      transactionId: 'tx_05',
+    },
+    {
+      id: 'occ_03',
+      scheduleId: 'rec_03',
+      userId: demoUser.id,
+      scheduledDate: '2026-10-05',
+      processedAt: '2026-10-05T08:00:00.000Z',
+      status: 'generated',
+      transactionId: 'tx_11',
+    },
+    {
+      id: 'occ_04',
+      scheduleId: 'rec_04',
+      userId: demoUser.id,
+      scheduledDate: '2026-10-10',
+      processedAt: '2026-10-10T08:00:00.000Z',
+      status: 'generated',
+      transactionId: 'tx_03',
+    },
+  ];
+
   return {
     users: [demoUser],
     transactions: initialTransactions,
@@ -509,6 +684,8 @@ function seedInitialData() {
     goals: initialGoals,
     goalContributions: initialContributions,
     userPreferences: [initialPreferences],
+    recurringSchedules: initialSchedules,
+    recurringOccurrences: initialOccurrences,
   };
 }
 
@@ -537,6 +714,16 @@ function loadDatabase(): DatabaseSchema {
         if (!Array.isArray(parsed.userPreferences)) {
           const initial = seedInitialData();
           parsed.userPreferences = initial.userPreferences;
+          changed = true;
+        }
+        if (!Array.isArray(parsed.recurringSchedules)) {
+          const initial = seedInitialData();
+          parsed.recurringSchedules = initial.recurringSchedules;
+          changed = true;
+        }
+        if (!Array.isArray(parsed.recurringOccurrences)) {
+          const initial = seedInitialData();
+          parsed.recurringOccurrences = initial.recurringOccurrences;
           changed = true;
         }
         if (changed) {
@@ -2095,10 +2282,495 @@ export const database = {
     db.userPreferences = db.userPreferences.filter((p) => p.userId !== userId);
     const deleted = db.users.length < initialLen;
     if (deleted) {
+      db.recurringSchedules = db.recurringSchedules.filter((s) => s.userId !== userId);
+      db.recurringOccurrences = db.recurringOccurrences.filter((o) => o.userId !== userId);
       saveDatabase(db);
     }
     return deleted;
   },
+
+  // ==================== PHASE 8: RECURRING TRANSACTIONS METHODS ====================
+
+  getRecurringSchedules(
+    userId: string,
+    filters?: {
+      status?: string;
+      type?: string;
+      frequency?: string;
+      search?: string;
+    }
+  ): RecurringSchedule[] {
+    let list = db.recurringSchedules.filter((s) => s.userId === userId);
+
+    if (filters?.status && filters.status !== 'all') {
+      list = list.filter((s) => s.status === filters.status);
+    }
+
+    if (filters?.type && (filters.type === 'income' || filters.type === 'expense')) {
+      list = list.filter((s) => s.type === filters.type);
+    }
+
+    if (filters?.frequency && filters.frequency !== 'all') {
+      list = list.filter((s) => s.frequency === filters.frequency);
+    }
+
+    if (filters?.search && filters.search.trim()) {
+      const q = filters.search.toLowerCase().trim();
+      list = list.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.category.toLowerCase().includes(q) ||
+          (s.merchant && s.merchant.toLowerCase().includes(q)) ||
+          (s.notes && s.notes.toLowerCase().includes(q))
+      );
+    }
+
+    return list.sort((a, b) => new Date(a.nextRunDate).getTime() - new Date(b.nextRunDate).getTime());
+  },
+
+  getRecurringScheduleById(userId: string, id: string): RecurringSchedule | undefined {
+    return db.recurringSchedules.find((s) => s.id === id && s.userId === userId);
+  },
+
+  createRecurringSchedule(
+    userId: string,
+    data: {
+      name: string;
+      type: 'income' | 'expense';
+      amount: number;
+      category: string;
+      frequency: RecurrenceFrequency;
+      startDate: string;
+      endDate?: string;
+      maxOccurrences?: number;
+      dayOfWeek?: number;
+      dayOfMonth?: number;
+      paymentMethod?: string;
+      merchant?: string;
+      notes?: string;
+    }
+  ): RecurringSchedule {
+    const cleanAmount = Math.round(data.amount * 100) / 100;
+    const now = new Date().toISOString();
+    const id = `rec_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const startDate = data.startDate || now.split('T')[0];
+
+    const newSchedule: RecurringSchedule = {
+      id,
+      userId,
+      name: data.name.trim(),
+      type: data.type,
+      amount: cleanAmount,
+      category: data.category.trim() || 'General',
+      frequency: data.frequency,
+      startDate,
+      endDate: data.endDate ? data.endDate.trim() : undefined,
+      maxOccurrences: data.maxOccurrences && data.maxOccurrences > 0 ? data.maxOccurrences : undefined,
+      dayOfWeek: typeof data.dayOfWeek === 'number' ? data.dayOfWeek : undefined,
+      dayOfMonth: typeof data.dayOfMonth === 'number' ? data.dayOfMonth : parseInt(startDate.split('-')[2], 10),
+      status: 'active',
+      paymentMethod: data.paymentMethod?.trim() || 'UPI / NetBanking',
+      merchant: data.merchant?.trim() || '',
+      notes: data.notes?.trim() || '',
+      nextRunDate: startDate,
+      completedOccurrences: 0,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    db.recurringSchedules.push(newSchedule);
+    saveDatabase(db);
+    return newSchedule;
+  },
+
+  updateRecurringSchedule(
+    userId: string,
+    id: string,
+    updates: Partial<RecurringSchedule>
+  ): RecurringSchedule | null {
+    const schedule = db.recurringSchedules.find((s) => s.id === id && s.userId === userId);
+    if (!schedule) return null;
+
+    if (updates.name !== undefined) schedule.name = updates.name.trim();
+    if (updates.type !== undefined) schedule.type = updates.type;
+    if (typeof updates.amount === 'number') schedule.amount = Math.round(updates.amount * 100) / 100;
+    if (updates.category !== undefined) schedule.category = updates.category.trim();
+    if (updates.frequency !== undefined) schedule.frequency = updates.frequency;
+    if (updates.startDate !== undefined) schedule.startDate = updates.startDate;
+    if (updates.endDate !== undefined) schedule.endDate = updates.endDate || undefined;
+    if (updates.maxOccurrences !== undefined) schedule.maxOccurrences = updates.maxOccurrences || undefined;
+    if (updates.dayOfWeek !== undefined) schedule.dayOfWeek = updates.dayOfWeek;
+    if (updates.dayOfMonth !== undefined) schedule.dayOfMonth = updates.dayOfMonth;
+    if (updates.paymentMethod !== undefined) schedule.paymentMethod = updates.paymentMethod;
+    if (updates.merchant !== undefined) schedule.merchant = updates.merchant;
+    if (updates.notes !== undefined) schedule.notes = updates.notes;
+    if (updates.status !== undefined) schedule.status = updates.status;
+
+    schedule.updatedAt = new Date().toISOString();
+    saveDatabase(db);
+    return schedule;
+  },
+
+  pauseRecurringSchedule(userId: string, id: string): RecurringSchedule | null {
+    return this.updateRecurringSchedule(userId, id, { status: 'paused' });
+  },
+
+  resumeRecurringSchedule(userId: string, id: string): RecurringSchedule | null {
+    return this.updateRecurringSchedule(userId, id, { status: 'active' });
+  },
+
+  cancelRecurringSchedule(userId: string, id: string): RecurringSchedule | null {
+    return this.updateRecurringSchedule(userId, id, { status: 'cancelled' });
+  },
+
+  deleteRecurringSchedule(userId: string, id: string): boolean {
+    const initialLen = db.recurringSchedules.length;
+    db.recurringSchedules = db.recurringSchedules.filter((s) => !(s.id === id && s.userId === userId));
+    const deleted = db.recurringSchedules.length < initialLen;
+    if (deleted) {
+      // Retain generated transactions; only remove schedule metadata
+      saveDatabase(db);
+    }
+    return deleted;
+  },
+
+  getScheduleOccurrences(userId: string, scheduleId: string): RecurringOccurrence[] {
+    return db.recurringOccurrences
+      .filter((o) => o.scheduleId === scheduleId && o.userId === userId)
+      .sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime());
+  },
+
+  getRecurringSummary(userId: string) {
+    const userSchedules = db.recurringSchedules.filter((s) => s.userId === userId);
+    const activeSchedules = userSchedules.filter((s) => s.status === 'active');
+
+    // Estimate monthly income and expense from active schedules
+    let estMonthlyIncome = 0;
+    let estMonthlyExpense = 0;
+
+    activeSchedules.forEach((s) => {
+      let monthlyFactor = 1;
+      switch (s.frequency) {
+        case 'daily':
+          monthlyFactor = 30;
+          break;
+        case 'weekly':
+          monthlyFactor = 4.33;
+          break;
+        case 'biweekly':
+          monthlyFactor = 2.16;
+          break;
+        case 'monthly':
+          monthlyFactor = 1;
+          break;
+        case 'quarterly':
+          monthlyFactor = 1 / 3;
+          break;
+        case 'semiannual':
+          monthlyFactor = 1 / 6;
+          break;
+        case 'yearly':
+          monthlyFactor = 1 / 12;
+          break;
+      }
+
+      if (s.type === 'income') estMonthlyIncome += s.amount * monthlyFactor;
+      if (s.type === 'expense') estMonthlyExpense += s.amount * monthlyFactor;
+    });
+
+    estMonthlyIncome = Math.round(estMonthlyIncome * 100) / 100;
+    estMonthlyExpense = Math.round(estMonthlyExpense * 100) / 100;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const upcomingItems = activeSchedules.filter((s) => s.nextRunDate >= todayStr);
+    upcomingItems.sort((a, b) => new Date(a.nextRunDate).getTime() - new Date(b.nextRunDate).getTime());
+
+    const nextUpcoming = upcomingItems.length > 0 ? upcomingItems[0] : null;
+
+    return {
+      totalSchedulesCount: userSchedules.length,
+      activeCount: activeSchedules.length,
+      pausedCount: userSchedules.filter((s) => s.status === 'paused').length,
+      completedCount: userSchedules.filter((s) => s.status === 'completed').length,
+      cancelledCount: userSchedules.filter((s) => s.status === 'cancelled').length,
+      upcomingCount: upcomingItems.length,
+      estMonthlyIncome,
+      estMonthlyExpense,
+      nextUpcomingPayment: nextUpcoming
+        ? {
+            name: nextUpcoming.name,
+            amount: nextUpcoming.amount,
+            type: nextUpcoming.type,
+            date: nextUpcoming.nextRunDate,
+            category: nextUpcoming.category,
+          }
+        : null,
+    };
+  },
+
+  getUpcomingOccurrences(userId: string, daysAhead = 30) {
+    const userSchedules = db.recurringSchedules.filter((s) => s.userId === userId && s.status === 'active');
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const futureDate = new Date(today.getTime() + daysAhead * 86400000);
+    const futureDateStr = futureDate.toISOString().split('T')[0];
+
+    const projected: Array<{
+      scheduleId: string;
+      name: string;
+      type: 'income' | 'expense';
+      amount: number;
+      category: string;
+      scheduledDate: string;
+      frequency: RecurrenceFrequency;
+      paymentMethod?: string;
+    }> = [];
+
+    userSchedules.forEach((s) => {
+      let curDate = s.nextRunDate;
+      let iterations = 0;
+
+      while (curDate <= futureDateStr && iterations < 12) {
+        if (curDate >= todayStr) {
+          if (!s.endDate || curDate <= s.endDate) {
+            projected.push({
+              scheduleId: s.id,
+              name: s.name,
+              type: s.type,
+              amount: s.amount,
+              category: s.category,
+              scheduledDate: curDate,
+              frequency: s.frequency,
+              paymentMethod: s.paymentMethod,
+            });
+          }
+        }
+        curDate = calculateNextRunDate(curDate, s.frequency, s.dayOfMonth, s.dayOfWeek);
+        iterations++;
+      }
+    });
+
+    return projected.sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
+  },
+
+  // ==================== SCHEDULER & IDEMPOTENT EXECUTION ENGINE ====================
+
+  processDueRecurringSchedules(asOfDate?: string): {
+    processedSchedulesCount: number;
+    generatedTransactionsCount: number;
+    skippedCount: number;
+    details: string[];
+  } {
+    const todayStr = asOfDate || new Date().toISOString().split('T')[0];
+    const activeSchedules = db.recurringSchedules.filter((s) => s.status === 'active');
+
+    let processedSchedulesCount = 0;
+    let generatedTransactionsCount = 0;
+    let skippedCount = 0;
+    const details: string[] = [];
+
+    for (const schedule of activeSchedules) {
+      if (schedule.nextRunDate > todayStr) {
+        continue;
+      }
+
+      let currentDue = schedule.nextRunDate;
+      let scheduleProcessed = false;
+      let safetyCounter = 0;
+
+      while (currentDue <= todayStr && safetyCounter < 50) {
+        safetyCounter++;
+
+        // End date limit check
+        if (schedule.endDate && currentDue > schedule.endDate) {
+          schedule.status = 'completed';
+          schedule.updatedAt = new Date().toISOString();
+          details.push(`Schedule "${schedule.name}" reached end date (${schedule.endDate}). Marked completed.`);
+          break;
+        }
+
+        // Max occurrences limit check
+        if (schedule.maxOccurrences && schedule.completedOccurrences >= schedule.maxOccurrences) {
+          schedule.status = 'completed';
+          schedule.updatedAt = new Date().toISOString();
+          details.push(`Schedule "${schedule.name}" reached max occurrences limit (${schedule.maxOccurrences}). Marked completed.`);
+          break;
+        }
+
+        // Idempotency check: has this occurrence already been processed?
+        const existingOcc = db.recurringOccurrences.find(
+          (o) => o.scheduleId === schedule.id && o.scheduledDate === currentDue
+        );
+
+        if (existingOcc && (existingOcc.status === 'generated' || existingOcc.status === 'skipped')) {
+          skippedCount++;
+          // Advance to next run date to prevent stuck loop
+          currentDue = calculateNextRunDate(currentDue, schedule.frequency, schedule.dayOfMonth, schedule.dayOfWeek);
+          schedule.nextRunDate = currentDue;
+          continue;
+        }
+
+        // Generate authoritative transaction using standard createTransaction
+        try {
+          const generatedTx = this.createTransaction(schedule.userId, {
+            type: schedule.type,
+            amount: schedule.amount,
+            category: schedule.category,
+            date: currentDue,
+            description: `${schedule.name} (Automated)`,
+            paymentMethod: schedule.paymentMethod || 'Scheduled Auto-Debit',
+            merchant: schedule.merchant || '',
+          });
+
+          // Record occurrence record
+          const occId = `occ_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+          const occRecord: RecurringOccurrence = {
+            id: occId,
+            scheduleId: schedule.id,
+            userId: schedule.userId,
+            scheduledDate: currentDue,
+            processedAt: new Date().toISOString(),
+            status: 'generated',
+            transactionId: generatedTx.id,
+          };
+
+          db.recurringOccurrences.push(occRecord);
+
+          schedule.completedOccurrences += 1;
+          schedule.lastRunDate = currentDue;
+          scheduleProcessed = true;
+          generatedTransactionsCount++;
+
+          details.push(
+            `Generated transaction ${generatedTx.id} (₹${schedule.amount}) for "${schedule.name}" on ${currentDue}`
+          );
+
+          // Calculate next run date
+          currentDue = calculateNextRunDate(currentDue, schedule.frequency, schedule.dayOfMonth, schedule.dayOfWeek);
+          schedule.nextRunDate = currentDue;
+          schedule.updatedAt = new Date().toISOString();
+
+          // Check if completion threshold hit after incrementing
+          if (schedule.maxOccurrences && schedule.completedOccurrences >= schedule.maxOccurrences) {
+            schedule.status = 'completed';
+            details.push(`Schedule "${schedule.name}" reached max occurrences limit after execution.`);
+            break;
+          }
+          if (schedule.endDate && currentDue > schedule.endDate) {
+            schedule.status = 'completed';
+            details.push(`Schedule "${schedule.name}" reached end date after execution.`);
+            break;
+          }
+        } catch (err: any) {
+          console.error(`Failed to generate transaction for schedule ${schedule.id}:`, err);
+          const occId = `occ_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+          db.recurringOccurrences.push({
+            id: occId,
+            scheduleId: schedule.id,
+            userId: schedule.userId,
+            scheduledDate: currentDue,
+            processedAt: new Date().toISOString(),
+            status: 'failed',
+            errorMessage: err?.message || 'Transaction creation error',
+          });
+          currentDue = calculateNextRunDate(currentDue, schedule.frequency, schedule.dayOfMonth, schedule.dayOfWeek);
+          schedule.nextRunDate = currentDue;
+          break;
+        }
+      }
+
+      if (scheduleProcessed) {
+        processedSchedulesCount++;
+      }
+    }
+
+    saveDatabase(db);
+
+    return {
+      processedSchedulesCount,
+      generatedTransactionsCount,
+      skippedCount,
+      details,
+    };
+  },
 };
+
+// Date calculation helper exported for tests and standalone use
+export function calculateNextRunDate(
+  fromDate: string,
+  frequency: RecurrenceFrequency,
+  dayOfMonth?: number,
+  _dayOfWeek?: number
+): string {
+  const [yStr, mStr, dStr] = fromDate.split('-');
+  const y = parseInt(yStr, 10);
+  const m = parseInt(mStr, 10);
+  const d = parseInt(dStr, 10);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+
+  switch (frequency) {
+    case 'daily':
+      dt.setUTCDate(dt.getUTCDate() + 1);
+      break;
+    case 'weekly':
+      dt.setUTCDate(dt.getUTCDate() + 7);
+      break;
+    case 'biweekly':
+      dt.setUTCDate(dt.getUTCDate() + 14);
+      break;
+    case 'monthly': {
+      let targetMonth = dt.getUTCMonth() + 1;
+      let targetYear = dt.getUTCFullYear();
+      if (targetMonth > 11) {
+        targetMonth = 0;
+        targetYear += 1;
+      }
+      const desiredDay = dayOfMonth || d;
+      const daysInTargetMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+      const actualDay = Math.min(desiredDay, daysInTargetMonth);
+      return `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(actualDay).padStart(2, '0')}`;
+    }
+    case 'quarterly': {
+      let targetMonth = dt.getUTCMonth() + 3;
+      let targetYear = dt.getUTCFullYear();
+      if (targetMonth > 11) {
+        targetYear += Math.floor(targetMonth / 12);
+        targetMonth = targetMonth % 12;
+      }
+      const desiredDay = dayOfMonth || d;
+      const daysInTargetMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+      const actualDay = Math.min(desiredDay, daysInTargetMonth);
+      return `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(actualDay).padStart(2, '0')}`;
+    }
+    case 'semiannual': {
+      let targetMonth = dt.getUTCMonth() + 6;
+      let targetYear = dt.getUTCFullYear();
+      if (targetMonth > 11) {
+        targetYear += Math.floor(targetMonth / 12);
+        targetMonth = targetMonth % 12;
+      }
+      const desiredDay = dayOfMonth || d;
+      const daysInTargetMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+      const actualDay = Math.min(desiredDay, daysInTargetMonth);
+      return `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(actualDay).padStart(2, '0')}`;
+    }
+    case 'yearly': {
+      const targetYear = dt.getUTCFullYear() + 1;
+      const targetMonth = dt.getUTCMonth();
+      const desiredDay = dayOfMonth || d;
+      const daysInTargetMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+      const actualDay = Math.min(desiredDay, daysInTargetMonth);
+      return `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(actualDay).padStart(2, '0')}`;
+    }
+    default:
+      dt.setUTCDate(dt.getUTCDate() + 30);
+      break;
+  }
+
+  const ny = dt.getUTCFullYear();
+  const nm = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const nd = String(dt.getUTCDate()).padStart(2, '0');
+  return `${ny}-${nm}-${nd}`;
+}
 
 

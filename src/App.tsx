@@ -17,6 +17,7 @@ import { TransactionsPage } from './pages/TransactionsPage';
 import { BudgetsPage } from './pages/BudgetsPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { GoalsPage } from './pages/GoalsPage';
+import { RecurringTransactionsPage } from './pages/RecurringTransactionsPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Sidebar } from './components/Sidebar';
@@ -270,6 +271,7 @@ export default function App() {
     const protectedPages: NavigationPage[] = [
       'dashboard',
       'transactions',
+      'recurring',
       'budgets',
       'analytics',
       'goals',
@@ -399,6 +401,14 @@ export default function App() {
                 setStartDate(s);
                 setEndDate(e);
               }}
+            />
+          )}
+
+          {currentPage === 'recurring' && (
+            <RecurringTransactionsPage
+              user={currentUser}
+              onNavigate={navigateTo}
+              onShowToast={addToast}
             />
           )}
 
