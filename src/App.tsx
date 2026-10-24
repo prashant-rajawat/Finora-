@@ -15,6 +15,9 @@ import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { TransactionsPage } from './pages/TransactionsPage';
 import { BudgetsPage } from './pages/BudgetsPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
+import { GoalsPage } from './pages/GoalsPage';
+import { ReportsPage } from './pages/ReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -417,24 +420,31 @@ export default function App() {
           )}
 
           {currentPage === 'analytics' && (
-            <ComingSoonView
-              page="analytics"
-              onBackToDashboard={() => navigateTo('dashboard')}
+            <AnalyticsPage
+              user={currentUser}
+              onNavigate={navigateTo}
+              onOpenAddTransaction={handleOpenAddModal}
+              onDrillDownToTransactions={(category, searchTerm) => {
+                if (category) setSelectedCategory(category);
+                if (searchTerm) setSearchQuery(searchTerm);
+                navigateTo('transactions');
+              }}
             />
           )}
 
           {currentPage === 'goals' && (
-            <ComingSoonView
-              page="goals"
-              onBackToDashboard={() => navigateTo('dashboard')}
+            <GoalsPage
+              user={currentUser}
+              onNavigate={navigateTo}
+              onShowToast={addToast}
             />
           )}
 
           {currentPage === 'reports' && (
-            <ComingSoonView
-              page="reports"
-              onBackToDashboard={() => navigateTo('dashboard')}
-              onExportCsv={handleExportCsv}
+            <ReportsPage
+              user={currentUser}
+              onNavigate={navigateTo}
+              onShowToast={addToast}
             />
           )}
 
@@ -442,6 +452,8 @@ export default function App() {
             <SettingsPage
               user={currentUser}
               onUpdateProfile={handleUpdateProfile}
+              onLogout={handleLogout}
+              onShowToast={addToast}
             />
           )}
         </main>

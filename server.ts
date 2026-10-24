@@ -6,6 +6,10 @@ import { createServer as createViteServer } from 'vite';
 import { authRouter } from './server/routes/authRoutes.js';
 import { transactionRouter } from './server/routes/transactionRoutes.js';
 import { budgetRouter } from './server/routes/budgetRoutes.js';
+import { analyticsRouter } from './server/routes/analyticsRoutes.js';
+import { goalRouter } from './server/routes/goalRoutes.js';
+import { reportRouter } from './server/routes/reportRoutes.js';
+import { settingsRouter } from './server/routes/settingsRoutes.js';
 
 dotenv.config();
 
@@ -23,6 +27,10 @@ async function startServer() {
   app.use('/api/auth', authRouter);
   app.use('/api/transactions', transactionRouter);
   app.use('/api/budgets', budgetRouter);
+  app.use('/api/analytics', analyticsRouter);
+  app.use('/api/goals', goalRouter);
+  app.use('/api/reports', reportRouter);
+  app.use('/api/settings', settingsRouter);
 
   // Health check endpoint
   app.get('/api/health', (_req, res) => {

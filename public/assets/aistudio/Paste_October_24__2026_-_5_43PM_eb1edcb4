@@ -1,0 +1,824 @@
+# FINORA — PHASE 6 MASTER IMPLEMENTATION PROMPT
+## Complete Reports, Financial Statements & CSV/PDF Export System
+
+**Project:** Finora — Personal Finance Tracker  
+**Phase:** 6 — Reports & Export  
+**Implementation type:** Full-stack implementation — Frontend + Backend + Database integration + Testing  
+**Design:** Premium light theme with white backgrounds, pale-blue accents, blue primary actions, clean typography, subtle borders, and professional rounded cards.
+
+---
+
+## 1. YOUR ROLE AND PRIMARY OBJECTIVE
+
+Act as a senior full-stack engineer, financial reporting specialist, database engineer, UI/UX designer, and software quality engineer.
+
+Your task is to **implement Phase 6 directly inside my existing Finora project** using the current codebase, framework, backend, database, authentication system, and design system.
+
+Do not simply explain what needs to be done. Do not stop after reviewing the project or generating a plan. Inspect the existing implementation, make the actual code changes, connect the frontend to the backend, implement the required functionality, and verify the results.
+
+Build a complete Reports & Export system that allows authenticated users to generate, preview, filter, and download accurate financial reports based on their real saved data.
+
+The finished implementation must work with the existing Finora features, including:
+
+- Authentication and protected routes.
+- Dashboard and financial summary cards.
+- Transaction management.
+- Budget management.
+- Advanced analytics.
+- Savings goals and contribution tracking.
+- Existing database schema and user ownership rules.
+
+Do not rebuild the entire application from scratch. Extend the current application safely.
+
+## 2. MANDATORY PROJECT INSPECTION
+
+Before implementation, inspect the existing repository and identify:
+
+- Frontend framework and routing structure.
+- Backend framework and API conventions.
+- Authentication and session management.
+- Database schema, migrations, and data access patterns.
+- Transaction models and category definitions.
+- Budget models and calculation logic.
+- Savings goal and contribution models.
+- Analytics calculations and date-filtering behavior.
+- Existing charting, table, PDF, and CSV libraries.
+- Existing navigation, reusable components, and styling conventions.
+- Current testing setup and available test commands.
+
+Reuse existing utilities and components wherever practical.
+
+Do not create duplicate transaction models, parallel authentication systems, duplicate financial calculations, or unnecessary database tables.
+
+If a required field or relationship is missing, implement a safe, backward-compatible migration only when necessary. Preserve existing records and user data.
+
+If a feature from an earlier phase does not exist, do not pretend it exists. Identify the dependency, implement the smallest compatible solution if possible, or clearly report the blocker.
+
+## 3. REPORTS CENTER PAGE
+
+Create a polished, fully functional **Reports** page in the existing Finora application.
+
+Suggested route: `/reports`
+
+Follow the existing route conventions if they differ.
+
+### Page header
+
+Include:
+
+- Page title: Reports.
+- Short description: “Understand your finances with clear, data-driven reports.”
+- A primary “Generate Report” action.
+- A report-type selector.
+- A date-range selector.
+- An export action when a valid report is available.
+
+### Report categories
+
+Provide the following report types:
+
+1. Transaction Report.
+2. Income & Expense Report.
+3. Category Spending Report.
+4. Budget Performance Report.
+5. Savings Goals Report.
+
+Each report type must have its own relevant filters, columns, summary values, preview layout, and export behavior.
+
+Selecting a report must update the actual report content. Do not implement a collection of cards that all open the same placeholder page.
+
+### Report overview cards
+
+Where appropriate, display:
+
+- Total income.
+- Total expenses.
+- Net cash flow.
+- Transaction count.
+- Average transaction amount.
+- Budget utilization.
+- Savings goal progress.
+
+Only show metrics relevant to the selected report.
+
+Every metric must be calculated from actual authorized database records. Do not hardcode sample amounts or use fabricated financial data.
+
+For accounts with no records, show zero values or a clear empty state as appropriate.
+
+## 4. REPORT FILTERING SYSTEM
+
+Implement a shared, reliable filtering system.
+
+Support these filters wherever applicable:
+
+- This month.
+- Last month.
+- Last 3 months.
+- Last 6 months.
+- This year.
+- Last year.
+- All time.
+- Custom start and end dates.
+- Transaction type: income, expense, or all.
+- Category.
+- Account or payment method, if supported by the existing application.
+- Transaction status, if the existing model supports it.
+- Budget or savings goal, for the relevant report types.
+
+### Filter behavior
+
+- Start and end dates must be validated.
+- Prevent an end date earlier than the start date.
+- Clearly display the active date range.
+- Apply all applicable filters consistently to the preview, summary metrics, charts, and exported files.
+- Provide a Reset Filters action.
+- Provide a useful empty state when filters produce no results.
+- Preserve filters when switching between report preview and export configuration where practical.
+- Use the application's established timezone and date-handling conventions.
+- Avoid off-by-one errors at date boundaries.
+- Handle month boundaries, year boundaries, and leap years correctly.
+
+Do not silently change the selected dates or display a different reporting period in the exported file.
+
+## 5. TRANSACTION REPORT
+
+Build a complete transaction report using the user's actual transaction records.
+
+### Report columns
+
+Include appropriate fields supported by the existing data model, such as:
+
+- Date.
+- Transaction title or description.
+- Transaction type.
+- Category.
+- Account or payment method.
+- Amount.
+- Notes, where appropriate.
+
+Do not expose private internal IDs, authentication tokens, password fields, or unnecessary database metadata in the report.
+
+### Functional requirements
+
+- Display the filtered transactions in a readable table.
+- Support sorting by date, amount, category, and type where appropriate.
+- Support searching by description or other relevant transaction fields.
+- Display income and expense totals for the filtered result set.
+- Display the transaction count.
+- Use pagination or efficient rendering for large datasets.
+- Ensure pagination does not accidentally exclude records from the exported report.
+- Provide a clear empty state when no transactions match.
+
+Use the existing transaction definitions and sign conventions. If income and expenses are stored as positive amounts with a separate type, calculate totals using the type instead of assuming that expenses are negative.
+
+The report must agree with the corresponding filtered records in Finora.
+
+## 6. INCOME & EXPENSE REPORT
+
+Build a financial summary report that explains cash flow over a selected period.
+
+### Summary metrics
+
+Include:
+
+- Total income.
+- Total expenses.
+- Net cash flow.
+- Income-to-expense comparison.
+- Average daily expenses, where meaningful.
+- Savings rate, only when the definition is valid for the available data.
+
+Use a consistent definition of net cash flow:
+
+Net Cash Flow = Total Income − Total Expenses.
+
+For the savings rate, use a clearly documented formula, such as:
+
+Savings Rate = (Income − Expenses) ÷ Income × 100.
+
+When income is zero, do not divide by zero or display a misleading percentage. Show an appropriate unavailable state.
+
+### Charts and visualizations
+
+Where the project's existing charting library supports them, include:
+
+- Income versus expenses over time.
+- Monthly cash-flow trend.
+- Category-wise expense breakdown.
+- Optional cumulative cash-flow trend.
+
+Charts must use the same selected date range and filters as the report totals.
+
+Add clear chart titles, date labels, currency formatting, and accessible labels or legends.
+
+If there is insufficient data, show a meaningful empty chart state instead of invented values.
+
+## 7. CATEGORY SPENDING REPORT
+
+Build a category-based report to help users understand where their money goes.
+
+### Display
+
+For the selected period, show:
+
+- Category name.
+- Total expenses per category.
+- Percentage of total expenses.
+- Number of transactions.
+- Average transaction amount, where meaningful.
+
+Include a visual breakdown, such as a donut chart or horizontal bar chart, if supported by the existing charting library.
+
+### Requirements
+
+- Use the application's existing category definitions.
+- Handle uncategorized transactions appropriately.
+- Exclude income from expense-category totals unless the user explicitly selects an income report.
+- Avoid double-counting transactions.
+- Ensure category totals reconcile with the corresponding filtered expense total.
+- Allow the user to inspect the transactions belonging to a category, if practical.
+- Handle zero expenses and empty categories safely.
+
+Use consistent category labels and currency formatting throughout the interface and exported reports.
+
+## 8. BUDGET PERFORMANCE REPORT
+
+Integrate the reporting system with the existing Phase 3 budget management system.
+
+For each applicable budget, display:
+
+- Budget name.
+- Category or budget scope.
+- Budget period.
+- Allocated budget.
+- Actual spending.
+- Remaining amount.
+- Percentage used.
+- Status: under budget, approaching limit, or over budget.
+
+### Calculation rules
+
+Use the same budget calculations and transaction inclusion rules as the existing budget dashboard.
+
+Do not create a separate, conflicting calculation system.
+
+For a standard budget:
+
+Remaining Budget = Budget Amount − Actual Spending.
+
+Percentage Used = Actual Spending ÷ Budget Amount × 100, when the budget amount is greater than zero.
+
+Handle zero-value budgets without division errors.
+
+Ensure the reporting period aligns with the budget's actual period and reset rules.
+
+If the budget uses a monthly or custom period, calculate the report using that period's existing business logic. Do not compare a partial-month expense total against a full-month amount without clearly indicating the selected period.
+
+Provide an appropriate message if no budgets have been created.
+
+## 9. SAVINGS GOALS REPORT
+
+Integrate with the existing Phase 5 savings goals and contribution system.
+
+For each applicable savings goal, show:
+
+- Goal name.
+- Target amount.
+- Current saved amount.
+- Remaining amount.
+- Progress percentage.
+- Target date, if provided.
+- Goal status.
+- Contribution activity during the selected period, if available.
+
+### Financial integrity
+
+Use the existing savings goal and contribution calculations.
+
+Do not count savings contributions as additional income.
+
+Do not count contributions as expenses a second time if they already affect the user's financial records through an existing accounting model.
+
+Keep the report consistent with the Savings Goals page and Analytics dashboard.
+
+Clearly distinguish between:
+
+- Financial income and expenses.
+- Savings goal contributions.
+- Goal progress.
+
+If the existing data model does not store contribution history, do not invent historical contributions. Show only the information supported by saved records and clearly indicate any limitation.
+
+## 10. REPORT PREVIEW EXPERIENCE
+
+Build a professional report preview before downloading.
+
+The preview should include:
+
+- Report title.
+- Selected reporting period.
+- Generation date.
+- Applied filters.
+- Relevant summary metrics.
+- Detailed report table.
+- Relevant charts or breakdowns.
+- Currency and date formatting.
+- A clear indication when the report contains no data.
+
+### Preview interactions
+
+Users should be able to:
+
+- Change report type.
+- Adjust the date range.
+- Modify available filters.
+- Refresh the report.
+- Review the report before exporting.
+- Return to the Reports Center without losing their work unnecessarily.
+
+Show loading, success, empty, and error states appropriately.
+
+Disable export controls while the relevant export operation is running, and prevent duplicate submissions.
+
+Do not show a successful report preview until the data has actually loaded.
+
+## 11. CSV EXPORT — REAL DOWNLOAD FUNCTIONALITY
+
+Implement a working CSV export for every report type where structured tabular data is applicable.
+
+The exported CSV must contain the complete filtered dataset, not just the currently visible page.
+
+### CSV requirements
+
+- Use clear column headers.
+- Format values consistently.
+- Preserve valid dates and numeric amounts.
+- Handle commas, quotes, and line breaks in text fields.
+- Use proper CSV escaping.
+- Use UTF-8 encoding.
+- Use a suitable filename that includes the report type and date range when possible.
+- Do not export hidden sensitive fields.
+- Do not silently truncate records.
+- Do not export fabricated records.
+
+Example filenames:
+
+- `finora-transaction-report-2026-10.csv`
+- `finora-income-expense-report-2026-10.csv`
+- `finora-budget-performance-report.csv`
+- `finora-savings-goals-report.csv`
+
+Generate filenames dynamically based on the selected report and period.
+
+### CSV security
+
+Prevent spreadsheet formula injection.
+
+Treat user-controlled text fields as untrusted. Properly handle values beginning with formula-triggering characters such as `=`, `+`, `-`, or `@`, including dangerous leading whitespace or control characters.
+
+Apply an appropriate safe-export strategy to text fields without corrupting legitimate numeric financial values.
+
+Do not simply concatenate raw database text into CSV rows.
+
+Test descriptions and category names containing commas, quotes, newlines, and formula-like text.
+
+### Download behavior
+
+- Generate the CSV from the currently selected report and filters.
+- Trigger a genuine browser download.
+- Use an appropriate MIME type.
+- Show useful error feedback if export fails.
+- Do not display a success message unless the export operation actually completes.
+
+Use an existing CSV library if available. Add a dependency only if necessary and compatible with the existing project.
+
+## 12. PDF EXPORT — PROFESSIONAL FINANCIAL REPORTS
+
+Implement a working PDF export for the supported report types.
+
+The PDF should look like a professional personal finance report rather than a plain text dump.
+
+### PDF layout
+
+Include:
+
+- Finora branding using the existing design system.
+- Report title.
+- Reporting period.
+- Generation date.
+- Applied filters.
+- Summary cards or a compact metrics section.
+- Readable tables.
+- Appropriate totals and subtotals.
+- Page numbers when supported.
+- Clear spacing and consistent typography.
+- A footer with a concise statement such as “Generated by Finora.”
+
+Use Indian Rupee formatting by default, consistent with the current Finora settings.
+
+### PDF pagination
+
+- Prevent important table headings from becoming detached from their rows.
+- Repeat table headings on subsequent pages when supported.
+- Handle long descriptions safely.
+- Prevent clipped or overlapping text.
+- Handle reports with many transactions.
+- Support multiple pages.
+- Display a clear no-data message for empty reports.
+- Ensure totals are accurate and included in the exported report where applicable.
+
+Charts may be included when technically practical. If chart rendering is unreliable in PDF, prioritize accurate summary values and readable tables over broken graphics.
+
+### Technical requirements
+
+Inspect the existing project before selecting a PDF generation approach.
+
+Reuse an existing PDF library if suitable. If no suitable library exists, select a compatible library and integrate it correctly.
+
+Choose client-side or server-side PDF generation based on the existing architecture, data size, and security requirements.
+
+For large reports, avoid unnecessarily loading the entire dataset into an inefficient client-side rendering process. If server-side generation is appropriate, enforce authenticated access and user-specific data scoping.
+
+Do not expose private backend credentials or unrestricted database access in browser code.
+
+Test actual PDF generation and inspect the resulting document where tooling permits.
+
+## 13. OPTIONAL REPORT PRINTING
+
+If practical, add a Print Report action.
+
+The print layout should:
+
+- Hide application navigation and unrelated controls.
+- Display the report title and selected date range.
+- Preserve readable tables and totals.
+- Avoid printing unnecessary dashboard elements.
+- Use page-break rules where appropriate.
+
+Printing is supplementary. It must not replace the required CSV and PDF downloads.
+
+## 14. BACKEND AND API INTEGRATION
+
+Implement or extend the backend APIs needed for reports.
+
+Follow the existing API naming conventions and response format. Avoid duplicate endpoints if existing endpoints can be safely reused or extended.
+
+Potential API capabilities include:
+
+- Retrieve filtered transaction report data.
+- Retrieve income and expense summaries.
+- Retrieve category breakdowns.
+- Retrieve budget performance data.
+- Retrieve savings goal and contribution report data.
+- Generate CSV exports.
+- Generate PDF exports.
+
+Suggested route patterns, to be adapted to the existing project:
+
+- `GET /api/reports/transactions`
+- `GET /api/reports/income-expenses`
+- `GET /api/reports/categories`
+- `GET /api/reports/budgets`
+- `GET /api/reports/savings-goals`
+- `GET /api/reports/export/csv`
+- `GET /api/reports/export/pdf`
+
+Do not create these exact routes blindly if the current backend uses a different structure.
+
+### Backend requirements
+
+- Validate query parameters and date ranges.
+- Validate report types and filter values.
+- Use parameterized database queries or the project's safe ORM/query builder.
+- Apply consistent financial calculation rules.
+- Handle pagination and large datasets efficiently.
+- Return appropriate status codes and useful error responses.
+- Prevent duplicate logic where shared calculation utilities already exist.
+- Keep database access out of frontend components.
+- Do not expose stack traces or sensitive implementation details to end users.
+- Do not log passwords, tokens, or sensitive financial information unnecessarily.
+
+Where existing APIs already provide correct report data, reuse them rather than building redundant endpoints.
+
+## 15. AUTHORIZATION AND DATA PRIVACY
+
+Financial reports contain sensitive personal information.
+
+Every report request and export must be scoped to the authenticated user.
+
+Implement and verify:
+
+- Authentication checks.
+- User-specific data filtering.
+- Ownership validation for transactions, budgets, and savings goals.
+- Authorization for report and export endpoints.
+- Safe handling of unauthenticated sessions.
+- No cross-user data leakage.
+- No unrestricted client-supplied user ID used as the authorization boundary.
+- No sensitive records exposed through debug responses.
+
+Use the existing trusted authentication identity on the server or the database's established row-level security mechanism.
+
+Never rely solely on hiding report buttons in the frontend.
+
+Do not weaken existing database security policies to make reports work.
+
+## 16. FINANCIAL ACCURACY AND DATA CONSISTENCY
+
+This is a financial application. Correct calculations are more important than decorative visuals.
+
+Establish a shared source of truth for financial calculations.
+
+Verify the following:
+
+- Income totals include only eligible income transactions.
+- Expense totals include only eligible expense transactions.
+- Net cash flow equals income minus expenses.
+- Category totals reconcile with expense totals.
+- Budget spending follows existing budget rules.
+- Savings progress agrees with saved contributions and the existing goal model.
+- Date filters are consistent across the preview and exported files.
+- Currency rounding is consistent with the existing application.
+- Missing values do not produce `NaN`, `Infinity`, or misleading financial results.
+- Empty datasets do not cause exceptions.
+- Editing or deleting transactions updates reports correctly.
+- Updates to budgets or savings goals are reflected in their reports.
+
+Do not change existing financial business rules without a clear technical reason.
+
+If different modules currently use inconsistent formulas, investigate them before changing anything. Prefer a backward-compatible shared calculation utility and add regression tests.
+
+## 17. DATABASE AND PERFORMANCE
+
+Do not add a new reporting database or duplicate stored financial totals unless the existing architecture genuinely requires it.
+
+Prefer calculating report summaries from authoritative transaction, budget, and savings records.
+
+If the current database needs indexes or safe schema adjustments for report performance, implement appropriate migrations.
+
+Requirements:
+
+- Preserve all existing data.
+- Avoid destructive table resets.
+- Avoid dropping existing columns or tables.
+- Make migrations compatible with the existing deployment workflow.
+- Prevent duplicate financial records.
+- Use appropriate database aggregation when beneficial.
+- Avoid unnecessary requests for every chart or summary card.
+- Avoid fetching excessive data when a smaller aggregation can answer the query.
+- Consider export performance for users with large transaction histories.
+- Handle database errors gracefully.
+
+If a migration or environment configuration change is required, explain exactly what must be run or configured.
+
+## 18. FRONTEND DESIGN AND USER EXPERIENCE
+
+Follow the approved Finora design direction:
+
+- White backgrounds.
+- Pale-blue accent surfaces.
+- Blue primary buttons.
+- Dark readable text.
+- Subtle borders.
+- Rounded cards.
+- Consistent spacing.
+- Professional tables and filters.
+- Clean typography.
+- Minimal visual clutter.
+
+Do not introduce a black or dark navy theme as the default.
+
+### Responsive behavior
+
+Desktop:
+- Use available width effectively.
+- Display report controls and summaries in a well-organized layout.
+- Keep tables readable.
+- Use a sensible report preview width.
+
+Tablet:
+- Adapt card grids and filter layouts.
+- Avoid cramped controls.
+
+Mobile:
+- Stack filters and summary cards appropriately.
+- Use readable table layouts or horizontal scrolling when necessary.
+- Keep export actions accessible.
+- Avoid overlapping buttons and clipped text.
+- Ensure dialogs and dropdowns fit the viewport.
+- Support touch interaction.
+
+Use existing shared components, spacing tokens, and typography where possible.
+
+Do not redesign unrelated pages unless a small change is necessary to integrate Reports into the application.
+
+## 19. NAVIGATION AND INTEGRATION
+
+Add Reports to the existing navigation in the appropriate location.
+
+Ensure:
+
+- The Reports route is protected by the existing authentication system.
+- Navigation works on desktop and mobile.
+- Active navigation state is displayed correctly.
+- Browser refresh works on the Reports route.
+- Existing routes remain functional.
+- The page follows the application's established loading and error handling patterns.
+
+Integrate report data with the dashboard and analytics without changing their existing behavior unnecessarily.
+
+Where useful, add a “View Report” or “Export” link from related pages, but do not create duplicate controls that confuse users.
+
+If future functionality is not part of this phase, provide a clear Coming Soon state instead of an inactive button. However, all functionality explicitly required in this phase must be implemented.
+
+## 20. ACCESSIBILITY AND ERROR HANDLING
+
+Ensure:
+
+- Form controls have accessible labels.
+- Keyboard navigation works for filters and dialogs.
+- Tables have meaningful headings.
+- Charts have descriptive titles and accessible summaries.
+- Buttons have clear labels.
+- Color is not the only indicator of financial status.
+- Loading indicators appear during long-running requests.
+- API errors show understandable messages.
+- Empty reports provide a useful next step.
+- Invalid filters are explained clearly.
+- Failed exports allow users to retry.
+
+Never show a false success message when data retrieval or file generation fails.
+
+## 21. AUTOMATED AND MANUAL TESTING
+
+Write and run tests using the existing testing framework.
+
+Do not merely state that tests should be written. Implement and execute the tests that are feasible in the current environment.
+
+### Transaction report tests
+
+- Correct records appear for the selected date range.
+- Income and expenses are classified correctly.
+- Category and type filters work.
+- Search and sorting work.
+- Pagination does not affect export completeness.
+- Editing and deleting a transaction updates the report.
+
+### Financial summary tests
+
+- Net cash flow is calculated correctly.
+- Zero-income periods do not cause division errors.
+- Average daily spending handles the selected period correctly.
+- Category totals reconcile with expense totals.
+- Empty datasets produce valid results.
+
+### Budget report tests
+
+- Allocated amounts are correct.
+- Actual spending follows the existing budget rules.
+- Remaining amounts are calculated correctly.
+- Zero budgets are handled safely.
+- Over-budget statuses are accurate.
+- Budget period boundaries are correct.
+
+### Savings report tests
+
+- Goal totals match saved records.
+- Contributions are not counted twice.
+- Goal progress is calculated correctly.
+- Missing contribution history is not fabricated.
+- Goal edits are reflected in the report.
+
+### CSV export tests
+
+- A real CSV file is generated.
+- Headers and rows are correct.
+- Quotes, commas, and line breaks are escaped.
+- Formula injection is handled safely.
+- All filtered records are included.
+- Filename and encoding are correct.
+
+### PDF export tests
+
+- A real PDF is generated and opens successfully.
+- The report title and date range are present.
+- Summary totals match the preview.
+- Tables are readable and properly paginated.
+- Empty reports render correctly.
+- Large reports do not silently lose records.
+
+### Security tests
+
+- Unauthenticated requests are rejected.
+- User A cannot retrieve User B's transactions, budgets, savings goals, or reports.
+- User A cannot export User B's records.
+- Invalid filter parameters are rejected safely.
+- Sensitive internal fields are not included in exports.
+
+### Regression tests
+
+- Login and registration still work.
+- Dashboard metrics remain correct.
+- Transaction CRUD still works.
+- Budget management still works.
+- Analytics still works.
+- Savings goals and contributions still work.
+- Existing routes and responsive layouts are not broken.
+
+Also perform a manual browser verification where available.
+
+If any test cannot run because of missing environment variables, unavailable services, or deployment restrictions, state the exact limitation. Never claim that an unexecuted test passed.
+
+## 22. REQUIRED IMPLEMENTATION WORKFLOW
+
+Follow this workflow:
+
+**Step 1 — Inspect:** Understand the existing project, data model, routes, authentication, and styling.
+
+**Step 2 — Implement:** Build the Reports Center UI and connect every required report to real data.
+
+**Step 3 — Integrate:** Implement or extend APIs, calculation utilities, and export functionality.
+
+**Step 4 — Secure:** Verify authentication, authorization, user ownership, and safe CSV generation.
+
+**Step 5 — Test:** Run automated tests and verify actual report results and downloads.
+
+**Step 6 — Fix:** Correct implementation errors, calculation inconsistencies, UI problems, and regressions discovered during testing.
+
+**Step 7 — Report:** Summarize the actual changes and clearly identify any remaining blockers.
+
+Do not stop after Step 1 or Step 2. Continue through implementation and verification to the extent supported by the available environment.
+
+## 23. STRICT RULES
+
+1. Do not replace the existing project with a new starter template.
+2. Do not remove working features.
+3. Do not reset or delete the existing database.
+4. Do not create fake financial transactions or fake report totals.
+5. Do not use hardcoded sample data as a substitute for API integration.
+6. Do not create buttons that look functional but do nothing.
+7. Do not leave CSV or PDF downloads as placeholders.
+8. Do not expose another user's data.
+9. Do not count savings contributions twice.
+10. Do not claim success without verification.
+11. Do not silently swallow errors.
+12. Do not introduce unnecessary dependencies.
+13. Do not rewrite unrelated parts of Finora.
+14. Do not claim that an external service, email, or notification is configured unless it has actually been configured and tested.
+15. Do not change the approved white-and-pale-blue design direction.
+16. Do not stop at a written plan; implement the code changes.
+
+If something cannot be completed, explain the exact blocker, the files or services involved, and the remaining work.
+
+## 24. FINAL DELIVERY REPORT
+
+After implementation, provide a concise but specific report containing:
+
+### A. Implemented features
+List the reports, filters, preview functionality, and export capabilities that actually work.
+
+### B. Files changed
+List the actual frontend, backend, shared utility, test, and migration files created or modified.
+
+### C. Database changes
+Describe migrations and indexes, or confirm that no schema changes were required.
+
+### D. API changes
+List the implemented endpoints or the existing endpoints reused.
+
+### E. Export verification
+State whether CSV and PDF files were generated and tested successfully.
+
+### F. Test results
+List the tests executed and their actual outcomes. Clearly distinguish passed, failed, and not run.
+
+### G. Manual setup
+Document any required environment variables, migrations, dependency installation, or deployment steps.
+
+### H. Known limitations
+List unfinished work and explain why it remains unfinished.
+
+### I. Final verification
+Confirm which existing Finora features were regression-tested.
+
+Only report changes that were actually made. Do not provide invented file paths, fabricated test results, or unverified claims.
+
+## 25. DEFINITION OF DONE
+
+Phase 6 is complete only when:
+
+- The Reports page is integrated into Finora.
+- All five report types are implemented.
+- Reports use the authenticated user's actual saved data.
+- Filters produce accurate and consistent results.
+- Report previews show correct totals.
+- CSV downloads work and safely handle untrusted text.
+- PDF downloads generate readable financial reports.
+- User ownership and access controls are enforced.
+- The interface works on mobile, tablet, and desktop.
+- Empty, loading, and error states are implemented.
+- Automated tests are written and executed where possible.
+- Existing Finora functionality remains intact.
+- The final report accurately describes implementation and verification.
+
+**Begin by inspecting the current project, then implement Phase 6 directly. Preserve existing working features and data, and prioritize real functionality, financial accuracy, security, and verifiable results over superficial UI changes.**

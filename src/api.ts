@@ -6,6 +6,14 @@ import {
   BudgetType,
   BudgetWithCalculations,
   BudgetSummary,
+  AnalyticsData,
+  AnalyticsPeriodPreset,
+  Goal,
+  GoalContribution,
+  GoalWithCalculations,
+  GoalSummary,
+  GoalFilterType,
+  GoalSortType,
 } from './types';
 
 const TOKEN_KEY = 'finora_auth_token';
@@ -307,4 +315,194 @@ export const api = {
     });
     return res.success;
   },
+
+  // Analytics
+  async getAnalytics(params?: {
+    period?: AnalyticsPeriodPreset;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<AnalyticsData> {
+    const searchParams = new URLSearchParams();
+    if (params?.period) searchParams.append('period', params.period);
+    if (params?.startDate) searchParams.append('startDate', params.startDate);
+    if (params?.endDate) searchParams.append('endDate', params.endDate);
+
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    const res = await apiFetch<{ success: boolean; analytics: AnalyticsData }>(`/api/analytics${query}`);
+    return res.analytics;
+  },
+
+  // Savings Goals
+  async getGoals(params?: { filter?: GoalFilterType; sort?: GoalSortType }): Promise<GoalWithCalculations[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.filter) searchParams.append('filter', params.filter);
+    if (params?.sort) searchParams.append('sort', params.sort);
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    const res = await apiFetch<{ success: boolean; goals: GoalWithCalculations[] }>(`/api/goals${query}`);
+    return res.goals;
+  },
+
+  async getGoalById(id: string): Promise<GoalWithCalculations> {
+    const res = await apiFetch<{ success: boolean; goal: GoalWithCalculations }>(`/api/goals/${id}`);
+    return res.goal;
+  },
+
+  async getGoalSummary(): Promise<GoalSummary> {
+    const res = await apiFetch<{ success: boolean; summary: GoalSummary }>('/api/goals/summary');
+    return res.summary;
+  },
+
+  async createGoal(data: {
+    name: string;
+    category: string;
+    targetAmount: number;
+    initialAmount?: number;
+    targetDate?: string;
+    description?: string;
+    color?: string;
+    icon?: string;
+    frequencyPreference?: 'weekly' | 'bi-weekly' | 'monthly' | 'one-time';
+  }): Promise<GoalWithCalculations> {
+    const res = await apiFetch<{ success: boolean; goal: GoalWithCalculations; message: string }>('/api/goals', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return res.goal;
+  },
+
+  async updateGoal(
+    id: string,
+    data: {
+      name?: string;
+      category?: string;
+      targetAmount?: number;
+      targetDate?: string;
+      description?: string;
+      color?: string;
+      icon?: string;
+      status?: string;
+      frequencyPreference?: 'weekly' | 'bi-weekly' | 'monthly' | 'one-time';
+    }
+  ): Promise<GoalWithCalculations> {
+    const res = await apiFetch<{ success: boolean; goal: GoalWithCalculations; message: string }>(
+      `/api/goals/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }
+    );
+    return res.goal;
+  },
+
+  async deleteGoal(id: string): Promise<boolean> {
+    const res = await apiFetch<{ success: boolean; message: string }>(`/api/goals/${id}`, {
+      method: 'DELETE',
+    });
+    return res.success;
+  },
+
+  async addContribution(
+    goalId: string,
+    data: {
+      amount: number;
+      date?: string;
+      note?: string;
+      source?: string;
+    }
+  ): Promise<{ goal: GoalWithCalculations; contribution: GoalContribution }> {
+    const res = await apiFetch<{
+      success: boolean;
+      goal: GoalWithCalculations;
+      contribution: GoalContribution;
+      message: string;
+    }>(`/api/goals/${goalId}/contributions`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return { goal: res.goal, contribution: res.contribution };
+  },
+
+  async deleteContribution(goalId: string, contributionId: string): Promise<GoalWithCalculations> {
+    const res = await apiFetch<{ success: boolean; goal: GoalWithCalculations; message: string }>(
+      `/api/goals/${goalId}/contributions/${contributionId}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    return res.goal;
+  },
+
+  // Reports
+  async getReportSummary(params?: { period?: string; startDate?: string; endDate?: string }): Promise<any> {
+    const searchParams = new URLSearchParams();
+    if (params?.period) searchParams.append('period', params.period);
+    if (params?.startDate) searchParams.append('startDate', params.startDate);
+    if (params?.endDate) searchParams.append('endDate', params.endDate);
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    const res = await apiFetch<{ success: boolean; report: any }>(`/api/reports/summary${query}`);
+    return res.report;
+  },
+
+  async downloadReportCsv(type: string, startDate?: string, endDate?: string, category?: string): Promise<void> {
+    const token = authStorage.getToken();
+    const params = new URLSearchParams();
+    params.append('type', type);
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    if (category && category !== 'All Categories') params.append('category', category);
+
+    const res = await fetch(`/api/reports/export/csv?${params.toString()}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to generate CSV report file.');
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `finora-${type}-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+
+  // Settings
+  async getSettingsPreferences(): Promise<any> {
+    const res = await apiFetch<{ success: boolean; preferences: any }>('/api/settings/preferences');
+    return res.preferences;
+  },
+
+  async updateSettingsPreferences(data: any): Promise<any> {
+    const res = await apiFetch<{ success: boolean; preferences: any }>('/api/settings/preferences', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return res.preferences;
+  },
+
+  async getSecurityStatus(): Promise<any> {
+    const res = await apiFetch<{ success: boolean; security: any }>('/api/settings/security');
+    return res.security;
+  },
+
+  async changePassword(data: { currentPassword: string; newPassword: string; confirmPassword: string }): Promise<void> {
+    await apiFetch('/api/settings/password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteAccount(): Promise<void> {
+    await apiFetch('/api/settings/account', {
+      method: 'DELETE',
+    });
+  },
 };
+
+

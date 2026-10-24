@@ -1,0 +1,888 @@
+# FINORA — PHASE 7 MASTER IMPLEMENTATION PROMPT
+## Complete Settings, Profile, Preferences & Security Management
+
+**Project:** Finora — Personal Finance Tracker  
+**Phase:** 7 — Settings, Profile & Security  
+**Implementation:** Full-stack — Frontend + Backend + Database + Security + Testing  
+**Design:** Premium white and pale-blue theme, blue primary actions, subtle borders, rounded cards, clean typography, and responsive layouts.
+
+---
+
+## 1. PRIMARY OBJECTIVE
+
+Act as a senior full-stack engineer, security engineer, database architect, and UI/UX designer.
+
+Implement a complete, functional Settings system directly inside my existing Finora project.
+
+**Do not merely inspect the project, create a plan, or generate a UI mockup. Make the actual code changes**, integrate the frontend with the backend and database, and verify the functionality.
+
+The Settings system must allow authenticated users to manage their profile, financial preferences, display settings, notification preferences, and account security.
+
+Integrate it with the existing Finora features:
+
+- Authentication and protected routes.
+- Dashboard.
+- Transactions.
+- Budgets.
+- Analytics.
+- Savings Goals.
+- Reports and CSV/PDF exports.
+
+Preserve the existing application architecture, working functionality, design system, and user data.
+
+Do not rebuild Finora from scratch.
+
+## 2. INSPECT THE EXISTING PROJECT FIRST
+
+Before implementing anything, inspect:
+
+- Frontend framework and routing.
+- Backend framework and API structure.
+- Authentication provider and session management.
+- User profile and database schemas.
+- Existing settings or preferences tables.
+- Existing currency and date-formatting utilities.
+- Timezone handling.
+- Notification infrastructure.
+- Password reset and email verification flows.
+- Database security policies and row-level security.
+- Existing component library, design tokens, and tests.
+
+Reuse existing authentication, APIs, shared components, and data models wherever possible.
+
+Do not create duplicate authentication systems or unnecessary database tables.
+
+If a feature requires a schema change, use a safe migration that preserves all existing data. Never reset the database.
+
+If the application already supports part of a feature, extend it rather than replacing it.
+
+---
+
+## 3. SETTINGS CENTER AND NAVIGATION
+
+Create a professional Settings page using the application's existing routing conventions.
+
+Suggested route: `/settings`
+
+Add Settings to the existing navigation without breaking other routes.
+
+Organize the page into these sections:
+
+1. Profile.
+2. Financial Preferences.
+3. Appearance and Display.
+4. Notifications.
+5. Security.
+6. Privacy and Data.
+7. Account Management.
+
+Use a left-side settings menu on larger screens and a clean stacked or dropdown navigation on mobile.
+
+Each section must open the appropriate settings interface.
+
+Provide:
+
+- Clear section headings.
+- Brief descriptions.
+- Editable controls.
+- Save and Cancel actions where appropriate.
+- Loading indicators.
+- Success and error messages.
+- Unsaved-changes handling.
+- Helpful empty and error states.
+
+Do not create nonfunctional settings switches or buttons.
+
+---
+
+## 4. PROFILE MANAGEMENT
+
+Implement a complete profile management section.
+
+### Profile fields
+
+Support the fields appropriate to the existing user model:
+
+- Full name or display name.
+- Email address.
+- Profile avatar, if supported.
+- Optional phone number, if supported by the existing application and authentication provider.
+- Account creation date, displayed as read-only when available.
+
+Do not collect unnecessary personal information.
+
+### Functionality
+
+Users should be able to:
+
+- View their current profile.
+- Edit their display name.
+- Update supported profile fields.
+- Upload or change an avatar if storage infrastructure exists.
+- Remove their avatar if supported.
+- Save changes and see updated values.
+- Cancel edits.
+- Reload the page and see persisted changes.
+
+Validate required fields, length limits, and formats.
+
+For email changes, use the authentication provider's verified email-change process. Do not simply update the profile table and treat the new address as verified.
+
+If the authentication provider requires confirmation through the old or new email address, follow that workflow and display the actual verification status.
+
+Never allow users to edit protected fields such as their internal user ID, role, access permissions, or account ownership.
+
+### Avatar upload security
+
+If avatar uploads are supported:
+
+- Validate file type and size.
+- Use safe storage paths scoped to the user.
+- Prevent unauthorized access to private storage.
+- Avoid accepting arbitrary executable files.
+- Handle upload failures gracefully.
+- Use existing storage infrastructure rather than introducing an unnecessary service.
+
+If avatar infrastructure does not exist and cannot be added safely in this phase, provide a polished initials-based avatar instead of a broken upload button.
+
+---
+
+## 5. FINANCIAL PREFERENCES
+
+Create a dedicated section for personal financial preferences.
+
+### Currency preference
+
+Support currency selection based on the currencies the application can format correctly.
+
+Include Indian Rupee (INR) as the default when no saved preference exists.
+
+Where supported, allow users to select currencies such as INR, USD, GBP, and EUR.
+
+Use the existing application locale and currency-formatting utilities where possible.
+
+Requirements:
+
+- Save the user's selected display currency.
+- Apply it consistently to supported dashboard metrics, transactions, budgets, analytics, savings goals, and reports.
+- Preserve the original numeric transaction values.
+- Do not silently convert existing balances or historical transactions.
+- Do not claim to perform foreign exchange conversion unless a real conversion mechanism is implemented.
+- Clearly distinguish display formatting from actual currency conversion.
+
+If the application currently stores all amounts in one currency, explain that changing the display preference does not convert the underlying amounts.
+
+Never show an amount with a misleading currency symbol.
+
+If mixed-currency accounts are supported, preserve each record's actual currency and follow the existing conversion rules.
+
+### Number formatting
+
+Support appropriate number formatting, including:
+
+- Currency symbols.
+- Decimal precision.
+- Thousands separators.
+- Negative values.
+- Zero values.
+- Large amounts.
+
+Use the existing localization utilities where practical.
+
+### Date format
+
+Allow the user to choose from sensible supported formats, for example:
+
+- `DD/MM/YYYY`
+- `MM/DD/YYYY`
+- `YYYY-MM-DD`
+
+Apply the saved date-format preference consistently to supported user-facing dates.
+
+Do not change how dates are stored in the database merely because the display format changes.
+
+### Week and month preferences
+
+Where compatible with existing reporting logic, allow users to choose:
+
+- First day of the week.
+- Preferred start of the financial year, if the application supports custom financial years.
+
+Ensure that these preferences do not silently alter transaction timestamps or break existing budget periods.
+
+---
+
+## 6. TIMEZONE MANAGEMENT
+
+Implement a timezone preference if the existing application can support it reliably.
+
+### Requirements
+
+- Detect the browser's timezone as a suggested initial value when appropriate.
+- Allow users to choose a supported timezone.
+- Save the selected timezone to the authenticated user's preferences.
+- Display dates and times consistently with the saved preference.
+- Keep database timestamps in the existing canonical storage format, usually UTC where applicable.
+- Avoid shifting date-only transaction fields because of timezone conversion.
+- Handle daylight-saving transitions correctly when supported by the chosen date/time library.
+
+Clearly distinguish between date-only financial records and timestamps.
+
+A transaction recorded for a particular calendar date should not unexpectedly appear on the previous or following day merely because a display preference changed.
+
+If complete timezone support would require a larger architectural change, implement the safe parts and document any remaining limitations rather than applying inconsistent conversions.
+
+---
+
+## 7. APPEARANCE AND DISPLAY PREFERENCES
+
+Keep the default Finora theme aligned with the approved design:
+
+- White backgrounds.
+- Pale-blue accent surfaces.
+- Blue primary actions.
+- Readable dark text.
+- Subtle borders.
+- Rounded cards.
+- Professional typography.
+
+Do not redesign the application or introduce a dark black/navy theme as the default.
+
+### Supported preferences
+
+Where practical, allow users to manage:
+
+- Compact or comfortable table density.
+- Default dashboard landing page.
+- Default transaction-list view, if grid/list views exist.
+- Preferred chart presentation, if multiple existing options are supported.
+- Reduced-motion preference, respecting system preferences where practical.
+
+If theme switching already exists, preserve it and integrate it with saved preferences.
+
+If only the approved light theme is implemented, keep that theme as the default rather than introducing an incomplete theme switch.
+
+Every preference must have an observable effect on the interface.
+
+Do not add switches that merely change their own appearance without changing application behavior.
+
+---
+
+## 8. NOTIFICATION PREFERENCES
+
+Build a functional notification preferences section.
+
+Possible preferences include:
+
+- Budget threshold alerts.
+- Budget exceeded alerts.
+- Savings goal milestone reminders.
+- Savings goal deadline reminders.
+- Weekly financial summary.
+- Monthly financial summary.
+- Security alerts.
+
+Only implement notification types supported by the existing application or by infrastructure that can be configured and tested safely.
+
+### In-app notifications
+
+Where the existing application supports in-app notifications:
+
+- Allow users to enable or disable supported notification categories.
+- Save preferences persistently.
+- Respect preferences when producing notifications.
+- Provide clear status indicators.
+
+### Email notifications
+
+If a real email provider is already integrated:
+
+- Reuse the existing provider.
+- Respect the user's notification preferences.
+- Avoid sending duplicate notifications.
+- Handle provider failures and retries safely.
+- Keep credentials on the server.
+
+If no email service is configured, do not pretend email notifications work.
+
+You may implement persistent preferences for future email functionality, but clearly label unavailable delivery functionality as not configured.
+
+### Scheduled summaries
+
+Do not simulate a scheduler using frontend timers.
+
+Only claim weekly or monthly summaries are automatically delivered if an actual backend scheduler or supported automation mechanism has been implemented and configured.
+
+Do not send financial information through unverified external channels.
+
+---
+
+## 9. SECURITY CENTER
+
+Implement a dedicated Security section.
+
+Display only security information that can actually be obtained from the existing authentication system.
+
+Possible elements include:
+
+- Current email verification status.
+- Password management.
+- Active session information, if supported.
+- Recent security activity, if available.
+- Account recovery options.
+- Multi-factor authentication status, if supported.
+
+Do not invent login history, IP addresses, device lists, or session data.
+
+### Password management
+
+Provide a secure password-change or password-reset workflow appropriate to the existing authentication provider.
+
+If a user is already authenticated, follow the provider's requirements for reauthentication and password changes.
+
+If the application uses an email-based password reset, reuse the existing verified recovery flow.
+
+Requirements:
+
+- Never store plaintext passwords.
+- Never return password hashes to the frontend.
+- Never log passwords or password-reset tokens.
+- Never implement custom password storage when the authentication provider manages credentials.
+- Validate password requirements using the provider's supported rules.
+- Display useful validation messages.
+- Handle expired or invalid recovery links safely.
+- Require the appropriate authentication or reauthentication steps.
+
+Do not claim that a password was changed unless the provider confirms success.
+
+### Email verification
+
+Display the real verification status from the authentication provider.
+
+If resending a verification email is supported:
+
+- Implement a real resend action.
+- Respect provider rate limits.
+- Show success only after a successful response.
+- Handle expired sessions and provider errors.
+
+If verification is already complete, display that status clearly and avoid unnecessary resend actions.
+
+### Multi-factor authentication
+
+If the existing authentication provider supports MFA and it can be integrated safely, provide a compatible management workflow.
+
+Do not display a working-looking MFA switch unless it actually enables or disables MFA through the provider.
+
+If MFA is not supported by the current configuration, explain that it is unavailable instead of pretending the account is protected by it.
+
+---
+
+## 10. SESSION AND DEVICE MANAGEMENT
+
+Inspect the existing authentication provider to determine whether session listing and revocation are supported.
+
+If supported, implement:
+
+- A list of active sessions or devices.
+- Available session metadata from the provider.
+- A way to revoke a selected session.
+- A secure sign-out-from-other-sessions action, if supported.
+- Confirmation before revoking sessions.
+- Refreshing the session list after a successful operation.
+
+Never invent sessions or device information.
+
+Do not expose access tokens, refresh tokens, cookies, or other session secrets.
+
+If the provider does not expose session-management APIs, do not fabricate this capability. Explain the limitation and preserve the existing logout functionality.
+
+---
+
+## 11. PRIVACY AND DATA MANAGEMENT
+
+Create a Privacy and Data section.
+
+Users should be able to understand and manage their own financial data.
+
+### Data export
+
+If Phase 6 report exports are implemented, reuse the existing CSV/PDF export infrastructure where appropriate.
+
+If the project supports a broader account-data export, provide a secure export workflow for the user's own data.
+
+Possible data categories include:
+
+- Transactions.
+- Budgets.
+- Savings goals.
+- Contribution history.
+- User preferences.
+
+Do not expose another user's data or private authentication fields.
+
+Do not create a duplicate export implementation if the existing report system can be extended safely.
+
+### Data deletion
+
+If account deletion is supported by the authentication provider and application architecture, implement a carefully controlled account-deletion workflow.
+
+Requirements:
+
+- Explain the consequences before deletion.
+- Require explicit confirmation.
+- Require reauthentication or other appropriate verification.
+- Clearly explain whether related financial records will be deleted or retained.
+- Handle dependent records according to the application's existing ownership and retention rules.
+- Use a safe, transactional deletion process where supported.
+- Handle partial failures.
+- Prevent a user from deleting another user's account or records.
+
+Do not add an immediate, one-click destructive delete action.
+
+Do not delete or modify the database schema to implement account deletion.
+
+If safe deletion requires additional legal, retention, or infrastructure decisions, provide a clearly marked unavailable state and document the exact blocker.
+
+### Privacy transparency
+
+Display only truthful information about data handling.
+
+Do not invent claims such as “your data is never stored,” “all data is end-to-end encrypted,” or “your data is automatically deleted” unless the actual implementation supports them.
+
+---
+
+## 12. ACCOUNT MANAGEMENT
+
+Provide an account-management area for:
+
+- Account creation date, if available.
+- Email verification status.
+- Sign-out.
+- Account recovery links.
+- Account deletion, only if safely implemented.
+- Other existing account-management actions.
+
+Use the application's current authentication conventions.
+
+Sign-out must actually clear the supported authenticated session and navigate to the correct page.
+
+Do not add duplicate logout logic that conflicts with existing authentication behavior.
+
+---
+
+## 13. SETTINGS DATABASE DESIGN
+
+Inspect the current user and profile schemas before adding tables or columns.
+
+Use existing profile or preferences storage if appropriate.
+
+If persistent settings storage is needed, use a safe, minimal schema, such as a user preferences record containing supported fields for:
+
+- Currency.
+- Date format.
+- Timezone.
+- First day of the week.
+- Dashboard landing page.
+- Table density.
+- Notification preferences.
+- Other implemented display preferences.
+
+This is an illustrative design, not a requirement to create an identical table.
+
+Choose a schema compatible with the existing database and ORM.
+
+### Database requirements
+
+- Associate preferences with the authenticated user.
+- Enforce unique user ownership where appropriate.
+- Add safe defaults.
+- Validate allowed values.
+- Avoid duplicate preference records.
+- Preserve existing user records.
+- Use migrations instead of destructive resets.
+- Apply appropriate database security policies.
+- Avoid storing secrets in preference records.
+
+If JSON preferences are already used, extend them carefully with validation and backwards-compatible defaults.
+
+Do not create unnecessary tables for every individual toggle.
+
+---
+
+## 14. BACKEND API INTEGRATION
+
+Use the existing API structure and authentication middleware.
+
+Potential capabilities include:
+
+- Retrieve the current user's profile.
+- Update permitted profile fields.
+- Retrieve user preferences.
+- Update supported preferences.
+- Start password-change or recovery workflows.
+- Request supported verification actions.
+- Manage notification preferences.
+- Retrieve supported session metadata.
+- Execute authorized account-management operations.
+
+Suggested route patterns, to be adapted to the existing project:
+
+- `GET /api/settings/profile`
+- `PATCH /api/settings/profile`
+- `GET /api/settings/preferences`
+- `PATCH /api/settings/preferences`
+- `GET /api/settings/notifications`
+- `PATCH /api/settings/notifications`
+- `GET /api/settings/security`
+- Appropriate provider-backed session or account-management endpoints where supported.
+
+Do not create these exact routes if the project follows a different convention.
+
+### API rules
+
+- Authenticate all protected requests.
+- Derive user identity from the trusted authenticated session.
+- Never trust a client-supplied user ID as the authorization boundary.
+- Validate every writable field.
+- Whitelist permitted fields.
+- Reject unauthorized modifications to role, ownership, and protected identity fields.
+- Use parameterized database operations or the existing safe ORM.
+- Return consistent response formats.
+- Avoid leaking stack traces or private implementation details.
+- Handle partial updates safely.
+- Ensure saved changes persist after refresh.
+
+Never place service-role keys or private provider credentials in frontend code.
+
+---
+
+## 15. FRONTEND IMPLEMENTATION
+
+Build real, reusable Settings components using the existing frontend architecture.
+
+Possible components include:
+
+- Settings layout and navigation.
+- Profile form.
+- Currency selector.
+- Date-format selector.
+- Timezone selector.
+- Display preference controls.
+- Notification preferences panel.
+- Security information panel.
+- Password-management workflow.
+- Session-management interface, if supported.
+- Account deletion confirmation, if supported.
+- Save-status and error messages.
+
+These are suggested component responsibilities. Reuse existing components where possible.
+
+### Interaction requirements
+
+Every implemented control must have a real effect.
+
+- Save actions persist changes.
+- Cancel actions discard unsaved changes.
+- Selectors update the correct preference.
+- Saved settings are restored on reload.
+- Loading states prevent accidental duplicate submissions.
+- Error states preserve recoverable user input.
+- Confirmation dialogs protect destructive operations.
+- Forms validate values before submission.
+
+Avoid a single giant component if the project already uses modular page components.
+
+Do not rewrite unrelated pages.
+
+---
+
+## 16. GLOBAL SETTINGS INTEGRATION
+
+Settings must affect the existing Finora experience where applicable.
+
+### Currency
+
+Update shared currency-formatting utilities and their consumers so that saved display preferences are respected consistently.
+
+Avoid implementing separate, conflicting currency formatters in individual pages.
+
+### Date formatting
+
+Update shared date-display utilities where possible.
+
+Do not modify the underlying stored timestamps solely to change the display format.
+
+### Timezone
+
+Use a consistent timezone conversion strategy and avoid changing date-only financial values unexpectedly.
+
+### Display preferences
+
+Apply saved table density or dashboard preferences to the relevant components.
+
+### Notifications
+
+Ensure supported notification generation respects the saved preferences.
+
+### Reports
+
+Where relevant, ensure report previews and exports respect the saved date and currency display preferences without changing the underlying financial calculations.
+
+### Regression safety
+
+Changing a preference must not corrupt transaction amounts, budget calculations, savings goal progress, or historical records.
+
+If the user changes display currency without actual conversion support, make that limitation clear in the interface.
+
+---
+
+## 17. RESPONSIVE UI AND ACCESSIBILITY
+
+Follow Finora's approved design direction:
+
+- White and pale-blue backgrounds.
+- Blue primary actions.
+- Subtle borders.
+- Rounded cards.
+- Clean typography.
+- Clear section hierarchy.
+- Consistent spacing.
+
+Do not switch the default design to a dark black/navy theme.
+
+### Desktop
+
+- Use a settings sidebar or well-organized navigation.
+- Keep forms readable.
+- Group related settings.
+- Avoid unnecessarily wide form fields.
+
+### Tablet
+
+- Adapt the sidebar and content layout.
+- Keep controls accessible.
+- Avoid cramped cards.
+
+### Mobile
+
+- Use stacked settings navigation.
+- Make controls touch-friendly.
+- Prevent horizontal overflow.
+- Ensure dialogs fit the viewport.
+- Keep save actions visible and easy to use.
+
+### Accessibility
+
+- Use clear form labels.
+- Support keyboard navigation.
+- Provide accessible validation messages.
+- Do not rely on color alone to indicate security or verification status.
+- Use suitable confirmation dialogs.
+- Respect reduced-motion preferences where practical.
+
+---
+
+## 18. ERROR HANDLING AND EDGE CASES
+
+Test and handle:
+
+- Unauthenticated access.
+- Expired sessions.
+- Invalid form values.
+- Duplicate save requests.
+- Database failures.
+- Network errors.
+- Authentication-provider errors.
+- Email verification failures.
+- Unsupported preference values.
+- Missing profile fields.
+- Missing preference records.
+- Failed avatar uploads, if supported.
+- Failed account deletion.
+- Session revocation failures.
+- Unsupported currency or timezone values.
+- Concurrent preference updates.
+
+Use clear user-facing error messages.
+
+Do not silently swallow errors.
+
+Do not show success when the server or authentication provider has reported a failure.
+
+---
+
+## 19. TESTING REQUIREMENTS
+
+Use the project's existing test framework. Write and execute relevant tests instead of merely listing them.
+
+### Profile tests
+
+- Retrieve the authenticated user's profile.
+- Update permitted profile fields.
+- Reject invalid fields.
+- Verify changes persist after reload.
+- Prevent unauthorized profile modification.
+- Verify email changes follow the provider's verification process.
+
+### Preferences tests
+
+- Load defaults when no saved preferences exist.
+- Save and reload currency preferences.
+- Save and reload date-format preferences.
+- Save and reload timezone preferences.
+- Reject unsupported values.
+- Verify the UI updates after preferences change.
+- Confirm that changing display preferences does not alter stored transaction amounts.
+
+### Security tests
+
+- Protected settings endpoints reject unauthenticated requests.
+- Users cannot edit another user's profile or preferences.
+- Protected fields cannot be modified through mass assignment.
+- Password changes use the configured authentication provider.
+- Verification status reflects actual provider data.
+- Session management does not expose tokens.
+- Destructive actions require appropriate confirmation and authorization.
+
+### Notification tests
+
+- Preferences persist.
+- Supported notification logic respects saved preferences.
+- Unsupported delivery mechanisms are not presented as functional.
+- Duplicate notifications are prevented where relevant.
+
+### Account-management tests
+
+- Sign-out clears the correct session.
+- Account deletion, if implemented, follows the configured verification process.
+- Failed destructive operations do not silently leave the account in an inconsistent state.
+
+### Regression tests
+
+Verify that:
+
+- Login and registration still work.
+- Dashboard metrics remain correct.
+- Transactions still work.
+- Budgets still work.
+- Analytics still work.
+- Savings goals and contributions still work.
+- Reports and exports still work.
+- Existing routes remain accessible.
+- Responsive layouts remain functional.
+
+Run automated tests and perform browser verification where available.
+
+Clearly distinguish tests that passed, failed, or could not run.
+
+Never claim an unexecuted test passed.
+
+---
+
+## 20. STRICT IMPLEMENTATION RULES
+
+1. Do not replace the existing application with a new template.
+2. Do not reset the database.
+3. Do not delete existing user data.
+4. Do not remove working features.
+5. Do not create fake profile, security, or session information.
+6. Do not implement fake settings switches.
+7. Do not store plaintext passwords.
+8. Do not expose secrets or authentication tokens.
+9. Do not claim external email or notification delivery is configured unless verified.
+10. Do not claim automatic data deletion or encryption capabilities that do not exist.
+11. Do not introduce unnecessary dependencies.
+12. Do not duplicate existing APIs or utilities without a reason.
+13. Do not change financial calculations merely to accommodate display preferences.
+14. Do not change the approved Finora visual design.
+15. Do not stop after writing a plan.
+16. Do not claim success without actual implementation and verification.
+17. Preserve backwards compatibility and existing records.
+18. Clearly document any feature blocked by the current provider or deployment environment.
+
+Prioritize actual working functionality, security, data integrity, and compatibility over superficial visual changes.
+
+---
+
+## 21. REQUIRED IMPLEMENTATION WORKFLOW
+
+**Step 1 — Inspect:** Review the existing application, authentication provider, database schema, shared utilities, and design system.
+
+**Step 2 — Implement:** Build the Settings page and its functional sections.
+
+**Step 3 — Integrate:** Connect profile and preferences to the actual backend and database.
+
+**Step 4 — Secure:** Verify authentication, authorization, input validation, and protected operations.
+
+**Step 5 — Connect:** Apply supported preferences across the existing Finora modules.
+
+**Step 6 — Test:** Run unit, integration, security, and regression tests where available.
+
+**Step 7 — Fix:** Resolve failures and verify the affected features again.
+
+**Step 8 — Report:** List the actual changes, test results, configuration requirements, and remaining limitations.
+
+Continue through implementation and verification as far as the environment allows.
+
+---
+
+## 22. FINAL DELIVERY REPORT
+
+After completing the work, provide:
+
+### A. Implemented features
+List the settings sections that actually work.
+
+### B. Files changed
+List the real files created or modified.
+
+### C. Database changes
+Describe any migrations and security-policy updates.
+
+### D. API changes
+List the implemented or reused endpoints.
+
+### E. Authentication and security
+Explain which security workflows were implemented and verified.
+
+### F. Global integration
+Identify the Finora pages that now respect the supported saved preferences.
+
+### G. Test results
+Report the actual tests run and their outcomes.
+
+### H. Manual setup
+Document any migrations, environment variables, provider settings, or deployment steps required.
+
+### I. Known limitations
+Identify any functionality blocked by missing provider capabilities or configuration.
+
+### J. Regression verification
+Report which existing Finora features were checked after implementation.
+
+Do not invent filenames, test results, security features, or successful operations.
+
+---
+
+## 23. DEFINITION OF DONE
+
+Phase 7 is complete when:
+
+- The Settings page is integrated into Finora.
+- Profile updates persist correctly.
+- Financial preferences are saved and applied consistently where supported.
+- Date and timezone behavior is safe.
+- Display preferences have real effects.
+- Notification preferences are functional for supported notifications.
+- Security information comes from the actual authentication system.
+- Password and verification workflows use the configured provider.
+- Session management is implemented only if genuinely supported.
+- Account-management actions are protected.
+- User-specific authorization is enforced.
+- The responsive interface works across screen sizes.
+- Existing Finora functionality remains intact.
+- Relevant tests are executed and their actual results reported.
+- Remaining limitations are documented honestly.
+
+**Start by inspecting the current project, then implement Phase 7 directly. Preserve all working features and data. Build real frontend and backend functionality, apply saved preferences consistently, protect sensitive account operations, and verify every implemented feature before reporting completion.**

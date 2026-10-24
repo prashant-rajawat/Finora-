@@ -52,10 +52,86 @@ export interface BudgetWithCalculations extends Budget {
   transactionCount: number;
 }
 
+export type GoalStatus = 'active' | 'completed' | 'paused' | 'archived';
+
+export interface GoalContribution {
+  id: string;
+  goalId: string;
+  userId: string;
+  amount: number;
+  date: string; // YYYY-MM-DD
+  note?: string;
+  source?: string;
+  createdAt: string;
+}
+
+export interface Goal {
+  id: string;
+  userId: string;
+  name: string;
+  category: string;
+  targetAmount: number;
+  initialAmount?: number;
+  targetDate?: string; // YYYY-MM-DD
+  description?: string;
+  color?: string;
+  icon?: string;
+  status: GoalStatus;
+  frequencyPreference?: 'weekly' | 'bi-weekly' | 'monthly' | 'one-time';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GoalProjections {
+  monthlyNeeded: number | null;
+  weeklyNeeded: number | null;
+  dailyNeeded: number | null;
+  monthsRemaining: number | null;
+  daysRemaining: number | null;
+  statusText: string;
+}
+
+export interface GoalWithCalculations extends Goal {
+  savedAmount: number;
+  remainingAmount: number;
+  progressPercentage: number;
+  daysRemaining: number | null;
+  isOverdue: boolean;
+  contributionsCount: number;
+  contributions: GoalContribution[];
+  projections: GoalProjections;
+}
+
+export interface GoalSummary {
+  totalTarget: number;
+  totalSaved: number;
+  totalRemaining: number;
+  activeCount: number;
+  completedCount: number;
+  pausedCount: number;
+  archivedCount: number;
+  overallProgress: number;
+}
+
+export interface UserPreferences {
+  userId: string;
+  currency: string;
+  dateFormat: string;
+  timezone: string;
+  tableDensity: 'compact' | 'comfortable';
+  emailAlerts: boolean;
+  monthlyDigest: boolean;
+  budgetThresholdAlerts: boolean;
+  updatedAt: string;
+}
+
 interface DatabaseSchema {
   users: User[];
   transactions: Transaction[];
   budgets: Budget[];
+  goals: Goal[];
+  goalContributions: GoalContribution[];
+  userPreferences: UserPreferences[];
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -71,6 +147,9 @@ let db: DatabaseSchema = {
   users: [],
   transactions: [],
   budgets: [],
+  goals: [],
+  goalContributions: [],
+  userPreferences: [],
 };
 
 // Seed initial data for demo user matching the reference design: Ansh Kumar
@@ -297,10 +376,139 @@ function seedInitialData() {
     },
   ];
 
+  const initialGoals: Goal[] = [
+    {
+      id: 'gol_01',
+      userId: demoUser.id,
+      name: 'Emergency Safety Net',
+      category: 'Emergency Fund',
+      targetAmount: 100000,
+      initialAmount: 20000,
+      targetDate: '2027-04-30',
+      description: '6 months of essential living expenses buffer for unforeseen situations.',
+      color: '#10B981',
+      icon: 'ShieldCheck',
+      status: 'active',
+      frequencyPreference: 'monthly',
+      createdAt: '2026-09-01T08:00:00.000Z',
+      updatedAt: '2026-10-02T10:00:00.000Z',
+    },
+    {
+      id: 'gol_02',
+      userId: demoUser.id,
+      name: 'MacBook Pro M3 Max',
+      category: 'Tech & Gadgets',
+      targetAmount: 250000,
+      initialAmount: 50000,
+      targetDate: '2027-01-15',
+      description: 'High-performance workstation laptop for freelance UI and coding projects.',
+      color: '#1677F2',
+      icon: 'Laptop',
+      status: 'active',
+      frequencyPreference: 'monthly',
+      createdAt: '2026-09-15T08:00:00.000Z',
+      updatedAt: '2026-10-03T10:00:00.000Z',
+    },
+    {
+      id: 'gol_03',
+      userId: demoUser.id,
+      name: 'Goa Beach Retreat',
+      category: 'Travel',
+      targetAmount: 30000,
+      initialAmount: 10000,
+      targetDate: '2026-12-25',
+      description: 'Year-end holiday getaway with friends to relax and unwind.',
+      color: '#F59E0B',
+      icon: 'Plane',
+      status: 'active',
+      frequencyPreference: 'monthly',
+      createdAt: '2026-10-05T08:00:00.000Z',
+      updatedAt: '2026-10-16T10:00:00.000Z',
+    },
+  ];
+
+  const initialContributions: GoalContribution[] = [
+    {
+      id: 'gc_01',
+      goalId: 'gol_01',
+      userId: demoUser.id,
+      amount: 20000,
+      date: '2026-09-01',
+      note: 'Initial emergency reserve fund deposit',
+      source: 'Savings Account',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 'gc_02',
+      goalId: 'gol_01',
+      userId: demoUser.id,
+      amount: 15000,
+      date: '2026-10-02',
+      note: 'Monthly salary allocation to emergency fund',
+      source: 'Bank Transfer',
+      createdAt: '2026-10-02T10:00:00.000Z',
+    },
+    {
+      id: 'gc_03',
+      goalId: 'gol_02',
+      userId: demoUser.id,
+      amount: 50000,
+      date: '2026-09-15',
+      note: 'Initial workstation budget allocation',
+      source: 'Savings Account',
+      createdAt: '2026-09-15T08:00:00.000Z',
+    },
+    {
+      id: 'gc_04',
+      goalId: 'gol_02',
+      userId: demoUser.id,
+      amount: 25000,
+      date: '2026-10-03',
+      note: 'Freelance client advance dedicated to hardware upgrade',
+      source: 'UPI',
+      createdAt: '2026-10-03T10:00:00.000Z',
+    },
+    {
+      id: 'gc_05',
+      goalId: 'gol_03',
+      userId: demoUser.id,
+      amount: 10000,
+      date: '2026-10-05',
+      note: 'Initial vacation fund allocation',
+      source: 'UPI',
+      createdAt: '2026-10-05T08:00:00.000Z',
+    },
+    {
+      id: 'gc_06',
+      goalId: 'gol_03',
+      userId: demoUser.id,
+      amount: 10000,
+      date: '2026-10-16',
+      note: 'Flight ticket and accommodation savings',
+      source: 'Bank Transfer',
+      createdAt: '2026-10-16T10:00:00.000Z',
+    },
+  ];
+
+  const initialPreferences: UserPreferences = {
+    userId: demoUser.id,
+    currency: 'INR',
+    dateFormat: 'DD/MM/YYYY',
+    timezone: 'Asia/Kolkata',
+    tableDensity: 'comfortable',
+    emailAlerts: true,
+    monthlyDigest: true,
+    budgetThresholdAlerts: true,
+    updatedAt: '2026-10-24T00:00:00.000Z',
+  };
+
   return {
     users: [demoUser],
     transactions: initialTransactions,
     budgets: initialBudgets,
+    goals: initialGoals,
+    goalContributions: initialContributions,
+    userPreferences: [initialPreferences],
   };
 }
 
@@ -310,9 +518,28 @@ function loadDatabase(): DatabaseSchema {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed = JSON.parse(content);
       if (parsed && Array.isArray(parsed.users) && Array.isArray(parsed.transactions)) {
+        let changed = false;
         if (!Array.isArray(parsed.budgets)) {
           const initial = seedInitialData();
           parsed.budgets = initial.budgets;
+          changed = true;
+        }
+        if (!Array.isArray(parsed.goals)) {
+          const initial = seedInitialData();
+          parsed.goals = initial.goals;
+          changed = true;
+        }
+        if (!Array.isArray(parsed.goalContributions)) {
+          const initial = seedInitialData();
+          parsed.goalContributions = initial.goalContributions;
+          changed = true;
+        }
+        if (!Array.isArray(parsed.userPreferences)) {
+          const initial = seedInitialData();
+          parsed.userPreferences = initial.userPreferences;
+          changed = true;
+        }
+        if (changed) {
           saveDatabase(parsed);
         }
         return parsed;
@@ -855,4 +1082,1023 @@ export const database = {
       budgets: budgetsWithCalc,
     };
   },
+
+  getAnalyticsData(
+    userId: string,
+    options: {
+      periodPreset?: string;
+      startDate?: string;
+      endDate?: string;
+    } = {}
+  ) {
+    const periodPreset = options.periodPreset || 'this_month';
+    let startDate = options.startDate || '';
+    let endDate = options.endDate || '';
+    let periodLabel = '';
+    let prevStartDate = '';
+    let prevEndDate = '';
+    let prevPeriodLabel = '';
+
+    // Standard anchoring around demo reference date 2026-10-31
+    // (If user explicitly sends custom startDate & endDate, use those)
+    if (periodPreset === 'this_month') {
+      startDate = '2026-10-01';
+      endDate = '2026-10-31';
+      periodLabel = 'This Month (October 2026)';
+      prevStartDate = '2026-09-01';
+      prevEndDate = '2026-09-30';
+      prevPeriodLabel = 'Last Month (September 2026)';
+    } else if (periodPreset === 'last_month') {
+      startDate = '2026-09-01';
+      endDate = '2026-09-30';
+      periodLabel = 'Last Month (September 2026)';
+      prevStartDate = '2026-08-01';
+      prevEndDate = '2026-08-31';
+      prevPeriodLabel = 'Prior Month (August 2026)';
+    } else if (periodPreset === 'last_3_months') {
+      startDate = '2026-08-01';
+      endDate = '2026-10-31';
+      periodLabel = 'Last 3 Months (Aug – Oct 2026)';
+      prevStartDate = '2026-05-01';
+      prevEndDate = '2026-07-31';
+      prevPeriodLabel = 'Previous 3 Months (May – Jul 2026)';
+    } else if (periodPreset === 'last_6_months') {
+      startDate = '2026-05-01';
+      endDate = '2026-10-31';
+      periodLabel = 'Last 6 Months (May – Oct 2026)';
+      prevStartDate = '2025-11-01';
+      prevEndDate = '2026-04-30';
+      prevPeriodLabel = 'Previous 6 Months';
+    } else if (periodPreset === 'this_year') {
+      startDate = '2026-01-01';
+      endDate = '2026-12-31';
+      periodLabel = 'This Year (2026)';
+      prevStartDate = '2025-01-01';
+      prevEndDate = '2025-12-31';
+      prevPeriodLabel = 'Last Year (2025)';
+    } else {
+      // Custom date range
+      if (!startDate) startDate = '2026-10-01';
+      if (!endDate) endDate = '2026-10-31';
+      periodLabel = `${startDate} to ${endDate}`;
+
+      const sTime = new Date(startDate).getTime();
+      const eTime = new Date(endDate).getTime();
+      const durationMs = Math.max(86400000, eTime - sTime + 86400000);
+      const prevETime = sTime - 86400000;
+      const prevSTime = prevETime - durationMs + 86400000;
+
+      prevStartDate = new Date(prevSTime).toISOString().split('T')[0];
+      prevEndDate = new Date(prevETime).toISOString().split('T')[0];
+      prevPeriodLabel = `Previous Period (${prevStartDate} to ${prevEndDate})`;
+    }
+
+    // 1. Filter current user transactions for current period
+    const currentTx = db.transactions.filter(
+      (tx) => tx.userId === userId && tx.date >= startDate && tx.date <= endDate
+    );
+
+    // 2. Filter previous period transactions for comparison
+    const prevTx = db.transactions.filter(
+      (tx) => tx.userId === userId && tx.date >= prevStartDate && tx.date <= prevEndDate
+    );
+
+    // 3. Current period metrics
+    const currentIncomeTx = currentTx.filter((tx) => tx.type === 'income');
+    const currentExpenseTx = currentTx.filter((tx) => tx.type === 'expense');
+
+    const totalIncome = Math.round(currentIncomeTx.reduce((acc, tx) => acc + tx.amount, 0) * 100) / 100;
+    const totalExpenses = Math.round(currentExpenseTx.reduce((acc, tx) => acc + tx.amount, 0) * 100) / 100;
+    const netCashFlow = Math.round((totalIncome - totalExpenses) * 100) / 100;
+
+    // Savings rate: ((income - expenses) / income) * 100.
+    // When income is 0 or negative, mathematically savings rate is null / undefined.
+    let savingsRate: number | null = null;
+    if (totalIncome > 0) {
+      savingsRate = Math.round(((totalIncome - totalExpenses) / totalIncome) * 1000) / 10;
+    }
+
+    // Calculate days in period
+    const startObj = new Date(startDate);
+    const endObj = new Date(endDate);
+    const diffTime = Math.abs(endObj.getTime() - startObj.getTime());
+    const daysInPeriod = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1);
+
+    const avgDailySpend = Math.round((totalExpenses / daysInPeriod) * 100) / 100;
+
+    // 4. Budget performance in this period
+    // Determine which budget period code to look up (e.g. if single month, use YYYY-MM; else overall/all)
+    const isSingleMonth = startDate.slice(0, 7) === endDate.slice(0, 7);
+    const budgetLookupPeriod = isSingleMonth ? startDate.slice(0, 7) : 'all';
+    const budgetSummary = this.getBudgetSummary(userId, budgetLookupPeriod);
+    const budgetUtilization = budgetSummary.totalBudget > 0
+      ? Math.round((budgetSummary.totalSpent / budgetSummary.totalBudget) * 1000) / 10
+      : 0;
+
+    // 5. Category Breakdown (Expenses ONLY)
+    const categoryTotals: Record<string, { amount: number; count: number }> = {};
+    for (const tx of currentExpenseTx) {
+      const cat = tx.category || 'Others';
+      if (!categoryTotals[cat]) {
+        categoryTotals[cat] = { amount: 0, count: 0 };
+      }
+      categoryTotals[cat].amount += tx.amount;
+      categoryTotals[cat].count += 1;
+    }
+
+    const palette = [
+      '#1677F2', // Primary Blue
+      '#14B8A6', // Teal
+      '#F59E0B', // Amber
+      '#8B5CF6', // Purple
+      '#EF5360', // Rose
+      '#10B981', // Emerald
+      '#EC4899', // Pink
+      '#6366F1', // Indigo
+      '#0EA5E9', // Sky
+      '#64748B', // Slate
+    ];
+
+    const categoryBreakdown = Object.entries(categoryTotals)
+      .map(([category, info], idx) => {
+        const roundedAmount = Math.round(info.amount * 100) / 100;
+        const percentage = totalExpenses > 0
+          ? Math.round((roundedAmount / totalExpenses) * 1000) / 10
+          : 0;
+        return {
+          category,
+          amount: roundedAmount,
+          percentage,
+          transactionCount: info.count,
+          color: palette[idx % palette.length],
+        };
+      })
+      .sort((a, b) => b.amount - a.amount);
+
+    // 6. Time Series Grouping
+    // If <= 35 days: group daily
+    // If > 35 and <= 100 days: group weekly
+    // If > 100 days: group monthly
+    const timeSeries: Array<{
+      key: string;
+      label: string;
+      date: string;
+      income: number;
+      expenses: number;
+      net: number;
+    }> = [];
+
+    if (daysInPeriod <= 35) {
+      // Daily map
+      const dailyMap: Record<string, { income: number; expenses: number }> = {};
+      const cur = new Date(startDate);
+      const endD = new Date(endDate);
+
+      while (cur <= endD) {
+        const dStr = cur.toISOString().split('T')[0];
+        dailyMap[dStr] = { income: 0, expenses: 0 };
+        cur.setDate(cur.getDate() + 1);
+      }
+
+      for (const tx of currentTx) {
+        if (dailyMap[tx.date]) {
+          if (tx.type === 'income') dailyMap[tx.date].income += tx.amount;
+          else dailyMap[tx.date].expenses += tx.amount;
+        }
+      }
+
+      for (const [dStr, val] of Object.entries(dailyMap)) {
+        const d = new Date(dStr + 'T00:00:00');
+        const monthShort = d.toLocaleString('en-US', { month: 'short' });
+        const dayNum = d.getDate();
+        timeSeries.push({
+          key: dStr,
+          label: `${monthShort} ${dayNum}`,
+          date: dStr,
+          income: Math.round(val.income * 100) / 100,
+          expenses: Math.round(val.expenses * 100) / 100,
+          net: Math.round((val.income - val.expenses) * 100) / 100,
+        });
+      }
+    } else if (daysInPeriod <= 100) {
+      // Weekly chunks (7-day intervals)
+      const cur = new Date(startDate);
+      const endD = new Date(endDate);
+      let weekIndex = 1;
+
+      while (cur <= endD) {
+        const chunkStart = new Date(cur);
+        const chunkEnd = new Date(cur);
+        chunkEnd.setDate(chunkEnd.getDate() + 6);
+        if (chunkEnd > endD) chunkEnd.setTime(endD.getTime());
+
+        const csStr = chunkStart.toISOString().split('T')[0];
+        const ceStr = chunkEnd.toISOString().split('T')[0];
+
+        let wIncome = 0;
+        let wExpenses = 0;
+
+        for (const tx of currentTx) {
+          if (tx.date >= csStr && tx.date <= ceStr) {
+            if (tx.type === 'income') wIncome += tx.amount;
+            else wExpenses += tx.amount;
+          }
+        }
+
+        const sLabel = chunkStart.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+        const eLabel = chunkEnd.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+
+        timeSeries.push({
+          key: `w_${weekIndex}_${csStr}`,
+          label: `W${weekIndex} (${sLabel}–${eLabel})`,
+          date: csStr,
+          income: Math.round(wIncome * 100) / 100,
+          expenses: Math.round(wExpenses * 100) / 100,
+          net: Math.round((wIncome - wExpenses) * 100) / 100,
+        });
+
+        weekIndex++;
+        cur.setDate(cur.getDate() + 7);
+      }
+    } else {
+      // Monthly grouping
+      const monthMap: Record<string, { income: number; expenses: number; label: string }> = {};
+      const cur = new Date(startDate);
+      const endD = new Date(endDate);
+
+      while (cur <= endD) {
+        const ym = cur.toISOString().slice(0, 7);
+        if (!monthMap[ym]) {
+          const mLabel = cur.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+          monthMap[ym] = { income: 0, expenses: 0, label: mLabel };
+        }
+        cur.setMonth(cur.getMonth() + 1);
+        cur.setDate(1);
+      }
+
+      for (const tx of currentTx) {
+        const ym = tx.date.slice(0, 7);
+        if (monthMap[ym]) {
+          if (tx.type === 'income') monthMap[ym].income += tx.amount;
+          else monthMap[ym].expenses += tx.amount;
+        }
+      }
+
+      for (const [ym, val] of Object.entries(monthMap)) {
+        timeSeries.push({
+          key: ym,
+          label: val.label,
+          date: `${ym}-01`,
+          income: Math.round(val.income * 100) / 100,
+          expenses: Math.round(val.expenses * 100) / 100,
+          net: Math.round((val.income - val.expenses) * 100) / 100,
+        });
+      }
+    }
+
+    // 7. Comparison with Previous Period
+    const prevIncome = Math.round(
+      prevTx.filter((t) => t.type === 'income').reduce((acc, t) => acc + t.amount, 0) * 100
+    ) / 100;
+    const prevExpenses = Math.round(
+      prevTx.filter((t) => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0) * 100
+    ) / 100;
+    const prevNet = Math.round((prevIncome - prevExpenses) * 100) / 100;
+    let prevSavingsRate: number | null = null;
+    if (prevIncome > 0) {
+      prevSavingsRate = Math.round(((prevIncome - prevExpenses) / prevIncome) * 1000) / 10;
+    }
+
+    const calcDelta = (curVal: number, prevVal: number, lowerIsBetter: boolean) => {
+      const amount = Math.round((curVal - prevVal) * 100) / 100;
+      let percentage: number | null = null;
+      if (prevVal !== 0) {
+        percentage = Math.round(((curVal - prevVal) / Math.abs(prevVal)) * 1000) / 10;
+      }
+      const direction: 'up' | 'down' | 'flat' = amount > 0 ? 'up' : amount < 0 ? 'down' : 'flat';
+      const isFavorable = lowerIsBetter ? amount <= 0 : amount >= 0;
+      return { amount, percentage, direction, isFavorable };
+    };
+
+    const comparison = {
+      currentPeriodLabel: periodLabel,
+      previousPeriodLabel: prevPeriodLabel,
+      current: {
+        income: totalIncome,
+        expenses: totalExpenses,
+        net: netCashFlow,
+        savingsRate,
+      },
+      previous: {
+        income: prevIncome,
+        expenses: prevExpenses,
+        net: prevNet,
+        savingsRate: prevSavingsRate,
+      },
+      deltas: {
+        income: calcDelta(totalIncome, prevIncome, false),
+        expenses: calcDelta(totalExpenses, prevExpenses, true),
+        net: calcDelta(netCashFlow, prevNet, false),
+        savingsRateDiff:
+          savingsRate !== null && prevSavingsRate !== null
+            ? Math.round((savingsRate - prevSavingsRate) * 10) / 10
+            : null,
+      },
+    };
+
+    // 8. Spending Trends & Trajectory
+    let trajectory: 'increasing' | 'decreasing' | 'stable' = 'stable';
+    let trajectoryPercentage = 0;
+    let trajectoryDescription = 'Spending is in line with baseline levels.';
+
+    if (prevExpenses > 0) {
+      const expChangePct = ((totalExpenses - prevExpenses) / prevExpenses) * 100;
+      trajectoryPercentage = Math.abs(Math.round(expChangePct * 10) / 10);
+      if (expChangePct > 3) {
+        trajectory = 'increasing';
+        trajectoryDescription = `Spending increased by ${trajectoryPercentage}% compared to the prior period.`;
+      } else if (expChangePct < -3) {
+        trajectory = 'decreasing';
+        trajectoryDescription = `Spending decreased by ${trajectoryPercentage}% compared to the prior period.`;
+      } else {
+        trajectory = 'stable';
+        trajectoryDescription = `Spending remained steady (${trajectoryPercentage}% shift) compared to the prior period.`;
+      }
+    } else if (totalExpenses > 0) {
+      trajectory = 'increasing';
+      trajectoryPercentage = 100;
+      trajectoryDescription = `Recorded ₹${totalExpenses.toLocaleString('en-IN')} in expenses this period.`;
+    }
+
+    // Peak spending day
+    const dayTotals: Record<string, number> = {};
+    for (const tx of currentExpenseTx) {
+      dayTotals[tx.date] = (dayTotals[tx.date] || 0) + tx.amount;
+    }
+    let peakDay: { date: string; amount: number; formattedDate: string } | null = null;
+    let highestDayAmount = 0;
+    for (const [date, amount] of Object.entries(dayTotals)) {
+      if (amount > highestDayAmount) {
+        highestDayAmount = amount;
+        const dObj = new Date(date + 'T00:00:00');
+        const formattedDate = dObj.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
+        peakDay = { date, amount: Math.round(amount * 100) / 100, formattedDate };
+      }
+    }
+
+    // Top Category
+    const topCategory = categoryBreakdown.length > 0
+      ? {
+          name: categoryBreakdown[0].category,
+          amount: categoryBreakdown[0].amount,
+          percentage: categoryBreakdown[0].percentage,
+        }
+      : null;
+
+    const spendingTrends = {
+      trajectory,
+      trajectoryPercentage,
+      trajectoryDescription,
+      peakSpendDay: peakDay,
+      topCategory,
+    };
+
+    // 9. Deterministic Smart Financial Insights (Rules Engine)
+    const smartInsights: Array<{
+      id: string;
+      type: 'positive' | 'warning' | 'info' | 'danger';
+      title: string;
+      description: string;
+      metric?: string;
+      actionText?: string;
+      actionTarget?: 'dashboard' | 'transactions' | 'budgets' | 'analytics' | 'settings';
+    }> = [];
+
+    // Rule 1: No Transactions / Empty
+    if (currentTx.length === 0) {
+      smartInsights.push({
+        id: 'ins_no_tx',
+        type: 'info',
+        title: 'No Data for This Timeframe',
+        description: `No transactions recorded between ${startDate} and ${endDate}. Record your income and expenses to view smart analytics.`,
+        actionText: 'Add Transaction',
+        actionTarget: 'transactions',
+      });
+    }
+
+    // Rule 2: High Savings Rate
+    if (savingsRate !== null && savingsRate >= 20) {
+      smartInsights.push({
+        id: 'ins_high_savings',
+        type: 'positive',
+        title: 'Strong Savings Momentum',
+        description: `You saved ${savingsRate}% of your total earnings in this period, well above the recommended 20% financial wellness rule.`,
+        metric: `${savingsRate}% saved`,
+      });
+    } else if (savingsRate !== null && savingsRate > 0 && savingsRate < 20) {
+      smartInsights.push({
+        id: 'ins_mod_savings',
+        type: 'info',
+        title: 'Savings Potential Identified',
+        description: `Your savings rate is ${savingsRate}%. Trimming non-essential costs in top categories can help you reach the 20% target.`,
+        metric: `${savingsRate}% saved`,
+      });
+    }
+
+    // Rule 3: Negative Cash Flow Deficit
+    if (netCashFlow < 0 && totalIncome > 0) {
+      smartInsights.push({
+        id: 'ins_deficit',
+        type: 'danger',
+        title: 'Deficit Warning: Negative Cash Flow',
+        description: `Expenses exceeded income by ₹${Math.abs(netCashFlow).toLocaleString('en-IN')}. Pausing discretionary purchases is advised to avoid drawing down savings.`,
+        metric: `-₹${Math.abs(netCashFlow).toLocaleString('en-IN')}`,
+        actionText: 'Review Transactions',
+        actionTarget: 'transactions',
+      });
+    } else if (netCashFlow > 0 && totalExpenses > 0) {
+      smartInsights.push({
+        id: 'ins_surplus',
+        type: 'positive',
+        title: 'Healthy Cash Flow Surplus',
+        description: `You maintained a positive balance of ₹${netCashFlow.toLocaleString('en-IN')} after covering all expenditures.`,
+        metric: `+₹${netCashFlow.toLocaleString('en-IN')}`,
+      });
+    }
+
+    // Rule 4: Zero Income Logged
+    if (totalIncome === 0 && totalExpenses > 0) {
+      smartInsights.push({
+        id: 'ins_zero_inc',
+        type: 'info',
+        title: 'Expenses Without Recorded Income',
+        description: `You recorded ₹${totalExpenses.toLocaleString('en-IN')} in expenses but have not logged any income for this selected window.`,
+        actionText: 'Log Income',
+        actionTarget: 'transactions',
+      });
+    }
+
+    // Rule 5: High Category Concentration
+    if (topCategory && topCategory.percentage >= 30) {
+      smartInsights.push({
+        id: 'ins_concentration',
+        type: 'warning',
+        title: `Heavy Outflow in ${topCategory.name}`,
+        description: `${topCategory.name} represents ${topCategory.percentage}% of all expenditures (₹${topCategory.amount.toLocaleString('en-IN')}). Consider establishing a strict cap.`,
+        metric: `${topCategory.percentage}% of expenses`,
+        actionText: 'Create Category Budget',
+        actionTarget: 'budgets',
+      });
+    }
+
+    // Rule 6: Spending Drop vs Previous Period
+    if (prevExpenses > 0 && totalExpenses < prevExpenses) {
+      const dropPct = Math.round(((prevExpenses - totalExpenses) / prevExpenses) * 100);
+      smartInsights.push({
+        id: 'ins_spend_drop',
+        type: 'positive',
+        title: 'Reduced Spending Pace',
+        description: `Great job! Your total spending is down by ${dropPct}% (₹${(prevExpenses - totalExpenses).toLocaleString('en-IN')} lower) compared to the prior period.`,
+        metric: `-${dropPct}% spending`,
+      });
+    } else if (prevExpenses > 0 && totalExpenses > prevExpenses * 1.15) {
+      const jumpPct = Math.round(((totalExpenses - prevExpenses) / prevExpenses) * 100);
+      smartInsights.push({
+        id: 'ins_spend_jump',
+        type: 'warning',
+        title: 'Expenditure Surge Detected',
+        description: `Spending rose by ${jumpPct}% compared to the prior timeframe. Inspect recent outlays to maintain budget discipline.`,
+        metric: `+${jumpPct}% spending`,
+        actionText: 'View Outflows',
+        actionTarget: 'transactions',
+      });
+    }
+
+    // Rule 7: Budget Exceeded
+    if (budgetSummary.overBudgetCount > 0) {
+      smartInsights.push({
+        id: 'ins_budget_over',
+        type: 'danger',
+        title: 'Active Budgets Exceeded',
+        description: `${budgetSummary.overBudgetCount} budget category has surpassed its allocated ceiling. Review and reallocate funds if necessary.`,
+        metric: `${budgetSummary.overBudgetCount} over budget`,
+        actionText: 'Manage Budgets',
+        actionTarget: 'budgets',
+      });
+    } else if (budgetSummary.warningCount > 0) {
+      smartInsights.push({
+        id: 'ins_budget_warn',
+        type: 'warning',
+        title: 'Budgets Nearing Limits',
+        description: `${budgetSummary.warningCount} budget category is close to or has passed its configured alert threshold.`,
+        metric: `${budgetSummary.warningCount} near limit`,
+        actionText: 'View Budgets',
+        actionTarget: 'budgets',
+      });
+    } else if (budgetSummary.budgetCount > 0) {
+      smartInsights.push({
+        id: 'ins_budget_ok',
+        type: 'positive',
+        title: 'All Budgets Fully On Track',
+        description: `All ${budgetSummary.budgetCount} configured budgets remain safely within allocated spending allowances.`,
+        metric: '100% on track',
+      });
+    }
+
+    // Rule 8: High Single-Day Outflow
+    if (peakDay && totalExpenses > 0 && (peakDay.amount / totalExpenses) >= 0.25 && currentExpenseTx.length > 2) {
+      const peakPct = Math.round((peakDay.amount / totalExpenses) * 100);
+      smartInsights.push({
+        id: 'ins_peak_day',
+        type: 'info',
+        title: `Spending Spike on ${peakDay.formattedDate}`,
+        description: `₹${peakDay.amount.toLocaleString('en-IN')} (${peakPct}% of your period's total spending) occurred on a single date.`,
+        metric: `₹${peakDay.amount.toLocaleString('en-IN')}`,
+      });
+    }
+
+    // 10. Top Expenses List (Ranked descending by amount)
+    const topExpenses = currentExpenseTx
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 8)
+      .map((tx) => ({
+        id: tx.id,
+        description: tx.description,
+        merchant: tx.merchant,
+        category: tx.category,
+        date: tx.date,
+        amount: tx.amount,
+        percentageOfTotal: totalExpenses > 0
+          ? Math.round((tx.amount / totalExpenses) * 1000) / 10
+          : 0,
+      }));
+
+    return {
+      periodPreset,
+      startDate,
+      endDate,
+      periodLabel,
+      summary: {
+        totalIncome,
+        totalExpenses,
+        netCashFlow,
+        savingsRate,
+        avgDailySpend,
+        budgetUtilization,
+        transactionCount: currentTx.length,
+        incomeCount: currentIncomeTx.length,
+        expenseCount: currentExpenseTx.length,
+        daysInPeriod,
+        currency: 'INR',
+      },
+      timeSeries,
+      categoryBreakdown,
+      comparison,
+      spendingTrends,
+      budgetPerformance: {
+        totalAllocated: budgetSummary.totalBudget,
+        totalSpent: budgetSummary.totalSpent,
+        utilizationPercentage: budgetUtilization,
+        overBudgetCount: budgetSummary.overBudgetCount,
+        warningCount: budgetSummary.warningCount,
+        onTrackCount: budgetSummary.budgetCount - budgetSummary.overBudgetCount - budgetSummary.warningCount,
+        budgetCount: budgetSummary.budgetCount,
+        budgets: budgetSummary.budgets,
+      },
+      smartInsights,
+      topExpenses,
+    };
+  },
+
+  // ==================== PHASE 5: SAVINGS GOALS METHODS ====================
+
+  getGoals(
+    userId: string,
+    filter: 'all' | 'active' | 'completed' | 'paused' | 'archived' = 'all',
+    sort: 'deadline' | 'progress_desc' | 'progress_asc' | 'target_desc' | 'target_asc' | 'created_desc' = 'deadline'
+  ): GoalWithCalculations[] {
+    let userGoals = db.goals.filter((g) => g.userId === userId);
+
+    if (filter !== 'all') {
+      userGoals = userGoals.filter((g) => g.status === filter);
+    }
+
+    const calculated = userGoals.map((g) => this.calculateGoal(g));
+
+    // Sorting
+    calculated.sort((a, b) => {
+      switch (sort) {
+        case 'deadline':
+          if (!a.targetDate && !b.targetDate) return 0;
+          if (!a.targetDate) return 1;
+          if (!b.targetDate) return -1;
+          return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+        case 'progress_desc':
+          return b.progressPercentage - a.progressPercentage;
+        case 'progress_asc':
+          return a.progressPercentage - b.progressPercentage;
+        case 'target_desc':
+          return b.targetAmount - a.targetAmount;
+        case 'target_asc':
+          return a.targetAmount - b.targetAmount;
+        case 'created_desc':
+        default:
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
+
+    return calculated;
+  },
+
+  calculateGoal(goal: Goal): GoalWithCalculations {
+    const goalContribs = db.goalContributions.filter(
+      (c) => c.goalId === goal.id && c.userId === goal.userId
+    );
+    const savedAmount = Math.round(goalContribs.reduce((acc, c) => acc + c.amount, 0) * 100) / 100;
+    const remainingAmount = Math.max(0, Math.round((goal.targetAmount - savedAmount) * 100) / 100);
+    const progressPercentage = goal.targetAmount > 0
+      ? Math.round((savedAmount / goal.targetAmount) * 1000) / 10
+      : 0;
+
+    let daysRemaining: number | null = null;
+    let isOverdue = false;
+    if (goal.targetDate) {
+      const today = new Date('2026-10-24T00:00:00Z');
+      const targetDateObj = new Date(goal.targetDate + 'T00:00:00Z');
+      const diffMs = targetDateObj.getTime() - today.getTime();
+      daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      if (daysRemaining < 0) {
+        isOverdue = true;
+      }
+    }
+
+    let monthlyNeeded: number | null = null;
+    let weeklyNeeded: number | null = null;
+    let dailyNeeded: number | null = null;
+    let monthsRemaining: number | null = null;
+    let statusText = '';
+
+    if (savedAmount >= goal.targetAmount) {
+      statusText = 'Target reached! Milestone achieved.';
+      monthlyNeeded = 0;
+      weeklyNeeded = 0;
+      dailyNeeded = 0;
+      monthsRemaining = 0;
+    } else if (!goal.targetDate) {
+      statusText = 'No deadline set. Define a target date to estimate monthly contribution requirements.';
+    } else if (daysRemaining !== null && daysRemaining <= 0) {
+      statusText = 'Target deadline has passed. Consider extending deadline or adding contributions.';
+      monthsRemaining = 0;
+    } else if (daysRemaining !== null && daysRemaining > 0) {
+      const rawMonths = Math.max(0.1, daysRemaining / 30.4375);
+      monthsRemaining = Math.round(rawMonths * 10) / 10;
+      monthlyNeeded = Math.round((remainingAmount / Math.max(0.5, rawMonths)) * 100) / 100;
+      const rawWeeks = Math.max(0.1, daysRemaining / 7);
+      weeklyNeeded = Math.round((remainingAmount / rawWeeks) * 100) / 100;
+      dailyNeeded = Math.round((remainingAmount / Math.max(1, daysRemaining)) * 100) / 100;
+      statusText = `Save ₹${monthlyNeeded.toLocaleString('en-IN')}/month to reach target by ${goal.targetDate}`;
+    }
+
+    const sortedContribs = [...goalContribs].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    return {
+      ...goal,
+      savedAmount,
+      remainingAmount,
+      progressPercentage,
+      daysRemaining,
+      isOverdue,
+      contributionsCount: sortedContribs.length,
+      contributions: sortedContribs,
+      projections: {
+        monthlyNeeded,
+        weeklyNeeded,
+        dailyNeeded,
+        monthsRemaining,
+        daysRemaining,
+        statusText,
+      },
+    };
+  },
+
+  getGoalById(userId: string, goalId: string): GoalWithCalculations | null {
+    const goal = db.goals.find((g) => g.id === goalId && g.userId === userId);
+    if (!goal) return null;
+    return this.calculateGoal(goal);
+  },
+
+  createGoal(
+    userId: string,
+    data: {
+      name: string;
+      category: string;
+      targetAmount: number;
+      initialAmount?: number;
+      targetDate?: string;
+      description?: string;
+      color?: string;
+      icon?: string;
+      frequencyPreference?: 'weekly' | 'bi-weekly' | 'monthly' | 'one-time';
+    }
+  ): GoalWithCalculations {
+    const goalId = `gol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const now = new Date().toISOString();
+    const initialAmt = typeof data.initialAmount === 'number' && data.initialAmount > 0
+      ? Math.round(data.initialAmount * 100) / 100
+      : 0;
+
+    const newGoal: Goal = {
+      id: goalId,
+      userId,
+      name: data.name.trim(),
+      category: data.category.trim() || 'General',
+      targetAmount: Math.round(data.targetAmount * 100) / 100,
+      initialAmount: initialAmt,
+      targetDate: data.targetDate ? data.targetDate.trim() : undefined,
+      description: data.description ? data.description.trim() : undefined,
+      color: data.color || '#1677F2',
+      icon: data.icon || 'Target',
+      status: initialAmt >= data.targetAmount ? 'completed' : 'active',
+      frequencyPreference: data.frequencyPreference || 'monthly',
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    db.goals.push(newGoal);
+
+    // If an initial deposit/starting amount was provided, record it as the inaugural contribution
+    if (initialAmt > 0) {
+      const contribId = `gc_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const contrib: GoalContribution = {
+        id: contribId,
+        goalId: newGoal.id,
+        userId,
+        amount: initialAmt,
+        date: now.split('T')[0],
+        note: 'Starting contribution balance',
+        source: 'Initial Deposit',
+        createdAt: now,
+      };
+      db.goalContributions.push(contrib);
+    }
+
+    saveDatabase(db);
+    return this.calculateGoal(newGoal);
+  },
+
+  updateGoal(
+    userId: string,
+    goalId: string,
+    updates: {
+      name?: string;
+      category?: string;
+      targetAmount?: number;
+      targetDate?: string;
+      description?: string;
+      color?: string;
+      icon?: string;
+      status?: GoalStatus;
+      frequencyPreference?: 'weekly' | 'bi-weekly' | 'monthly' | 'one-time';
+    }
+  ): GoalWithCalculations | null {
+    const goal = db.goals.find((g) => g.id === goalId && g.userId === userId);
+    if (!goal) return null;
+
+    if (updates.name !== undefined) goal.name = updates.name.trim();
+    if (updates.category !== undefined) goal.category = updates.category.trim();
+    if (typeof updates.targetAmount === 'number') {
+      goal.targetAmount = Math.round(updates.targetAmount * 100) / 100;
+    }
+    if (updates.targetDate !== undefined) {
+      goal.targetDate = updates.targetDate ? updates.targetDate.trim() : undefined;
+    }
+    if (updates.description !== undefined) {
+      goal.description = updates.description ? updates.description.trim() : undefined;
+    }
+    if (updates.color !== undefined) goal.color = updates.color;
+    if (updates.icon !== undefined) goal.icon = updates.icon;
+    if (updates.frequencyPreference !== undefined) {
+      goal.frequencyPreference = updates.frequencyPreference;
+    }
+
+    // Check explicit status change or recalculate completion if target changed
+    if (updates.status !== undefined) {
+      goal.status = updates.status;
+    } else if (typeof updates.targetAmount === 'number') {
+      const contribs = db.goalContributions.filter((c) => c.goalId === goal.id && c.userId === userId);
+      const saved = contribs.reduce((acc, c) => acc + c.amount, 0);
+      if (goal.status === 'completed' && saved < goal.targetAmount) {
+        goal.status = 'active';
+      } else if (goal.status === 'active' && saved >= goal.targetAmount) {
+        goal.status = 'completed';
+      }
+    }
+
+    goal.updatedAt = new Date().toISOString();
+    saveDatabase(db);
+    return this.calculateGoal(goal);
+  },
+
+  deleteGoal(userId: string, goalId: string): boolean {
+    const initialLen = db.goals.length;
+    db.goals = db.goals.filter((g) => !(g.id === goalId && g.userId === userId));
+    const deleted = db.goals.length < initialLen;
+
+    if (deleted) {
+      // Clean up orphaned contributions associated with this goal only
+      db.goalContributions = db.goalContributions.filter(
+        (c) => !(c.goalId === goalId && c.userId === userId)
+      );
+      saveDatabase(db);
+    }
+    return deleted;
+  },
+
+  addContribution(
+    userId: string,
+    goalId: string,
+    data: {
+      amount: number;
+      date?: string;
+      note?: string;
+      source?: string;
+    }
+  ): { goal: GoalWithCalculations; contribution: GoalContribution } | null {
+    const goal = db.goals.find((g) => g.id === goalId && g.userId === userId);
+    if (!goal) return null;
+
+    const amount = Math.round(data.amount * 100) / 100;
+    const now = new Date().toISOString();
+    const contribDate = data.date && /^\d{4}-\d{2}-\d{2}$/.test(data.date)
+      ? data.date
+      : now.split('T')[0];
+
+    const contribId = `gc_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const newContrib: GoalContribution = {
+      id: contribId,
+      goalId,
+      userId,
+      amount,
+      date: contribDate,
+      note: data.note ? data.note.trim() : undefined,
+      source: data.source ? data.source.trim() : 'Manual Contribution',
+      createdAt: now,
+    };
+
+    db.goalContributions.push(newContrib);
+
+    // Check if new saved total meets or exceeds target
+    const currentContribs = db.goalContributions.filter(
+      (c) => c.goalId === goal.id && c.userId === userId
+    );
+    const newSaved = currentContribs.reduce((acc, c) => acc + c.amount, 0);
+
+    if (goal.status === 'active' && newSaved >= goal.targetAmount) {
+      goal.status = 'completed';
+    }
+
+    goal.updatedAt = now;
+    saveDatabase(db);
+
+    return {
+      goal: this.calculateGoal(goal),
+      contribution: newContrib,
+    };
+  },
+
+  deleteContribution(
+    userId: string,
+    goalId: string,
+    contributionId: string
+  ): GoalWithCalculations | null {
+    const goal = db.goals.find((g) => g.id === goalId && g.userId === userId);
+    if (!goal) return null;
+
+    const initialLen = db.goalContributions.length;
+    db.goalContributions = db.goalContributions.filter(
+      (c) => !(c.id === contributionId && c.goalId === goalId && c.userId === userId)
+    );
+
+    if (db.goalContributions.length === initialLen) {
+      return null; // Not found or unauthorized
+    }
+
+    // Recalculate status if goal was marked completed and now drops below target
+    const remainingContribs = db.goalContributions.filter(
+      (c) => c.goalId === goal.id && c.userId === userId
+    );
+    const newSaved = remainingContribs.reduce((acc, c) => acc + c.amount, 0);
+
+    if (goal.status === 'completed' && newSaved < goal.targetAmount) {
+      goal.status = 'active';
+    }
+
+    goal.updatedAt = new Date().toISOString();
+    saveDatabase(db);
+    return this.calculateGoal(goal);
+  },
+
+  getGoalSummary(userId: string): GoalSummary {
+    const allGoals = this.getGoals(userId, 'all');
+    const activeGoals = allGoals.filter((g) => g.status === 'active');
+    const completedGoals = allGoals.filter((g) => g.status === 'completed');
+    const pausedGoals = allGoals.filter((g) => g.status === 'paused');
+    const archivedGoals = allGoals.filter((g) => g.status === 'archived');
+
+    const totalTarget = Math.round(activeGoals.reduce((acc, g) => acc + g.targetAmount, 0) * 100) / 100;
+    const totalSaved = Math.round(activeGoals.reduce((acc, g) => acc + g.savedAmount, 0) * 100) / 100;
+    const totalRemaining = Math.max(0, Math.round((totalTarget - totalSaved) * 100) / 100);
+    const overallProgress = totalTarget > 0 ? Math.round((totalSaved / totalTarget) * 1000) / 10 : 0;
+
+    return {
+      totalTarget,
+      totalSaved,
+      totalRemaining,
+      activeCount: activeGoals.length,
+      completedCount: completedGoals.length,
+      pausedCount: pausedGoals.length,
+      archivedCount: archivedGoals.length,
+      overallProgress,
+    };
+  },
+
+  getUserPreferences(userId: string): UserPreferences {
+    let pref = db.userPreferences.find((p) => p.userId === userId);
+    if (!pref) {
+      pref = {
+        userId,
+        currency: 'INR',
+        dateFormat: 'DD/MM/YYYY',
+        timezone: 'Asia/Kolkata',
+        tableDensity: 'comfortable',
+        emailAlerts: true,
+        monthlyDigest: true,
+        budgetThresholdAlerts: true,
+        updatedAt: new Date().toISOString(),
+      };
+      db.userPreferences.push(pref);
+      saveDatabase(db);
+    }
+    return pref;
+  },
+
+  updateUserPreferences(userId: string, updates: Partial<UserPreferences>): UserPreferences {
+    let pref = db.userPreferences.find((p) => p.userId === userId);
+    if (!pref) {
+      pref = {
+        userId,
+        currency: 'INR',
+        dateFormat: 'DD/MM/YYYY',
+        timezone: 'Asia/Kolkata',
+        tableDensity: 'comfortable',
+        emailAlerts: true,
+        monthlyDigest: true,
+        budgetThresholdAlerts: true,
+        updatedAt: new Date().toISOString(),
+      };
+      db.userPreferences.push(pref);
+    }
+    if (updates.currency !== undefined) pref.currency = updates.currency;
+    if (updates.dateFormat !== undefined) pref.dateFormat = updates.dateFormat;
+    if (updates.timezone !== undefined) pref.timezone = updates.timezone;
+    if (updates.tableDensity !== undefined) pref.tableDensity = updates.tableDensity;
+    if (updates.emailAlerts !== undefined) pref.emailAlerts = updates.emailAlerts;
+    if (updates.monthlyDigest !== undefined) pref.monthlyDigest = updates.monthlyDigest;
+    if (updates.budgetThresholdAlerts !== undefined) pref.budgetThresholdAlerts = updates.budgetThresholdAlerts;
+    pref.updatedAt = new Date().toISOString();
+    saveDatabase(db);
+    return pref;
+  },
+
+  updateUserPassword(userId: string, newPasswordHash: string): boolean {
+    const user = db.users.find((u) => u.id === userId);
+    if (!user) return false;
+    user.passwordHash = newPasswordHash;
+    user.updatedAt = new Date().toISOString();
+    saveDatabase(db);
+    return true;
+  },
+
+  deleteAccount(userId: string): boolean {
+    const initialLen = db.users.length;
+    db.users = db.users.filter((u) => u.id !== userId);
+    db.transactions = db.transactions.filter((t) => t.userId !== userId);
+    db.budgets = db.budgets.filter((b) => b.userId !== userId);
+    db.goals = db.goals.filter((g) => g.userId !== userId);
+    db.goalContributions = db.goalContributions.filter((c) => c.userId !== userId);
+    db.userPreferences = db.userPreferences.filter((p) => p.userId !== userId);
+    const deleted = db.users.length < initialLen;
+    if (deleted) {
+      saveDatabase(db);
+    }
+    return deleted;
+  },
 };
+
+
