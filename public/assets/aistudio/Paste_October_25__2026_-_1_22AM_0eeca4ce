@@ -1,0 +1,900 @@
+# FINORA — PHASE 9 MASTER IMPLEMENTATION PROMPT
+## Notifications, Financial Alerts, Reminders & Delivery Management
+
+**Project:** Finora — Personal Finance Tracker  
+**Phase:** 9 — Notifications & Financial Alerts  
+**Implementation:** Full-stack — Frontend + Backend + Database + Scheduler + Testing  
+**Design:** Premium white and pale-blue theme, blue primary actions, subtle borders, rounded cards, clean typography, and responsive layouts.
+
+---
+
+## 1. PRIMARY OBJECTIVE
+
+Act as a senior full-stack engineer, backend automation engineer, notification-system architect, and UI/UX designer.
+
+Implement a complete, functional Notifications & Financial Alerts system directly inside my existing Finora project.
+
+**Do not just review the code, create a plan, or generate a visual mockup. Make actual code changes, connect the frontend to the backend and database, implement notification processing, and verify the functionality.**
+
+The system must provide timely, relevant alerts based on real user financial data and saved preferences.
+
+Integrate with the existing Finora modules:
+
+- Authentication and user profiles.
+- Dashboard.
+- Transactions.
+- Budgets.
+- Analytics.
+- Savings Goals.
+- Reports and exports.
+- Settings and notification preferences.
+- Recurring Transactions from Phase 8.
+
+Preserve all existing features, database records, financial calculations, and the approved Finora design.
+
+Do not rebuild the application from scratch.
+
+## 2. INSPECT THE EXISTING PROJECT FIRST
+
+Inspect the existing implementation before changing anything.
+
+Identify:
+
+- Frontend framework and routing.
+- Backend framework and API conventions.
+- Authentication provider and user identity model.
+- Database schema and migration conventions.
+- Existing notification or activity models.
+- Budget calculation logic and threshold rules.
+- Savings goal and contribution models.
+- Recurring transaction scheduler and processing history.
+- User notification preferences from Phase 7.
+- User timezone and date-format preferences.
+- Existing email, push, or messaging providers.
+- Existing cron, background job, or scheduled-function infrastructure.
+- Existing navigation, components, and test framework.
+
+Reuse compatible existing infrastructure.
+
+Do not create duplicate notification systems or duplicate financial calculation logic.
+
+If a required dependency is unavailable, implement the supported portions and document the actual blocker. Do not claim unsupported notification channels work.
+
+## 3. NOTIFICATION CENTER
+
+Create a complete Notification Center using the existing routing conventions.
+
+Suggested route: `/notifications`
+
+Add a notification bell to the existing application header, if one is not already present.
+
+### Notification bell
+
+Display:
+
+- A notification icon.
+- An unread count.
+- A visual indicator when unread notifications exist.
+- A dropdown or panel containing the latest notifications.
+- A link to the full Notification Center.
+
+The unread count must reflect actual unread database records, not a hardcoded number.
+
+Avoid displaying an unlimited count. Use a sensible cap such as `99+` when appropriate.
+
+### Notification Center page
+
+Include:
+
+- Page title: Notifications.
+- Unread notification count.
+- All and Unread filters.
+- Notification category filters.
+- Mark all as read.
+- Mark individual notifications as read.
+- Delete or dismiss notifications, if supported.
+- Search or filtering where useful.
+- Pagination or load-more behavior for large histories.
+
+Each notification should display:
+
+- Title.
+- Concise message.
+- Category.
+- Creation date and time.
+- Read or unread status.
+- Relevant action, if applicable.
+
+A notification action should navigate to the relevant Finora page or record.
+
+Examples include opening a budget, viewing a recurring transaction, or opening a savings goal.
+
+Do not create buttons that appear functional but do nothing.
+
+## 4. NOTIFICATION CATEGORIES
+
+Support the following categories where corresponding Finora features exist:
+
+1. Budget alerts.
+2. Upcoming recurring transactions.
+3. Recurring transaction processing failures.
+4. Savings goal milestones.
+5. Savings goal deadlines.
+6. Weekly financial summaries.
+7. Monthly financial summaries.
+8. Security alerts.
+9. Important account or system notifications.
+
+Each category should have a clear label and suitable icon.
+
+Use accessible styling and avoid relying on color alone to communicate severity.
+
+Do not generate notifications for features that are not implemented or whose data cannot be verified.
+
+## 5. BUDGET ALERTS
+
+Integrate with the existing Phase 3 budget management system.
+
+Generate alerts when a budget reaches a configured threshold or exceeds its limit.
+
+### Configurable thresholds
+
+Where practical, support:
+
+- 50% of budget used.
+- 75% of budget used.
+- 90% of budget used.
+- 100% of budget used.
+- Over-budget alerts.
+
+Use existing application rules if thresholds are already configured elsewhere.
+
+### Alert content
+
+Include:
+
+- Budget name.
+- Budget period.
+- Amount spent.
+- Budget amount.
+- Remaining amount.
+- Percentage used.
+- A link to the relevant budget.
+
+### Calculation rules
+
+Use the existing authoritative budget calculations.
+
+Do not create a separate formula that disagrees with the budget dashboard.
+
+Only generate a threshold alert when the relevant condition is actually met.
+
+Prevent repeated alerts every time the scheduler runs.
+
+A budget crossing a threshold should normally generate at most one notification per budget, threshold, and applicable budget period.
+
+If spending later falls and then crosses the same threshold again, follow a clearly defined policy rather than producing duplicate alerts on every calculation.
+
+Do not create alerts from fabricated transactions or sample budget values.
+
+## 6. UPCOMING RECURRING TRANSACTION REMINDERS
+
+Integrate with the existing Phase 8 recurring transaction system.
+
+Generate reminders for upcoming scheduled income and expenses.
+
+Suggested reminder windows:
+
+- 7 days before.
+- 3 days before.
+- 1 day before.
+- On the due date.
+
+Allow the user to select supported reminder windows in Settings, where practical.
+
+### Reminder content
+
+Include:
+
+- Schedule name.
+- Expected amount.
+- Income or expense type.
+- Scheduled date.
+- Category, where available.
+- Link to the recurring transaction details.
+
+### Requirements
+
+- Only remind users about active recurring schedules.
+- Respect the schedule's start date, end date, pause status, and cancellation status.
+- Use the actual next scheduled occurrence.
+- Use the user's saved timezone for display and applicable scheduling logic.
+- Prevent duplicate reminders for the same schedule, occurrence, and reminder window.
+- Recalculate future reminders when a schedule changes.
+- Cancel obsolete pending reminders when a schedule is paused or cancelled, where the infrastructure supports it.
+- Clearly label the reminder as scheduled or expected.
+
+Do not mark a bill as paid because a reminder was delivered.
+
+Do not automatically transfer money or initiate a real payment unless a genuine payment integration already exists and is explicitly configured.
+
+## 7. RECURRING TRANSACTION FAILURE ALERTS
+
+Connect notifications to the Phase 8 scheduler and occurrence-history model.
+
+When a recurring transaction fails to process, create a notification if the failure is genuine and actionable.
+
+Include:
+
+- Schedule name.
+- Scheduled occurrence date.
+- A safe, concise failure explanation.
+- A link to the schedule or occurrence history.
+- A retry action only if safe retry functionality actually exists.
+
+### Failure handling
+
+- Do not generate an alert for every repeated retry attempt.
+- Group or deduplicate repeated alerts for the same failed occurrence.
+- Do not mark an occurrence as successful unless the transaction was durably created.
+- Do not create a duplicate transaction when the user retries.
+- Clear or resolve the alert only when the relevant condition has actually been resolved, where supported.
+
+Never expose stack traces, secrets, tokens, or private backend information in a notification.
+
+If the scheduler does not expose processing results, integrate with its actual history mechanism rather than inventing failure events.
+
+## 8. SAVINGS GOAL MILESTONE ALERTS
+
+Integrate with the Phase 5 savings goal and contribution system.
+
+Generate notifications for meaningful progress milestones, such as:
+
+- 25% complete.
+- 50% complete.
+- 75% complete.
+- 100% complete.
+
+Use configurable milestones if supported by the existing settings architecture.
+
+### Notification content
+
+Include:
+
+- Goal name.
+- Current saved amount.
+- Target amount.
+- Progress percentage.
+- Remaining amount, where applicable.
+- Link to the goal details.
+
+### Requirements
+
+- Use actual saved contributions and the existing goal calculation.
+- Avoid duplicate alerts for the same goal and milestone.
+- Generate the 100% completion notification only when the goal is genuinely complete.
+- Handle goal edits and target-amount changes carefully.
+- Do not invent historical milestones.
+- Do not count contributions as income.
+- Do not count the same contribution twice.
+
+If a user increases a target after reaching a milestone, define and implement a consistent policy for whether previously delivered milestone alerts remain historical or become eligible again.
+
+Preserve historical notifications rather than silently rewriting them.
+
+## 9. SAVINGS GOAL DEADLINE REMINDERS
+
+Where the existing goal model includes target dates, support deadline reminders.
+
+Suggested reminder windows:
+
+- 30 days before the target date.
+- 7 days before.
+- 1 day before.
+- On the target date.
+
+Requirements:
+
+- Only consider applicable, non-completed goals.
+- Respect paused or archived states according to existing business rules.
+- Avoid repeated notifications for the same goal, deadline, and reminder window.
+- Recalculate future reminders if the target date changes.
+- Use actual target dates and saved progress.
+- Explain the remaining target amount without guaranteeing that the goal will be achieved.
+
+Do not create deadline alerts for goals that have no target date.
+
+## 10. WEEKLY AND MONTHLY FINANCIAL SUMMARIES
+
+Provide weekly and monthly summaries if the existing financial data supports them.
+
+### Weekly summary
+
+Potential metrics:
+
+- Total income.
+- Total expenses.
+- Net cash flow.
+- Largest expense.
+- Most-used expense category.
+
+### Monthly summary
+
+Potential metrics:
+
+- Total income.
+- Total expenses.
+- Net cash flow.
+- Change in expenses compared with the previous month.
+- Budget utilization.
+- Savings goal progress.
+
+### Accuracy requirements
+
+- Use the existing transaction calculation logic.
+- Respect the selected reporting period and timezone.
+- Handle empty periods.
+- Avoid dividing by zero.
+- Do not generate fabricated trends.
+- Distinguish unavailable comparisons from zero change.
+- Ensure each summary is generated only once for the relevant user and reporting period.
+
+Clearly distinguish a summary notification from a full financial report.
+
+Where practical, link to the corresponding Analytics or Reports page.
+
+### Scheduling
+
+Use the existing backend scheduler or a compatible managed scheduling mechanism.
+
+Do not use frontend timers to deliver scheduled summaries.
+
+Respect the user's saved notification preferences and timezone.
+
+If automatic scheduling cannot be activated in the current deployment environment, document the exact configuration still required.
+
+## 11. SECURITY ALERTS
+
+Integrate with the existing authentication provider.
+
+Generate security notifications only for events that the application can genuinely observe.
+
+Potential supported events include:
+
+- Password changed.
+- Email address changed.
+- Email verification completed.
+- Sign-in from a new device, if the provider exposes reliable event data.
+- Active session revoked, if supported.
+
+Requirements:
+
+- Use real provider events or trusted backend events.
+- Never invent sign-in locations, IP addresses, devices, or suspicious activity.
+- Never include passwords, verification codes, access tokens, or reset tokens.
+- Keep sensitive security notifications concise.
+- Link to the Settings or Security page where appropriate.
+- Deduplicate repeated event delivery where applicable.
+
+If the provider does not expose a particular security event, do not simulate it.
+
+Do not claim that security notifications are a substitute for authentication controls.
+
+## 12. NOTIFICATION PREFERENCES
+
+Integrate with the Phase 7 Settings system.
+
+Support notification preferences for categories that the application genuinely implements:
+
+- Budget alerts.
+- Upcoming recurring transaction reminders.
+- Recurring transaction failures.
+- Savings milestones.
+- Savings deadlines.
+- Weekly summaries.
+- Monthly summaries.
+- Security alerts.
+
+Where useful, allow users to configure:
+
+- In-app notifications.
+- Email notifications.
+- Supported reminder windows.
+- Weekly or monthly summary delivery.
+- Preferred summary day or time.
+
+### Preference requirements
+
+- Load saved preferences from the backend.
+- Persist changes.
+- Respect preferences when generating or delivering notifications.
+- Provide safe defaults.
+- Preserve existing settings.
+- Prevent unauthorized changes to another user's preferences.
+
+Essential security events should not be silently disabled if the application's security policy requires them. Clearly explain any mandatory alerts.
+
+Do not display a working email or push toggle unless the corresponding delivery mechanism exists.
+
+## 13. IN-APP NOTIFICATION DELIVERY
+
+Implement the in-app notification channel as the core required delivery mechanism.
+
+### Backend responsibilities
+
+- Create notification records from validated events.
+- Associate each record with the correct authenticated user.
+- Store category, title, message, read status, creation time, and relevant action metadata.
+- Deduplicate repeat events.
+- Validate action destinations.
+- Support pagination and unread counts.
+- Respect applicable notification preferences.
+- Record errors safely.
+
+Do not rely exclusively on browser local storage for notification persistence.
+
+The notification history must survive page refreshes and authenticated sessions according to the application's normal persistence model.
+
+### Frontend behavior
+
+- Refresh unread counts appropriately.
+- Update the interface after marking notifications as read.
+- Display newly received notifications when supported.
+- Handle network failures.
+- Prevent duplicate UI entries.
+- Avoid continuously polling at an excessive rate.
+
+If real-time delivery is supported by the existing backend, use it where appropriate. Otherwise, implement a reasonable refresh strategy consistent with the architecture.
+
+## 14. EMAIL AND PUSH DELIVERY
+
+Inspect the existing infrastructure before adding external delivery channels.
+
+### Email
+
+If a real email provider is configured:
+
+- Reuse the existing integration.
+- Keep credentials server-side.
+- Respect saved preferences.
+- Avoid duplicate delivery.
+- Handle rate limits and provider failures.
+- Use clear, professional message templates.
+- Avoid exposing sensitive financial details unnecessarily.
+
+If no email provider is configured, implement the in-app channel and clearly identify email as unavailable until the provider is configured.
+
+### Push notifications
+
+Only implement browser or mobile push notifications if the application has the required infrastructure.
+
+Where applicable, this may include:
+
+- Permission requests initiated by the user.
+- Service-worker integration.
+- Secure subscription storage.
+- Server-side delivery.
+- Subscription revocation.
+- Failure handling.
+
+Do not request browser notification permission automatically without user interaction.
+
+Do not create a push toggle that simply changes its visual state without registering or updating a real subscription.
+
+If push infrastructure is unavailable, keep the feature clearly marked as not configured rather than claiming it works.
+
+## 15. BACKEND SCHEDULER AND EVENT PROCESSING
+
+Use the existing Phase 8 scheduler or compatible background job infrastructure.
+
+Do not create an independent competing scheduler if the existing one can be safely extended.
+
+Separate the process into clear responsibilities:
+
+1. Detect eligible financial events.
+2. Validate event data.
+3. Apply notification preferences.
+4. Create deduplicated notification records.
+5. Deliver through supported channels.
+6. Record delivery or processing status.
+7. Retry temporary failures safely.
+
+### Scheduling requirements
+
+- Use the actual deployment environment.
+- Support retry and recovery.
+- Prevent duplicate alerts across scheduler runs.
+- Apply processing limits.
+- Handle concurrent workers safely.
+- Respect user timezones for scheduled summaries and reminders.
+- Record meaningful processing errors.
+- Avoid infinite retry loops.
+
+If jobs are triggered through an HTTP endpoint, protect the endpoint with the deployment platform's authentication or a secure server-side secret.
+
+Never expose scheduler credentials in browser code.
+
+Do not mark an external notification as delivered before the provider confirms the operation.
+
+For in-app notifications, distinguish successful database creation from successful delivery through external channels.
+
+## 16. DATABASE DESIGN AND DEDUPLICATION
+
+Inspect the existing database schema before adding notification tables.
+
+Reuse an existing notification or activity model if it is suitable.
+
+If a new model is required, it may need fields for:
+
+- Notification ID.
+- User ID.
+- Category.
+- Title.
+- Message.
+- Read status.
+- Created timestamp.
+- Relevant action type and safe reference.
+- Related event identifier.
+- Delivery channel.
+- Delivery status, if applicable.
+
+A separate delivery or event-history table may be appropriate when external delivery needs independent retries and auditing.
+
+These fields are conceptual. Adapt them to the current database architecture.
+
+### Deduplication
+
+Create stable event identifiers for recurring alerts.
+
+Examples include:
+
+- Budget ID + threshold + budget period.
+- Recurring schedule ID + occurrence date + reminder window.
+- Savings goal ID + milestone.
+- Goal ID + target date + reminder window.
+- User ID + summary type + reporting period.
+
+Enforce uniqueness at the database level where appropriate.
+
+Do not depend only on checking the frontend to prevent duplicate notifications.
+
+### Security
+
+- Enforce user ownership.
+- Apply row-level security or equivalent controls.
+- Prevent users from creating arbitrary system notifications.
+- Validate all action references.
+- Do not store secrets in notification metadata.
+- Avoid unnecessarily retaining sensitive payloads.
+- Preserve existing user data and use safe migrations.
+
+## 17. BACKEND API INTEGRATION
+
+Follow the existing API structure.
+
+Potential capabilities include:
+
+- List notifications.
+- Retrieve unread count.
+- Mark one notification as read.
+- Mark all notifications as read.
+- Dismiss or delete a notification, if supported.
+- Update notification preferences.
+- Retrieve notification details.
+- Process scheduled reminders.
+- Generate eligible financial summary notifications.
+
+Suggested route patterns, to be adapted to the current project:
+
+- `GET /api/notifications`
+- `GET /api/notifications/unread-count`
+- `PATCH /api/notifications/:id/read`
+- `POST /api/notifications/mark-all-read`
+- `DELETE /api/notifications/:id`, if supported.
+- Existing settings endpoints for notification preferences.
+
+Use existing routes where appropriate rather than creating duplicate APIs.
+
+### API requirements
+
+- Authenticate protected endpoints.
+- Derive user identity from the trusted session.
+- Validate pagination and filters.
+- Verify notification ownership.
+- Use safe database operations.
+- Return consistent response formats.
+- Prevent mass assignment.
+- Avoid leaking stack traces or sensitive internal data.
+- Keep scheduler-only operations separate from user-facing routes.
+
+## 18. DASHBOARD AND GLOBAL INTEGRATION
+
+Integrate notifications throughout Finora without disrupting existing pages.
+
+### Application header
+
+Show the notification bell and real unread count.
+
+### Dashboard
+
+Where appropriate, show a compact list of recent important alerts.
+
+### Budgets
+
+Provide links from budget alerts to the corresponding budget details.
+
+### Recurring Transactions
+
+Provide links to the schedule or failed occurrence.
+
+### Savings Goals
+
+Provide links to the relevant goal and its progress.
+
+### Analytics and Reports
+
+Provide links to the relevant period or report where practical.
+
+### Settings
+
+Ensure the notification center respects saved preferences.
+
+All navigation targets must be valid and properly authorized.
+
+Do not add duplicate alerts merely because multiple dashboard components request the same event.
+
+## 19. UI STATES, ACCESSIBILITY, AND RESPONSIVENESS
+
+Follow the approved Finora design:
+
+- White backgrounds.
+- Pale-blue accents.
+- Blue primary actions.
+- Subtle borders.
+- Rounded cards.
+- Clean typography.
+- Consistent spacing.
+
+Do not switch to a dark black/navy default theme.
+
+### Responsive requirements
+
+Desktop:
+- Notification dropdown or panel.
+- Readable notification list.
+- Well-organized filters.
+
+Tablet:
+- Adapted notification layout.
+- Accessible action buttons.
+
+Mobile:
+- Touch-friendly notification bell.
+- Full-width or appropriately sized notification panel.
+- Readable dates and messages.
+- No horizontal overflow.
+- Clear mark-as-read and dismiss actions.
+
+### Accessibility
+
+- Provide accessible names for icons and buttons.
+- Use clear labels for notification categories.
+- Support keyboard navigation.
+- Do not rely on color alone to communicate severity.
+- Provide appropriate loading and error messages.
+- Confirm destructive operations where necessary.
+
+## 20. ERROR HANDLING
+
+Handle:
+
+- Failed notification creation.
+- Failed external delivery.
+- Expired authentication sessions.
+- Database errors.
+- Invalid notification actions.
+- Invalid filters.
+- Missing referenced budgets or goals.
+- Deleted or cancelled recurring schedules.
+- Repeated scheduler runs.
+- Duplicate event delivery.
+- Failed retries.
+- Unsupported notification channels.
+
+Show user-friendly error messages.
+
+Keep technical details in appropriately protected server logs.
+
+Never expose secrets, tokens, stack traces, or private provider responses to users.
+
+Do not display a notification as delivered when delivery failed.
+
+## 21. AUTOMATED TESTING
+
+Use the existing test framework and implement actual tests.
+
+### Notification Center tests
+
+- Notification list loads.
+- Unread count matches actual records.
+- Mark one as read works.
+- Mark all as read works.
+- Filters and pagination work.
+- Dismissal works if implemented.
+- Notifications persist after refresh.
+
+### Budget alert tests
+
+- Correct threshold generates an alert.
+- Duplicate scheduler runs do not duplicate alerts.
+- Alerts use actual budget calculations.
+- A new budget period permits the appropriate new alerts.
+- Empty or zero-value budgets are handled safely.
+
+### Recurring reminder tests
+
+- Eligible active schedules generate reminders.
+- Paused and cancelled schedules do not generate inappropriate reminders.
+- Each reminder window is deduplicated.
+- Schedule changes update future reminders.
+- Timezone and date boundaries are handled correctly.
+
+### Savings goal tests
+
+- Milestone alerts match actual progress.
+- Completion alerts are not duplicated.
+- Deadline alerts use the real target date.
+- Contributions are not counted twice.
+
+### Summary tests
+
+- Weekly and monthly totals match existing calculations.
+- Summary periods are correct.
+- Empty periods are handled.
+- Each summary is generated only once per reporting period.
+
+### Security tests
+
+- Users cannot access another user's notifications.
+- Unauthenticated requests are rejected.
+- Arbitrary notification creation is blocked.
+- Invalid action references are rejected.
+- Scheduler endpoints are protected.
+- Secrets are not exposed in responses.
+
+### Integration and regression tests
+
+- Generated alerts link to valid pages.
+- Existing preferences are respected.
+- Dashboard, transactions, budgets, analytics, savings goals, recurring transactions, and reports remain functional.
+- Mobile and desktop layouts remain usable.
+
+Run the available automated tests and report their actual outcomes. Do not claim tests passed if they were not executed.
+
+## 22. DEPLOYMENT REQUIREMENTS
+
+Inspect the existing deployment before choosing scheduling and delivery mechanisms.
+
+Document:
+
+- Required database migrations.
+- Required environment variables.
+- Scheduler configuration.
+- Email provider setup, if applicable.
+- Push notification configuration, if applicable.
+- Background worker requirements.
+- Development and production behavior.
+- Testing and verification steps.
+
+Do not assume that a local scheduled task will execute in production.
+
+If a provider or scheduler is unavailable, implement the supported portions and explain the exact configuration still required.
+
+Do not expose private keys or secrets in frontend environment variables.
+
+## 23. REQUIRED IMPLEMENTATION WORKFLOW
+
+**Step 1 — Inspect:** Review the current project, notification preferences, budget rules, savings goals, recurring schedules, and scheduler.
+
+**Step 2 — Design:** Define notification categories, stable event identifiers, persistence, and deduplication rules.
+
+**Step 3 — Implement backend:** Build notification creation, retrieval, read-state management, and event processing.
+
+**Step 4 — Implement frontend:** Build the notification bell, dropdown, full notification center, filters, and actions.
+
+**Step 5 — Integrate:** Connect budget alerts, recurring reminders, savings milestones, and supported summaries.
+
+**Step 6 — Secure:** Verify ownership, preferences, scheduler protection, and deduplication.
+
+**Step 7 — Test:** Run unit, integration, scheduler, and regression tests.
+
+**Step 8 — Fix:** Resolve failures and verify corrections.
+
+**Step 9 — Deploy:** Configure supported scheduling and delivery services.
+
+**Step 10 — Report:** List actual changes, tests, configuration requirements, and limitations.
+
+Do not stop after a written plan or a frontend-only mockup.
+
+## 24. STRICT RULES
+
+1. Do not replace the existing Finora project.
+2. Do not reset the database or delete existing records.
+3. Do not remove working functionality.
+4. Do not create fake financial events or fake notifications.
+5. Do not generate duplicate alerts on every scheduler run.
+6. Do not use frontend timers as the production notification scheduler.
+7. Do not invent email, push, or security events.
+8. Do not expose another user's financial information.
+9. Do not expose scheduler secrets.
+10. Do not mark failed external delivery as successful.
+11. Do not count savings contributions twice.
+12. Do not include upcoming scheduled amounts in actual financial totals.
+13. Do not create nonfunctional buttons or settings.
+14. Do not introduce unnecessary dependencies.
+15. Do not claim success without verification.
+16. Do not change the approved white-and-pale-blue design.
+17. Preserve existing data and business rules.
+18. Document any feature that still requires provider configuration.
+
+Prioritize accurate alerts, reliable scheduling, security, deduplication, and compatibility with the existing application.
+
+## 25. FINAL DELIVERY REPORT
+
+After implementation, provide:
+
+### A. Implemented features
+List the notification categories and actions that actually work.
+
+### B. Files changed
+List the actual files created or modified.
+
+### C. Database changes
+Describe migrations, notification models, indexes, and uniqueness constraints.
+
+### D. API changes
+List the implemented or reused endpoints.
+
+### E. Notification channels
+State whether in-app, email, and push delivery are implemented and tested individually.
+
+### F. Scheduler
+Explain how event processing runs and whether it is actually active in the deployed environment.
+
+### G. Security and deduplication
+Explain how user ownership and duplicate prevention are enforced.
+
+### H. Test results
+List the tests executed and their actual outcomes.
+
+### I. Manual setup
+List migrations, environment variables, provider configuration, and deployment steps.
+
+### J. Known limitations
+Identify anything incomplete or blocked.
+
+### K. Regression verification
+List existing Finora features checked after implementation.
+
+Do not invent filenames, test results, provider configurations, or successful delivery claims.
+
+## 26. DEFINITION OF DONE
+
+Phase 9 is complete when:
+
+- The Notification Center is integrated into Finora.
+- Unread counts and read states reflect real database records.
+- Budget alerts use actual budget calculations.
+- Recurring transaction reminders use actual schedules.
+- Genuine processing failures can produce deduplicated alerts.
+- Savings milestones and deadline reminders use actual goal data.
+- Supported summaries use accurate financial calculations.
+- Saved notification preferences are respected.
+- All notifications are scoped to the correct user.
+- The scheduler and external delivery mechanisms are configured where claimed.
+- The interface is responsive and accessible.
+- Automated tests are run and accurately reported.
+- Existing Finora functionality and data remain intact.
+- All remaining configuration requirements are documented.
+
+**Begin by inspecting my existing Finora project. Implement Phase 9 directly across the frontend, backend, database, and supported scheduler infrastructure. Prioritize real notification events, accurate financial data, deduplication, user privacy, and verifiable results. Do not stop after creating a plan.**

@@ -11,6 +11,8 @@ import { goalRouter } from './server/routes/goalRoutes.js';
 import { reportRouter } from './server/routes/reportRoutes.js';
 import { settingsRouter } from './server/routes/settingsRoutes.js';
 import { recurringRouter } from './server/routes/recurringRoutes.js';
+import { notificationRouter } from './server/routes/notificationRoutes.js';
+import { insightRouter } from './server/routes/insightRoutes.js';
 import { database } from './server/db.js';
 
 dotenv.config();
@@ -34,10 +36,13 @@ async function startServer() {
   app.use('/api/reports', reportRouter);
   app.use('/api/settings', settingsRouter);
   app.use('/api/recurring-transactions', recurringRouter);
+  app.use('/api/notifications', notificationRouter);
+  app.use('/api/insights', insightRouter);
 
   // Background Scheduler Engine - runs on startup and every 60 seconds
   try {
     const initProcess = database.processDueRecurringSchedules();
+    database.generateFinancialNotifications('usr_ansh_kumar_001');
     if (initProcess.generatedTransactionsCount > 0) {
       console.log(`[Scheduler] Startup process generated ${initProcess.generatedTransactionsCount} transaction(s).`);
     }
@@ -48,6 +53,7 @@ async function startServer() {
   setInterval(() => {
     try {
       database.processDueRecurringSchedules();
+      database.generateFinancialNotifications('usr_ansh_kumar_001');
     } catch (err) {
       console.error('[Scheduler] Periodic run error:', err);
     }

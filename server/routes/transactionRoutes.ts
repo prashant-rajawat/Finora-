@@ -33,14 +33,28 @@ transactionRouter.get('/', (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /api/transactions/summary
+transactionRouter.get('/summary', (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const month = typeof req.query.month === 'string' ? req.query.month : '2026-10';
+
+    const summary = database.getUserSummary(userId, month);
+    res.json({
+      success: true,
+      summary,
+    });
+  } catch (err: any) {
+    console.error('Failed to fetch summary:', err);
+    res.status(500).json({ success: false, error: 'Failed to retrieve dashboard summary.' });
+  }
+});
+
 // GET /api/transactions/:id
 transactionRouter.get('/:id', (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
     const txId = req.params.id;
-
-    // Skip special path 'summary'
-    if (txId === 'summary') return;
 
     const tx = database.getTransactionById(userId, txId);
     if (!tx) {
@@ -55,23 +69,6 @@ transactionRouter.get('/:id', (req: AuthRequest, res: Response) => {
   } catch (err: any) {
     console.error('Failed to fetch single transaction:', err);
     res.status(500).json({ success: false, error: 'Failed to retrieve transaction.' });
-  }
-});
-
-// GET /api/dashboard/summary
-transactionRouter.get('/summary', (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const month = typeof req.query.month === 'string' ? req.query.month : '2026-10';
-
-    const summary = database.getUserSummary(userId, month);
-    res.json({
-      success: true,
-      summary,
-    });
-  } catch (err: any) {
-    console.error('Failed to fetch summary:', err);
-    res.status(500).json({ success: false, error: 'Failed to retrieve dashboard summary.' });
   }
 });
 
@@ -187,7 +184,17 @@ transactionRouter.delete('/:id', (req: AuthRequest, res: Response) => {
   }
 });
 
-// GET /api/export/csv
+function sanitizeCsvField(value: string | number | undefined | null): string {
+  if (value === undefined || value === null) return '""';
+  const str = String(value);
+  let safeStr = str;
+  if (/^[=+\-@\t\r]/.test(safeStr)) {
+    safeStr = `'${safeStr}`;
+  }
+  return `"${safeStr.replace(/"/g, '""')}"`;
+}
+
+// GET /api/transactions/export/csv
 transactionRouter.get('/export/csv', (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
@@ -195,17 +202,17 @@ transactionRouter.get('/export/csv', (req: AuthRequest, res: Response) => {
 
     const headers = ['ID', 'Date', 'Type', 'Category', 'Amount (INR)', 'Description'];
     const rows = transactions.map((t) => [
-      `"${t.id}"`,
-      `"${t.date}"`,
-      `"${t.type}"`,
-      `"${t.category.replace(/"/g, '""')}"`,
+      sanitizeCsvField(t.id),
+      sanitizeCsvField(t.date),
+      sanitizeCsvField(t.type),
+      sanitizeCsvField(t.category),
       t.amount.toFixed(2),
-      `"${(t.description || '').replace(/"/g, '""')}"`,
+      sanitizeCsvField(t.description),
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
 
-    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="finora_transactions_${Date.now()}.csv"`);
     res.status(200).send(csvContent);
   } catch (err: any) {

@@ -1,6 +1,22 @@
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
+import type {
+  AnalyticsPeriodPreset,
+  ForecastHorizon,
+  FinancialInsightsData,
+  FinancialHealthOverview,
+  CashFlowForecastPoint,
+  CashFlowForecast,
+  SpendingTrendItem,
+  HistoricalSpendingTrends,
+  BudgetForecastItem,
+  SavingsGoalProjectionItem,
+  UnusualSpendingSignal,
+  FinancialRecommendation,
+  ForecastConfidenceMeta,
+  TopExpenseItem,
+} from '../src/types.js';
 
 export interface User {
   id: string;
@@ -163,6 +179,30 @@ export interface RecurringOccurrence {
   errorMessage?: string;
 }
 
+export type NotificationCategory =
+  | 'budget_alert'
+  | 'recurring_reminder'
+  | 'recurring_failure'
+  | 'goal_milestone'
+  | 'goal_deadline'
+  | 'weekly_summary'
+  | 'monthly_summary'
+  | 'security_alert'
+  | 'system_info';
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  category: NotificationCategory;
+  title: string;
+  message: string;
+  isRead: boolean;
+  actionTarget?: 'dashboard' | 'transactions' | 'recurring' | 'budgets' | 'analytics' | 'goals' | 'reports' | 'settings' | 'notifications';
+  actionPayload?: Record<string, any>;
+  dedupeKey: string;
+  createdAt: string; // ISO string
+}
+
 interface DatabaseSchema {
   users: User[];
   transactions: Transaction[];
@@ -172,6 +212,7 @@ interface DatabaseSchema {
   userPreferences: UserPreferences[];
   recurringSchedules: RecurringSchedule[];
   recurringOccurrences: RecurringOccurrence[];
+  notifications: AppNotification[];
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -192,6 +233,7 @@ let db: DatabaseSchema = {
   userPreferences: [],
   recurringSchedules: [],
   recurringOccurrences: [],
+  notifications: [],
 };
 
 // Seed initial data for demo user matching the reference design: Ansh Kumar
@@ -677,6 +719,68 @@ function seedInitialData() {
     },
   ];
 
+  const initialNotifications: AppNotification[] = [
+    {
+      id: 'notif_01',
+      userId: demoUser.id,
+      category: 'budget_alert',
+      title: '⚠️ Budget Alert: Utilities & Bills Limit',
+      message: 'Utilities & Bills Limit has reached 85% of its allocated ceiling (₹3,414 spent of ₹4,000 allowance).',
+      isRead: false,
+      actionTarget: 'budgets',
+      actionPayload: { budgetId: 'bgt_04' },
+      dedupeKey: 'budget:bgt_04:2026-10:85',
+      createdAt: '2026-10-24T08:30:00.000Z',
+    },
+    {
+      id: 'notif_02',
+      userId: demoUser.id,
+      category: 'recurring_reminder',
+      title: '📅 Upcoming Payment: Apartment Rent',
+      message: 'Apartment Rent payment of ₹12,000 is due on 2026-11-01 (UPI / NetBanking).',
+      isRead: false,
+      actionTarget: 'recurring',
+      actionPayload: { scheduleId: 'rec_02' },
+      dedupeKey: 'recurring:rec_02:2026-11-01:7days',
+      createdAt: '2026-10-24T07:15:00.000Z',
+    },
+    {
+      id: 'notif_03',
+      userId: demoUser.id,
+      category: 'goal_milestone',
+      title: '🎯 Milestone Achieved: Emergency Safety Net',
+      message: 'Awesome progress! You have saved ₹35,000 (35% milestone) towards your Emergency Safety Net target of ₹100,000.',
+      isRead: false,
+      actionTarget: 'goals',
+      actionPayload: { goalId: 'gol_01' },
+      dedupeKey: 'goal:gol_01:35pct',
+      createdAt: '2026-10-23T16:00:00.000Z',
+    },
+    {
+      id: 'notif_04',
+      userId: demoUser.id,
+      category: 'monthly_summary',
+      title: '📊 Monthly Financial Digest: October 2026',
+      message: 'October Overview: Total Income ₹45,000, Total Expenses ₹28,450, Net Balance ₹16,550. Savings rate: 36.8%.',
+      isRead: true,
+      actionTarget: 'analytics',
+      actionPayload: { month: '2026-10' },
+      dedupeKey: 'monthly:usr_ansh_kumar_001:2026-10',
+      createdAt: '2026-10-22T09:00:00.000Z',
+    },
+    {
+      id: 'notif_05',
+      userId: demoUser.id,
+      category: 'security_alert',
+      title: '🔒 Security Status Verified',
+      message: 'Account security preferences and email notification settings were updated successfully.',
+      isRead: true,
+      actionTarget: 'settings',
+      dedupeKey: 'security:usr_ansh_kumar_001:verified_20261024',
+      createdAt: '2026-10-21T14:20:00.000Z',
+    },
+  ];
+
   return {
     users: [demoUser],
     transactions: initialTransactions,
@@ -686,6 +790,7 @@ function seedInitialData() {
     userPreferences: [initialPreferences],
     recurringSchedules: initialSchedules,
     recurringOccurrences: initialOccurrences,
+    notifications: initialNotifications,
   };
 }
 
@@ -724,6 +829,11 @@ function loadDatabase(): DatabaseSchema {
         if (!Array.isArray(parsed.recurringOccurrences)) {
           const initial = seedInitialData();
           parsed.recurringOccurrences = initial.recurringOccurrences;
+          changed = true;
+        }
+        if (!Array.isArray(parsed.notifications)) {
+          const initial = seedInitialData();
+          parsed.notifications = initial.notifications;
           changed = true;
         }
         if (changed) {
@@ -2691,6 +2801,685 @@ export const database = {
       generatedTransactionsCount,
       skippedCount,
       details,
+    };
+  },
+
+  // ==================== PHASE 9: NOTIFICATIONS & FINANCIAL ALERTS METHODS ====================
+
+  getNotifications(
+    userId: string,
+    filters?: {
+      unreadOnly?: boolean;
+      category?: string;
+      search?: string;
+    }
+  ): { notifications: AppNotification[]; unreadCount: number } {
+    let list = db.notifications.filter((n) => n.userId === userId);
+
+    const totalUnread = list.filter((n) => !n.isRead).length;
+
+    if (filters?.unreadOnly) {
+      list = list.filter((n) => !n.isRead);
+    }
+
+    if (filters?.category && filters.category !== 'all') {
+      list = list.filter((n) => n.category === filters.category);
+    }
+
+    if (filters?.search && filters.search.trim()) {
+      const q = filters.search.toLowerCase().trim();
+      list = list.filter((n) => n.title.toLowerCase().includes(q) || n.message.toLowerCase().includes(q));
+    }
+
+    // Sort descending by creation date
+    list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return {
+      notifications: list,
+      unreadCount: totalUnread,
+    };
+  },
+
+  getUnreadNotificationCount(userId: string): number {
+    return db.notifications.filter((n) => n.userId === userId && !n.isRead).length;
+  },
+
+  markNotificationAsRead(userId: string, notifId: string): AppNotification | null {
+    const notif = db.notifications.find((n) => n.id === notifId && n.userId === userId);
+    if (!notif) return null;
+
+    if (!notif.isRead) {
+      notif.isRead = true;
+      saveDatabase(db);
+    }
+    return notif;
+  },
+
+  markAllNotificationsAsRead(userId: string): number {
+    let updatedCount = 0;
+    db.notifications.forEach((n) => {
+      if (n.userId === userId && !n.isRead) {
+        n.isRead = true;
+        updatedCount++;
+      }
+    });
+
+    if (updatedCount > 0) {
+      saveDatabase(db);
+    }
+    return updatedCount;
+  },
+
+  deleteNotification(userId: string, notifId: string): boolean {
+    const initialLen = db.notifications.length;
+    db.notifications = db.notifications.filter((n) => !(n.id === notifId && n.userId === userId));
+    const deleted = db.notifications.length < initialLen;
+    if (deleted) {
+      saveDatabase(db);
+    }
+    return deleted;
+  },
+
+  createNotification(
+    userId: string,
+    data: {
+      category: NotificationCategory;
+      title: string;
+      message: string;
+      actionTarget?: 'dashboard' | 'transactions' | 'recurring' | 'budgets' | 'analytics' | 'goals' | 'reports' | 'settings' | 'notifications';
+      actionPayload?: Record<string, any>;
+      dedupeKey: string;
+    }
+  ): AppNotification | null {
+    // Idempotency check: if notification with same dedupeKey already exists, skip creation
+    const existing = db.notifications.find((n) => n.userId === userId && n.dedupeKey === data.dedupeKey);
+    if (existing) {
+      return null; // Prevent duplicate notification
+    }
+
+    const newNotif: AppNotification = {
+      id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      userId,
+      category: data.category,
+      title: data.title,
+      message: data.message,
+      isRead: false,
+      actionTarget: data.actionTarget,
+      actionPayload: data.actionPayload,
+      dedupeKey: data.dedupeKey,
+      createdAt: new Date().toISOString(),
+    };
+
+    db.notifications.push(newNotif);
+    saveDatabase(db);
+    return newNotif;
+  },
+
+  // Automated Financial Alerts Detection Engine
+  generateFinancialNotifications(userId: string): { createdCount: number; details: string[] } {
+    const pref = this.getUserPreferences(userId);
+    let createdCount = 0;
+    const details: string[] = [];
+
+    // 1. Budget Alerts Detection
+    if (pref.budgetThresholdAlerts) {
+      const budgetSummary = this.getBudgetSummary(userId, '2026-10');
+      budgetSummary.budgets.forEach((b) => {
+        if (b.percentage >= (b.alertThreshold || 75)) {
+          const roundedPct = Math.floor(b.percentage);
+          const dedupeKey = `budget:${b.id}:2026-10:${b.status}:${roundedPct >= 100 ? '100' : 'threshold'}`;
+
+          let title = `⚠️ Budget Alert: ${b.name}`;
+          if (b.status === 'over_budget') {
+            title = `🚨 Budget Exceeded: ${b.name}`;
+          }
+
+          const message = b.status === 'over_budget'
+            ? `${b.name} has exceeded its allocated limit (${b.percentage}% used, ₹${b.spent.toLocaleString('en-IN')} spent of ₹${b.amount.toLocaleString('en-IN')}).`
+            : `${b.name} has reached ${b.percentage}% of its allocated limit (${b.alertThreshold}% threshold alert).`;
+
+          const created = this.createNotification(userId, {
+            category: 'budget_alert',
+            title,
+            message,
+            actionTarget: 'budgets',
+            actionPayload: { budgetId: b.id },
+            dedupeKey,
+          });
+
+          if (created) {
+            createdCount++;
+            details.push(`Created budget alert for ${b.name} (${b.percentage}%)`);
+          }
+        }
+      });
+    }
+
+    // 2. Upcoming Recurring Payment Reminders
+    const activeSchedules = db.recurringSchedules.filter((s) => s.userId === userId && s.status === 'active');
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    activeSchedules.forEach((s) => {
+      const targetDate = new Date(s.nextRunDate + 'T00:00:00Z');
+      const now = new Date(todayStr + 'T00:00:00Z');
+      const diffMs = targetDate.getTime() - now.getTime();
+      const daysUntil = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      if (daysUntil >= 0 && daysUntil <= 3) {
+        const windowLabel = daysUntil === 0 ? 'today' : `${daysUntil}d`;
+        const dedupeKey = `recurring:${s.id}:${s.nextRunDate}:${windowLabel}`;
+
+        const title = daysUntil === 0
+          ? `⚡ Scheduled ${s.type === 'income' ? 'Income' : 'Bill'} Due Today: ${s.name}`
+          : `📅 Upcoming ${s.type === 'income' ? 'Income' : 'Payment'}: ${s.name}`;
+
+        const message = daysUntil === 0
+          ? `${s.name} of ₹${s.amount.toLocaleString('en-IN')} is scheduled for execution today (${s.paymentMethod || 'Auto-Debit'}).`
+          : `${s.name} of ₹${s.amount.toLocaleString('en-IN')} is due in ${daysUntil} day(s) on ${s.nextRunDate}.`;
+
+        const created = this.createNotification(userId, {
+          category: 'recurring_reminder',
+          title,
+          message,
+          actionTarget: 'recurring',
+          actionPayload: { scheduleId: s.id },
+          dedupeKey,
+        });
+
+        if (created) {
+          createdCount++;
+          details.push(`Created recurring reminder for ${s.name} due in ${daysUntil} days`);
+        }
+      }
+    });
+
+    // 3. Savings Goal Milestones & Deadline Reminders
+    const userGoals = this.getGoals(userId, 'all');
+    userGoals.forEach((g) => {
+      if (g.status === 'active' || g.status === 'completed') {
+        const milestonePcts = [25, 50, 75, 100];
+        milestonePcts.forEach((mPct) => {
+          if (g.progressPercentage >= mPct) {
+            const dedupeKey = `goal:${g.id}:${mPct}pct`;
+            const created = this.createNotification(userId, {
+              category: 'goal_milestone',
+              title: mPct === 100 ? `🎉 Goal Achieved: ${g.name}` : `🎯 Milestone Reached: ${g.name}`,
+              message: mPct === 100
+                ? `Congratulations! You reached 100% of your target for ${g.name} (₹${g.savedAmount.toLocaleString('en-IN')} saved).`
+                : `Great job! You crossed the ${mPct}% milestone for ${g.name} (₹${g.savedAmount.toLocaleString('en-IN')} saved).`,
+              actionTarget: 'goals',
+              actionPayload: { goalId: g.id },
+              dedupeKey,
+            });
+
+            if (created) {
+              createdCount++;
+              details.push(`Created milestone alert for ${g.name} (${mPct}%)`);
+            }
+          }
+        });
+      }
+    });
+
+    // 4. Monthly Digest Summary
+    if (pref.monthlyDigest) {
+      const dedupeKey = `monthly:${userId}:2026-10`;
+      const analytics = this.getAnalyticsData(userId, { periodPreset: 'this_month' });
+      const summaryMsg = `October Financial Overview: Total Income ₹${analytics.summary.totalIncome.toLocaleString('en-IN')}, Total Expenses ₹${analytics.summary.totalExpenses.toLocaleString('en-IN')}, Net Cash Flow ₹${analytics.summary.netCashFlow.toLocaleString('en-IN')}.`;
+
+      const created = this.createNotification(userId, {
+        category: 'monthly_summary',
+        title: '📊 Monthly Financial Digest: October 2026',
+        message: summaryMsg,
+        actionTarget: 'analytics',
+        actionPayload: { month: '2026-10' },
+        dedupeKey,
+      });
+
+      if (created) {
+        createdCount++;
+        details.push('Created monthly financial digest notification');
+      }
+    }
+
+    return {
+      createdCount,
+      details,
+    };
+  },
+
+  // ==================== PHASE 10: FINANCIAL INSIGHTS & PLANNING ====================
+
+  getFinancialInsights(
+    userId: string,
+    options: {
+      periodPreset?: AnalyticsPeriodPreset;
+      forecastHorizon?: ForecastHorizon;
+    } = {}
+  ): FinancialInsightsData {
+    const periodPreset = options.periodPreset || 'this_month';
+    const forecastHorizon = options.forecastHorizon || '30d';
+
+    // 1. Base Analytics
+    const analytics = this.getAnalyticsData(userId, { periodPreset });
+    const { totalIncome, totalExpenses, netCashFlow, savingsRate, avgDailySpend } = analytics.summary;
+
+    const essentialCategories = [
+      'rent & housing',
+      'groceries',
+      'utilities',
+      'health & insurance',
+      'healthcare',
+      'transportation',
+      'bills',
+      'education',
+    ];
+
+    let essentialSpending = 0;
+    let discretionarySpending = 0;
+
+    analytics.categoryBreakdown.forEach((cat) => {
+      if (essentialCategories.includes(cat.category.toLowerCase().trim())) {
+        essentialSpending += cat.amount;
+      } else {
+        discretionarySpending += cat.amount;
+      }
+    });
+
+    essentialSpending = Math.round(essentialSpending * 100) / 100;
+    discretionarySpending = Math.round(discretionarySpending * 100) / 100;
+
+    const budgetSummary = this.getBudgetSummary(userId, '2026-10');
+    const budgetUtilization = budgetSummary.totalBudget > 0
+      ? Math.round((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100)
+      : 0;
+
+    const goalSummary = this.getGoalSummary(userId);
+    const activeGoalProgress = goalSummary.overallProgress;
+
+    // Composite Health Score
+    let healthScore = 70;
+    if (netCashFlow > 0) healthScore += 15;
+    else if (netCashFlow < 0) healthScore -= 20;
+
+    if (savingsRate !== null) {
+      if (savingsRate >= 20) healthScore += 15;
+      else if (savingsRate >= 10) healthScore += 8;
+      else if (savingsRate < 0) healthScore -= 10;
+    }
+
+    if (budgetUtilization > 0) {
+      if (budgetUtilization <= 85) healthScore += 10;
+      else if (budgetUtilization > 100) healthScore -= 15;
+    }
+
+    if (activeGoalProgress >= 50) healthScore += 10;
+
+    healthScore = Math.max(0, Math.min(100, Math.round(healthScore)));
+
+    let healthScoreLabel = 'Good';
+    if (healthScore >= 85) healthScoreLabel = 'Excellent';
+    else if (healthScore >= 70) healthScoreLabel = 'Good';
+    else if (healthScore >= 50) healthScoreLabel = 'Fair';
+    else healthScoreLabel = 'Needs Attention';
+
+    const healthOverview: FinancialHealthOverview = {
+      totalIncome,
+      totalExpenses,
+      netCashFlow,
+      savingsRate,
+      avgDailyExpenses: avgDailySpend,
+      budgetUtilization,
+      activeGoalProgress,
+      essentialSpending,
+      discretionarySpending,
+      healthScore,
+      healthScoreLabel,
+    };
+
+    // 2. CASH-FLOW FORECASTING
+    let horizonDays = 30;
+    if (forecastHorizon === '7d') horizonDays = 7;
+    else if (forecastHorizon === '30d') horizonDays = 30;
+    else if (forecastHorizon === '3m') horizonDays = 90;
+    else if (forecastHorizon === '6m') horizonDays = 180;
+
+    const projectedOccurrences = this.getUpcomingOccurrences(userId, horizonDays);
+    let expectedRecurringIncome = 0;
+    let expectedRecurringExpenses = 0;
+
+    projectedOccurrences.forEach((occ) => {
+      if (occ.type === 'income') expectedRecurringIncome += occ.amount;
+      if (occ.type === 'expense') expectedRecurringExpenses += occ.amount;
+    });
+
+    expectedRecurringIncome = Math.round(expectedRecurringIncome * 100) / 100;
+    expectedRecurringExpenses = Math.round(expectedRecurringExpenses * 100) / 100;
+
+    const userSchedules = db.recurringSchedules.filter((s) => s.userId === userId);
+    const unscheduledDailyRate = Math.max(0, avgDailySpend - (expectedRecurringExpenses / horizonDays));
+    const unscheduledEstimatedExpenses = Math.round(unscheduledDailyRate * horizonDays * 100) / 100;
+
+    const estimatedIncome = expectedRecurringIncome;
+    const estimatedExpenses = Math.round((expectedRecurringExpenses + unscheduledEstimatedExpenses) * 100) / 100;
+    const estimatedNetCashFlow = Math.round((estimatedIncome - estimatedExpenses) * 100) / 100;
+
+    const forecastPoints: CashFlowForecastPoint[] = [];
+    const refDate = new Date('2026-10-31T00:00:00Z');
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(refDate.getTime() - i * 86400000);
+      const dateStr = d.toISOString().split('T')[0];
+      const dayTxs = db.transactions.filter((tx) => tx.userId === userId && tx.date === dateStr);
+      const dayInc = dayTxs.filter((tx) => tx.type === 'income').reduce((acc, t) => acc + t.amount, 0);
+      const dayExp = dayTxs.filter((tx) => tx.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+
+      forecastPoints.push({
+        date: dateStr,
+        label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        actualIncome: Math.round(dayInc),
+        actualExpenses: Math.round(dayExp),
+        type: 'actual',
+      });
+    }
+
+    const stepDays = horizonDays <= 30 ? 5 : horizonDays <= 90 ? 15 : 30;
+    for (let i = stepDays; i <= horizonDays; i += stepDays) {
+      const futureDate = new Date(refDate.getTime() + i * 86400000);
+      const dateStr = futureDate.toISOString().split('T')[0];
+      const chunkCount = Math.max(1, horizonDays / stepDays);
+      const incChunk = Math.round(estimatedIncome / chunkCount);
+      const expChunk = Math.round(estimatedExpenses / chunkCount);
+
+      forecastPoints.push({
+        date: dateStr,
+        label: futureDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        forecastIncome: incChunk,
+        forecastExpenses: expChunk,
+        forecastNet: incChunk - expChunk,
+        type: 'forecast',
+      });
+    }
+
+    const cashFlowForecast: CashFlowForecast = {
+      horizon: forecastHorizon,
+      estimatedIncome,
+      estimatedExpenses,
+      estimatedNetCashFlow,
+      expectedRecurringIncome,
+      expectedRecurringExpenses,
+      unscheduledEstimatedExpenses,
+      forecastPoints,
+      confidence: analytics.summary.transactionCount >= 10 ? 'High' : analytics.summary.transactionCount >= 4 ? 'Moderate' : 'Limited',
+    };
+
+    // 3. SPENDING TRENDS
+    const comp = analytics.comparison;
+    const previousExpenses = db.transactions.filter(
+      (tx) => tx.userId === userId && tx.type === 'expense' && tx.date >= '2026-09-01' && tx.date <= '2026-09-30'
+    );
+
+    const prevCategoryMap: Record<string, number> = {};
+    previousExpenses.forEach((tx) => {
+      prevCategoryMap[tx.category] = (prevCategoryMap[tx.category] || 0) + tx.amount;
+    });
+
+    const topCategories: SpendingTrendItem[] = analytics.categoryBreakdown.map((cat) => {
+      const prevAmt = prevCategoryMap[cat.category] || 0;
+      const changeAmt = Math.round((cat.amount - prevAmt) * 100) / 100;
+      const changePct = prevAmt > 0 ? Math.round(((cat.amount - prevAmt) / prevAmt) * 100) : null;
+      const trend = changeAmt > 10 ? 'up' : changeAmt < -10 ? 'down' : 'flat';
+
+      return {
+        category: cat.category,
+        currentAmount: cat.amount,
+        previousAmount: prevAmt,
+        changeAmount: changeAmt,
+        changePercentage: changePct,
+        trend,
+      };
+    });
+
+    const currentPeriodTxs = db.transactions.filter(
+      (tx) => tx.userId === userId && tx.date >= analytics.startDate && tx.date <= analytics.endDate
+    );
+    let recurringAmount = 0;
+    let nonRecurringAmount = 0;
+
+    currentPeriodTxs.forEach((tx) => {
+      if (tx.type === 'expense') {
+        if (tx.description.includes('(Automated)') || tx.paymentMethod?.toLowerCase().includes('auto')) {
+          recurringAmount += tx.amount;
+        } else {
+          nonRecurringAmount += tx.amount;
+        }
+      }
+    });
+
+    const totalPeriodExpenses = analytics.summary.totalExpenses || 1;
+    const recurringVsNonRecurring = {
+      recurringAmount: Math.round(recurringAmount),
+      nonRecurringAmount: Math.round(nonRecurringAmount),
+      recurringPercentage: Math.round((recurringAmount / totalPeriodExpenses) * 100),
+      nonRecurringPercentage: Math.round((nonRecurringAmount / totalPeriodExpenses) * 100),
+    };
+
+    const spendingTrends: HistoricalSpendingTrends = {
+      currentPeriodLabel: analytics.periodLabel,
+      previousPeriodLabel: comp.previousPeriodLabel,
+      topCategories,
+      largestExpenses: analytics.topExpenses,
+      recurringVsNonRecurring,
+      avgDailySpending: analytics.summary.avgDailySpend,
+    };
+
+    // 4. BUDGET FORECASTS
+    const elapsedDays = 24;
+    const totalDaysInMonth = 31;
+    const daysRemaining = totalDaysInMonth - elapsedDays;
+
+    const budgetForecasts: BudgetForecastItem[] = budgetSummary.budgets.map((b) => {
+      const pacePerDay = elapsedDays > 0 ? b.spent / elapsedDays : b.spent;
+      const projectedEndSpending = Math.round(pacePerDay * totalDaysInMonth * 100) / 100;
+      const projectedOverage = Math.max(0, Math.round((projectedEndSpending - b.amount) * 100) / 100);
+
+      let status: BudgetForecastItem['status'] = b.status;
+      if (b.status === 'on_track' && projectedEndSpending > b.amount) {
+        status = 'projected_overrun';
+      }
+
+      return {
+        budgetId: b.id,
+        budgetName: b.name,
+        limit: b.amount,
+        actualSpent: b.spent,
+        remainingAmount: b.remaining,
+        percentageUsed: b.percentage,
+        daysElapsed: elapsedDays,
+        daysRemaining,
+        projectedEndSpending,
+        projectedOverage,
+        status,
+        confidence: elapsedDays >= 10 ? 'High' : elapsedDays >= 5 ? 'Moderate' : 'Limited',
+      };
+    });
+
+    // 5. SAVINGS GOAL PROJECTIONS
+    const userGoals = this.getGoals(userId, 'all');
+    const goalContributionsAll = db.goalContributions.filter((c) => c.userId === userId);
+
+    const savingsProjections: SavingsGoalProjectionItem[] = userGoals
+      .filter((g) => g.status === 'active' || g.status === 'completed')
+      .map((g) => {
+        const remainingAmount = Math.max(0, Math.round((g.targetAmount - g.savedAmount) * 100) / 100);
+        const contribs = goalContributionsAll.filter((c) => c.goalId === g.id);
+        const totalContrib = contribs.reduce((acc, c) => acc + c.amount, 0);
+        const velocity = contribs.length > 0 ? Math.round(totalContrib / Math.max(1, contribs.length)) : 10000;
+
+        let requiredMonthlyContribution: number | null = null;
+        let requiredWeeklyContribution: number | null = null;
+        let estimatedCompletionDate: string | null = null;
+
+        if (g.targetDate && remainingAmount > 0) {
+          const targetDt = new Date(g.targetDate + 'T00:00:00Z');
+          const nowDt = new Date('2026-10-31T00:00:00Z');
+          const diffMs = targetDt.getTime() - nowDt.getTime();
+          const daysRem = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+          const monthsRem = Math.max(0.5, daysRem / 30);
+          const weeksRem = Math.max(0.5, daysRem / 7);
+
+          requiredMonthlyContribution = Math.round((remainingAmount / monthsRem) * 100) / 100;
+          requiredWeeklyContribution = Math.round((remainingAmount / weeksRem) * 100) / 100;
+        }
+
+        if (remainingAmount === 0) {
+          estimatedCompletionDate = g.updatedAt.split('T')[0];
+        } else if (velocity > 0) {
+          const monthsNeeded = Math.ceil(remainingAmount / velocity);
+          const compDt = new Date(new Date('2026-10-31T00:00:00Z').getTime() + monthsNeeded * 30 * 86400000);
+          estimatedCompletionDate = compDt.toISOString().split('T')[0];
+        }
+
+        return {
+          goalId: g.id,
+          goalName: g.name,
+          targetAmount: g.targetAmount,
+          savedAmount: g.savedAmount,
+          remainingAmount,
+          progressPercentage: g.progressPercentage,
+          targetDate: g.targetDate,
+          daysRemaining: g.daysRemaining,
+          requiredMonthlyContribution,
+          requiredWeeklyContribution,
+          estimatedCompletionDate,
+          historicalMonthlyVelocity: velocity,
+          statusText: g.status === 'completed' ? 'Goal Achieved!' : remainingAmount === 0 ? 'Target Reached' : 'On Track',
+        };
+      });
+
+    // 6. UNUSUAL SPENDING DETECTION
+    const unusualSpending: UnusualSpendingSignal[] = [];
+
+    topCategories.forEach((cat) => {
+      if (cat.previousAmount > 0 && cat.currentAmount > 1.4 * cat.previousAmount && cat.changeAmount > 1000) {
+        unusualSpending.push({
+          id: `sig_spike_${cat.category.toLowerCase().replace(/\s+/g, '_')}`,
+          category: cat.category,
+          type: 'category_spike',
+          title: `Category Spend Spike: ${cat.category}`,
+          explanation: `${cat.category} spending is ${cat.changePercentage}% higher than last month (₹${cat.currentAmount.toLocaleString('en-IN')} vs ₹${cat.previousAmount.toLocaleString('en-IN')}).`,
+          actualValue: cat.currentAmount,
+          baselineValue: cat.previousAmount,
+          percentageIncrease: cat.changePercentage || 0,
+          date: '2026-10-24',
+        });
+      }
+    });
+
+    currentPeriodTxs.forEach((tx) => {
+      if (tx.type === 'expense' && tx.amount >= 5000) {
+        const catTxs = currentPeriodTxs.filter((t) => t.category === tx.category && t.type === 'expense');
+        const avg = catTxs.length > 0 ? catTxs.reduce((acc, t) => acc + t.amount, 0) / catTxs.length : 0;
+        if (avg > 0 && tx.amount >= 2 * avg) {
+          unusualSpending.push({
+            id: `sig_tx_${tx.id}`,
+            category: tx.category,
+            type: 'large_transaction',
+            title: `High Expense Flagged: ${tx.description}`,
+            explanation: `Expense of ₹${tx.amount.toLocaleString('en-IN')} for ${tx.description} is significantly higher than average ${tx.category} transaction (₹${Math.round(avg).toLocaleString('en-IN')}).`,
+            actualValue: tx.amount,
+            baselineValue: Math.round(avg),
+            percentageIncrease: Math.round(((tx.amount - avg) / avg) * 100),
+            transactionId: tx.id,
+            date: tx.date,
+          });
+        }
+      }
+    });
+
+    // 7. RECOMMENDATIONS
+    const recommendations: FinancialRecommendation[] = [];
+
+    const overrunBudget = budgetForecasts.find((b) => b.status === 'over_budget' || b.status === 'projected_overrun');
+    if (overrunBudget) {
+      recommendations.push({
+        id: 'rec_budget_overrun',
+        title: `Rebalance Budget for ${overrunBudget.budgetName}`,
+        observedPattern: `${overrunBudget.budgetName} is projected to reach ₹${overrunBudget.projectedEndSpending.toLocaleString('en-IN')} by month end, exceeding limit by ₹${overrunBudget.projectedOverage.toLocaleString('en-IN')}.`,
+        supportingData: `Current spend: ₹${overrunBudget.actualSpent.toLocaleString('en-IN')} (${overrunBudget.percentageUsed}% used with ${overrunBudget.daysRemaining} days left).`,
+        suggestedAction: `Consider trimming discretionary expenses in ${overrunBudget.budgetName} by ₹${Math.round(overrunBudget.projectedOverage / Math.max(1, overrunBudget.daysRemaining))}/day for the rest of October.`,
+        assumptions: 'Assumes current daily spending pace continues linearly for remaining days in period.',
+        type: 'budget',
+        actionTarget: 'budgets',
+      });
+    }
+
+    if (discretionarySpending > 0 && totalIncome > 0 && (discretionarySpending / totalIncome) > 0.35) {
+      recommendations.push({
+        id: 'rec_discretionary_high',
+        title: 'Optimize Discretionary Spending Ratio',
+        observedPattern: `Discretionary categories represent ${Math.round((discretionarySpending / totalIncome) * 100)}% of your monthly income.`,
+        supportingData: `Discretionary total: ₹${discretionarySpending.toLocaleString('en-IN')} (Top category: ${topCategories[0]?.category || 'Dining & Food'}).`,
+        suggestedAction: 'Setting weekly caps on dining out and personal care could free up ~₹3,000/month for active savings goals.',
+        assumptions: 'Categorized based on essential vs non-essential spending classifications.',
+        type: 'spending',
+        actionTarget: 'analytics',
+      });
+    }
+
+    const activeGoal = savingsProjections.find((g) => g.progressPercentage < 100);
+    if (activeGoal && netCashFlow > 5000) {
+      recommendations.push({
+        id: 'rec_goal_boost',
+        title: `Accelerate Goal: ${activeGoal.goalName}`,
+        observedPattern: `You have a positive net cash flow of ₹${netCashFlow.toLocaleString('en-IN')} this period.`,
+        supportingData: `${activeGoal.goalName} is at ${activeGoal.progressPercentage}% (₹${activeGoal.savedAmount.toLocaleString('en-IN')} of ₹${activeGoal.targetAmount.toLocaleString('en-IN')}).`,
+        suggestedAction: `Allocating an additional ₹2,500/month would shorten completion timeline by ~${Math.max(1, Math.round(activeGoal.remainingAmount / 2500))} month(s).`,
+        assumptions: 'Based on current unallocated cash flow availability.',
+        type: 'savings',
+        actionTarget: 'goals',
+      });
+    }
+
+    if (netCashFlow < 0) {
+      recommendations.push({
+        id: 'rec_cashflow_buffer',
+        title: 'Maintain Cash-Flow Liquidity Buffer',
+        observedPattern: `Net cash flow for this period is negative (-₹${Math.abs(netCashFlow).toLocaleString('en-IN')}).`,
+        supportingData: `Total Expenses (₹${totalExpenses.toLocaleString('en-IN')}) exceeded Income (₹${totalIncome.toLocaleString('en-IN')}).`,
+        suggestedAction: 'Review non-essential subscription schedules and defer large non-urgent purchases until income is recorded.',
+        assumptions: 'Based on recorded transaction dates in current reporting window.',
+        type: 'buffer',
+        actionTarget: 'transactions',
+      });
+    }
+
+    // 8. FORECAST CONFIDENCE METADATA
+    const confidenceMeta: ForecastConfidenceMeta = {
+      level: analytics.summary.transactionCount >= 15 ? 'High' : analytics.summary.transactionCount >= 5 ? 'Moderate' : 'Limited',
+      description: 'Confidence score is derived from sample size, historical period availability, and active recurring transaction schedules.',
+      factors: [
+        `${analytics.summary.transactionCount} transactions recorded in current period`,
+        `${userSchedules.length} active recurring schedules configured`,
+        `Authoritative ledger history anchored on ${analytics.periodLabel}`,
+      ],
+      historicalPeriodCount: 3,
+      totalTransactionCount: db.transactions.filter((t) => t.userId === userId).length,
+      recurringScheduleCount: userSchedules.length,
+    };
+
+    return {
+      periodPreset,
+      forecastHorizon,
+      lastUpdated: new Date().toISOString(),
+      healthOverview,
+      cashFlowForecast,
+      spendingTrends,
+      budgetForecasts,
+      savingsProjections,
+      unusualSpending,
+      recommendations,
+      confidenceMeta,
     };
   },
 };

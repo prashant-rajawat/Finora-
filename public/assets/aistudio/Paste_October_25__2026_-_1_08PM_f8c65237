@@ -1,0 +1,828 @@
+# FINORA — PHASE 10 MASTER IMPLEMENTATION PROMPT
+## Financial Insights, Cash-Flow Forecasting & Smart Financial Planning
+
+**Project:** Finora — Personal Finance Tracker  
+**Phase:** 10 — Financial Insights & Planning  
+**Implementation:** Full-stack — Frontend + Backend + Database Integration + Analytics + Testing  
+**Design:** Premium white and pale-blue theme, blue primary actions, subtle borders, rounded cards, clean typography, and responsive layouts.
+
+---
+
+## 1. PRIMARY OBJECTIVE
+
+Act as a senior full-stack engineer, financial data analyst, forecasting specialist, database architect, and UI/UX designer.
+
+Implement a complete, functional Financial Insights & Planning system directly inside my existing Finora project.
+
+**Do not simply analyze the code, produce a plan, or create a visual mockup. Make actual code changes, connect the frontend to the backend, implement real calculations, and verify the results.**
+
+The system must help users understand their financial behavior and make better-informed decisions using their actual saved financial records.
+
+Integrate with the existing Finora modules:
+
+- Authentication and user profiles.
+- Dashboard.
+- Transactions.
+- Budgets.
+- Analytics.
+- Savings Goals.
+- Reports and exports.
+- Settings and preferences.
+- Recurring Transactions.
+- Notifications and financial alerts.
+
+Preserve existing features, database records, business rules, and the approved Finora design.
+
+Do not rebuild the application from scratch.
+
+**Important:** Financial forecasts and recommendations are estimates based on available data, not guaranteed outcomes or personalized professional financial advice.
+
+## 2. INSPECT THE EXISTING PROJECT FIRST
+
+Inspect the current project before implementing anything.
+
+Identify:
+
+- Frontend framework and routing.
+- Backend framework and API structure.
+- Authentication and user ownership model.
+- Transaction schema and financial calculation utilities.
+- Transaction categories and date conventions.
+- Budget calculation and budget-period logic.
+- Savings goals and contribution history.
+- Recurring transaction schedules and processing history.
+- Existing Analytics charts and date filters.
+- Existing Reports and export utilities.
+- Notification preferences and scheduler infrastructure.
+- Currency, timezone, and date-format preferences.
+- Database query and aggregation capabilities.
+- Existing testing framework.
+
+Reuse existing calculations, APIs, models, and UI components where appropriate.
+
+Do not create a parallel analytics engine that disagrees with Finora's existing calculations.
+
+If data is insufficient for a particular insight, explain the limitation and show a useful empty or low-confidence state. Never fill missing financial history with fabricated data.
+
+## 3. FINANCIAL INSIGHTS CENTER
+
+Create a professional Financial Insights page.
+
+Suggested route: `/insights`
+
+Follow the existing route conventions if they differ.
+
+Add an appropriate navigation entry without breaking existing routes.
+
+### Page header
+
+Include:
+
+- Title: Financial Insights.
+- Description: “Understand your spending, plan ahead, and track your financial progress.”
+- Reporting-period selector.
+- Date-range filter where applicable.
+- Refresh or recalculate action if needed.
+- Last-updated timestamp, when available.
+
+### Page sections
+
+Organize the page into:
+
+1. Financial Health Overview.
+2. Cash-Flow Forecast.
+3. Spending Trends.
+4. Budget Forecasts.
+5. Savings Projections.
+6. Unusual Spending Detection.
+7. Actionable Financial Recommendations.
+8. Data Quality and Forecast Confidence.
+
+Each section must use real data and actual calculations.
+
+Do not create decorative charts with hardcoded sample values.
+
+## 4. FINANCIAL HEALTH OVERVIEW
+
+Build a clear overview of the user's current financial activity.
+
+Potential metrics include:
+
+- Total income for the selected period.
+- Total expenses for the selected period.
+- Net cash flow.
+- Savings rate.
+- Average daily expenses.
+- Essential versus discretionary spending, if categories support this distinction.
+- Budget utilization.
+- Active savings goal progress.
+
+Use the existing authoritative financial calculations.
+
+### Formula definitions
+
+Net Cash Flow:
+
+Net Cash Flow = Total Income − Total Expenses.
+
+Savings Rate:
+
+Savings Rate = (Total Income − Total Expenses) ÷ Total Income × 100.
+
+If income is zero, do not divide by zero. Show the savings rate as unavailable where appropriate.
+
+### Requirements
+
+- Respect the selected reporting period.
+- Clearly distinguish current-period results from historical comparisons.
+- Use consistent currency formatting.
+- Avoid misleading metrics when data is incomplete.
+- Handle negative cash flow correctly.
+- Display comparisons only when valid comparable data exists.
+
+Do not label a user financially healthy or unhealthy based on a single metric.
+
+If a composite financial health score is included, explain its inputs and limitations, and do not present it as an official credit score or a professional financial assessment.
+
+## 5. CASH-FLOW FORECASTING
+
+Implement a forecast of future income, expenses, and net cash flow.
+
+### Forecast horizons
+
+Support suitable forecast periods such as:
+
+- Next 7 days.
+- Next 30 days.
+- Next 3 months.
+- Next 6 months, when sufficient history exists.
+
+Allow users to switch forecast horizons without breaking other page filters.
+
+### Forecast outputs
+
+Display:
+
+- Estimated future income.
+- Estimated future expenses.
+- Estimated net cash flow.
+- Expected recurring income.
+- Expected recurring expenses.
+- Projected closing cash flow or balance, only if the application has sufficient reliable opening-balance and account data.
+- Forecast range or uncertainty indicator, where supported.
+
+Clearly separate:
+
+- Actual historical values.
+- Already scheduled recurring transactions.
+- Model-estimated future values.
+
+Do not treat a forecast as a completed transaction.
+
+### Forecasting methodology
+
+Use the simplest reliable forecasting approach supported by the available data.
+
+A suitable initial implementation may combine:
+
+1. Actual recurring transactions scheduled within the forecast horizon.
+2. Historical income and expense patterns.
+3. A rolling average or comparable-period average.
+4. Explicit assumptions about future behavior.
+
+Do not count a recurring transaction twice if it is already included in the historical calculation or forecast aggregation.
+
+For example, future scheduled expenses should be shown separately from estimated unscheduled expenses if that makes the results clearer.
+
+If there is insufficient transaction history, use the supported recurring schedule data and clearly indicate that the forecast is limited.
+
+Do not create false precision by showing exact future values without explaining that they are estimates.
+
+## 6. HISTORICAL SPENDING TRENDS
+
+Analyze actual spending patterns using existing transaction records.
+
+### Supported analyses
+
+Where data is available, display:
+
+- Monthly income trends.
+- Monthly expense trends.
+- Net cash-flow trends.
+- Spending by category.
+- Changes in major spending categories.
+- Average daily or weekly spending.
+- Top expense categories.
+- Largest individual expenses.
+- Recurring versus non-recurring expenses, if reliably identifiable.
+
+### Comparison periods
+
+Support comparisons such as:
+
+- This month versus last month.
+- Last 3 months versus the previous 3 months.
+- This year versus the previous year, where sufficient history exists.
+
+### Calculation rules
+
+- Compare equivalent periods whenever possible.
+- Show absolute and percentage differences.
+- Handle zero baselines without division errors.
+- Distinguish missing history from zero spending.
+- Use the transaction's actual effective date.
+- Exclude upcoming recurring schedules from historical spending.
+- Avoid counting generated recurring transactions twice.
+
+For example, if expenses increased, display the actual difference and the categories contributing to that increase.
+
+Do not claim that spending increased by a percentage when the comparison baseline is zero or unavailable.
+
+## 7. BUDGET FORECASTS AND EARLY WARNINGS
+
+Integrate with the existing budget system.
+
+Estimate whether current spending patterns may exceed a budget before its period ends.
+
+### Forecast outputs
+
+For each applicable budget, show:
+
+- Budget limit.
+- Actual spending to date.
+- Remaining amount.
+- Percentage used.
+- Days remaining in the budget period.
+- Estimated end-of-period spending.
+- Estimated overage or remaining balance.
+- Forecast confidence.
+
+### Example calculation
+
+If a monthly budget is ₹10,000, current spending is ₹6,000, and 15 of 30 days have elapsed, a simple pace-based estimate would be:
+
+Projected Spending = Current Spending ÷ Elapsed Days × Total Days.
+
+In this example, projected spending would be ₹12,000.
+
+This is an illustrative formula, not a guaranteed prediction. Use actual values from the user's records when implementing the calculation.
+
+### Requirements
+
+- Use the existing budget-period rules.
+- Account for the current date and timezone appropriately.
+- Avoid dividing by zero at the beginning of a budget period.
+- Treat zero-value budgets safely.
+- Avoid displaying strong predictions from very little data.
+- Where available, improve the simple pace estimate using historical spending patterns.
+- Display the method or assumption behind the projection.
+- Recalculate after relevant transactions change.
+
+Clearly distinguish actual spending from projected spending.
+
+## 8. SAVINGS GOAL PROJECTIONS
+
+Integrate with the existing Savings Goals system.
+
+For each active savings goal, show:
+
+- Target amount.
+- Current saved amount.
+- Remaining amount.
+- Current progress percentage.
+- Target date, if provided.
+- Recent contribution pattern.
+- Estimated completion date, if enough reliable data exists.
+- Estimated required contribution per week or month to reach the target.
+
+### Required contribution calculation
+
+When a target date exists:
+
+Required Periodic Contribution = Remaining Amount ÷ Remaining Contribution Periods.
+
+Calculate the remaining contribution periods using the actual target date and the chosen frequency.
+
+Do not divide by zero or generate negative required contributions when a goal is already complete.
+
+### Estimated completion date
+
+Use actual contribution history where available.
+
+If contributions are irregular or insufficient, indicate that the completion date cannot be estimated reliably.
+
+Do not promise a completion date or assume investment returns.
+
+Do not recommend a guaranteed investment return.
+
+### Financial integrity
+
+- Use the existing savings goal balance.
+- Do not count contributions as ordinary income.
+- Avoid double-counting contributions already reflected in financial records.
+- Recalculate projections when a contribution, target amount, or target date changes.
+
+## 9. UNUSUAL SPENDING DETECTION
+
+Implement a simple, transparent system for identifying potentially unusual expenses.
+
+Start with explainable rules rather than an unnecessary external AI service.
+
+### Possible signals
+
+- A transaction substantially larger than the user's typical transaction in the same category.
+- A category's current spending materially above its historical average.
+- A sudden increase in spending over a comparable period.
+- An expense that causes a budget threshold to be crossed.
+- A newly observed recurring expense, if supported by the data.
+
+### Detection methodology
+
+Use a documented method, such as:
+
+- Category-specific historical averages.
+- Median transaction amount.
+- Rolling averages.
+- A minimum deviation threshold.
+- Minimum sample-size requirements.
+
+Choose thresholds appropriate to the available data and make them configurable where useful.
+
+Avoid flagging every large transaction simply because it is large.
+
+### Notification content
+
+Each insight should explain:
+
+- What changed.
+- The actual values involved.
+- The comparison period.
+- Why it was flagged.
+- Which category or transaction is relevant.
+
+Example wording:
+
+“Transport spending is higher than your recent average. Review the transactions for this period.”
+
+Do not claim that a transaction is fraudulent, unauthorized, or suspicious in a security sense merely because it differs from historical behavior.
+
+Describe it as an unusual spending pattern that the user may want to review.
+
+## 10. ACTIONABLE FINANCIAL RECOMMENDATIONS
+
+Create practical, transparent recommendations derived from actual user data.
+
+Possible recommendations include:
+
+- Review a category that is consistently exceeding its budget.
+- Consider adjusting a budget that has repeatedly been exceeded.
+- Review recurring expenses that have increased.
+- Consider increasing contributions to a savings goal if the user's cash flow supports it.
+- Review unusually high spending compared with a comparable historical period.
+- Review a recurring schedule that appears to be inactive or no longer needed, where that information is available.
+- Consider keeping a larger cash-flow buffer if the user's records show repeated negative periods.
+
+### Recommendation structure
+
+Each recommendation should include:
+
+1. A concise title.
+2. The observed pattern.
+3. The actual data supporting the insight.
+4. A practical suggested action.
+5. An explanation of the assumptions or limitations.
+6. A link to the relevant Finora page where appropriate.
+
+### Important rules
+
+- Do not invent potential savings amounts.
+- Do not recommend financial actions that are unsupported by the data.
+- Do not claim that cancelling a service will save money unless the actual recurring amount and schedule are known.
+- Do not recommend specific securities, investments, or guaranteed returns.
+- Do not treat every expense as unnecessary.
+- Do not shame users for their spending.
+- Do not present estimates as guaranteed outcomes.
+
+Recommendations should be informative, neutral, and easy to understand.
+
+## 11. FORECAST CONFIDENCE AND DATA SUFFICIENCY
+
+Every forecast should communicate how much reliable data supports it.
+
+Use clear labels such as:
+
+- Limited data.
+- Moderate confidence.
+- More historical data available.
+
+Define these labels using explicit rules.
+
+For example, confidence may consider:
+
+- Number of available historical periods.
+- Number of relevant transactions.
+- Stability of recent spending.
+- Presence of recurring schedules.
+- Missing or inconsistent records.
+
+Do not label a forecast as highly confident simply because the calculation succeeded.
+
+If the user has very little history, explain that estimates may change substantially as more transactions are recorded.
+
+Show the assumptions that most affect a forecast.
+
+Do not create a fake confidence percentage without a defensible statistical method.
+
+## 12. INTERACTIVE CHARTS AND VISUALIZATIONS
+
+Use the existing charting library if it supports the requirements.
+
+Implement appropriate charts such as:
+
+- Actual versus projected cash flow.
+- Income and expenses over time.
+- Historical versus projected spending.
+- Budget actuals versus projected totals.
+- Category spending comparisons.
+- Savings goal progress.
+
+### Chart requirements
+
+- Use real data.
+- Clearly separate actual and projected periods.
+- Include titles, legends, date labels, and currency formatting.
+- Use a visually distinct but accessible style for forecast values.
+- Display tooltips or values where supported.
+- Respect the selected reporting period.
+- Handle empty data.
+- Avoid misleading axis scales.
+- Provide a useful text summary of important findings.
+
+Do not create a chart with hardcoded sample points.
+
+If the existing charting library cannot support a visualization reliably, implement a clear table or summary instead.
+
+## 13. BACKEND AND API INTEGRATION
+
+Follow the current backend architecture and API conventions.
+
+Potential capabilities include:
+
+- Retrieve financial insight summaries.
+- Retrieve cash-flow forecasts.
+- Retrieve spending trends.
+- Retrieve budget projections.
+- Retrieve savings goal projections.
+- Retrieve unusual spending signals.
+- Retrieve data sufficiency and forecast explanations.
+
+Suggested route patterns, to be adapted to the existing project:
+
+- `GET /api/insights/overview`
+- `GET /api/insights/cash-flow`
+- `GET /api/insights/spending-trends`
+- `GET /api/insights/budget-forecasts`
+- `GET /api/insights/savings-projections`
+- `GET /api/insights/unusual-spending`
+- `GET /api/insights/recommendations`
+
+Do not create redundant endpoints if existing analytics APIs can be safely extended.
+
+### Backend requirements
+
+- Authenticate protected requests.
+- Derive user identity from the trusted session.
+- Validate date ranges and forecast horizons.
+- Use safe database queries.
+- Reuse shared financial calculations.
+- Handle large datasets efficiently.
+- Avoid returning another user's data.
+- Avoid unnecessary external API calls.
+- Return clear error responses.
+- Keep financial business logic out of presentation-only frontend components.
+
+If calculations are inexpensive and deterministic, calculate them on demand.
+
+Use caching only where beneficial and ensure that relevant transaction changes invalidate or refresh stale results.
+
+Do not add a machine-learning service solely to make the feature appear more intelligent.
+
+## 14. DATABASE AND DATA INTEGRITY
+
+Prefer calculations based on authoritative existing financial records.
+
+Do not create duplicate financial ledgers or store derived financial values unnecessarily.
+
+Add database indexes or safe migrations only when required for performance or compatibility.
+
+Preserve existing data and database security rules.
+
+### Data integrity requirements
+
+- Use consistent transaction inclusion rules.
+- Use consistent date boundaries.
+- Prevent duplicate generated transactions.
+- Exclude future scheduled transactions from historical actuals.
+- Distinguish actual records from projections.
+- Avoid double-counting savings contributions.
+- Handle deleted or edited transactions correctly.
+- Recalculate insights when the underlying records change.
+
+If a forecast snapshot must be persisted, include the relevant generation time, forecast period, and methodology or version so that the result is interpretable.
+
+Do not silently overwrite historical actual values with projections.
+
+## 15. PERFORMANCE AND SECURITY
+
+Financial insight processing must be secure and efficient.
+
+Implement:
+
+- User-specific authorization.
+- Parameter validation.
+- Efficient database aggregations.
+- Sensible limits on forecast horizons.
+- Safe handling of missing data.
+- Appropriate request timeouts.
+- Avoidance of unnecessary full-table scans.
+- Protected server-side logs.
+- No exposure of private credentials or internal stack traces.
+
+Never rely on hiding the Insights page in the frontend as the only access-control measure.
+
+Do not transmit private financial records to an external AI service unless that integration is explicitly required, securely implemented, and configured with appropriate user-data protections.
+
+The initial implementation should favor local, explainable calculations using the user's existing records.
+
+## 16. NOTIFICATION INTEGRATION
+
+Integrate with the Phase 9 notification system where available.
+
+Potential notifications include:
+
+- A budget is projected to exceed its limit.
+- Spending is materially above a historical baseline.
+- A savings goal is unlikely to meet its target under the current contribution pattern.
+- A recurring expense materially changes the forecast.
+
+### Requirements
+
+- Generate notifications only for meaningful, actionable events.
+- Respect the user's notification preferences.
+- Deduplicate repeated alerts.
+- Do not create an alert every time the Insights page loads.
+- Clearly label forecast-based alerts as estimates.
+- Avoid sending repeated alerts for the same unchanged condition.
+- Use the existing notification scheduler and data model.
+
+Do not build a second notification system.
+
+If Phase 9 is not fully implemented, do not pretend the integration exists. Clearly identify the dependency and implement only the compatible functionality.
+
+## 17. RESPONSIVE UI AND ACCESSIBILITY
+
+Follow the approved Finora design:
+
+- White backgrounds.
+- Pale-blue accent surfaces.
+- Blue primary actions.
+- Subtle borders.
+- Rounded cards.
+- Clean typography.
+- Consistent spacing.
+- Professional charts and tables.
+
+Do not introduce a dark black/navy default theme.
+
+### Desktop
+
+- Use a clear insights dashboard.
+- Display key metrics and charts in an organized grid.
+- Keep forecasts and assumptions easy to inspect.
+
+### Tablet
+
+- Adapt card grids and chart layouts.
+- Maintain readable legends and labels.
+
+### Mobile
+
+- Stack cards and visualizations.
+- Keep text readable.
+- Avoid clipped chart labels and horizontal overflow.
+- Ensure filters remain usable.
+- Present key findings before detailed charts.
+
+### Accessibility
+
+- Provide accessible chart summaries.
+- Use readable contrast.
+- Avoid relying on color alone to distinguish actual and projected values.
+- Support keyboard navigation.
+- Label interactive controls clearly.
+
+## 18. EMPTY, LOADING, AND ERROR STATES
+
+Handle:
+
+- No transaction history.
+- Insufficient historical data.
+- No budgets.
+- No savings goals.
+- No recurring transactions.
+- Empty reporting periods.
+- Missing category information.
+- Zero income.
+- Zero-value budgets.
+- Negative cash flow.
+- Invalid forecast horizons.
+- Network failures.
+- Database errors.
+- Expired authentication sessions.
+
+Explain why an insight is unavailable and what data would make it possible.
+
+Do not show invented forecasts as a substitute for missing data.
+
+Do not silently swallow errors or show a false success state.
+
+## 19. AUTOMATED TESTING
+
+Use the existing test framework and implement actual tests.
+
+### Financial calculations
+
+Verify:
+
+- Income and expense totals.
+- Net cash flow.
+- Savings rate.
+- Average daily spending.
+- Period-to-period comparisons.
+- Zero-income handling.
+- Negative cash-flow handling.
+
+### Forecasting
+
+Verify:
+
+- Correct forecast horizons.
+- Historical versus future separation.
+- Recurring transaction inclusion.
+- No duplicate recurring amounts.
+- Insufficient-data behavior.
+- Consistent timezone and date boundaries.
+- Deterministic results for the same inputs and assumptions.
+
+### Budget projections
+
+Verify:
+
+- Actual spending.
+- Projected end-of-period spending.
+- Remaining budget.
+- Zero-value budgets.
+- Budget-period boundaries.
+- Threshold and over-budget scenarios.
+
+### Savings projections
+
+Verify:
+
+- Remaining goal amount.
+- Required contribution calculations.
+- Completed-goal behavior.
+- Missing target dates.
+- Insufficient contribution history.
+- No double-counting of contributions.
+
+### Unusual spending
+
+Verify:
+
+- Category comparisons.
+- Minimum sample-size rules.
+- Zero historical baselines.
+- No duplicate flags for the same unchanged condition.
+- Correct explanation of detected changes.
+
+### Security and integration
+
+Verify:
+
+- Unauthenticated requests are rejected.
+- Users cannot retrieve another user's insights.
+- Filters are validated.
+- Reports and Analytics retain consistent calculations.
+- Notifications respect saved preferences.
+- Transactions, budgets, savings goals, and recurring schedules remain functional.
+
+Run tests and report actual outcomes. Do not claim an unexecuted test passed.
+
+## 20. REQUIRED IMPLEMENTATION WORKFLOW
+
+**Step 1 — Inspect:** Review the existing codebase, financial models, calculation utilities, and deployment architecture.
+
+**Step 2 — Define:** Document the formulas, forecast assumptions, and data-sufficiency rules used by each insight.
+
+**Step 3 — Implement backend:** Build real insight calculations and protected APIs.
+
+**Step 4 — Implement frontend:** Build the Insights page, visualizations, forecast panels, and recommendations.
+
+**Step 5 — Integrate:** Connect budgets, savings goals, recurring schedules, analytics, and notifications.
+
+**Step 6 — Secure:** Verify user ownership, input validation, and safe processing.
+
+**Step 7 — Test:** Run calculation, forecast, security, integration, and regression tests.
+
+**Step 8 — Fix:** Resolve incorrect calculations, broken states, and regression issues.
+
+**Step 9 — Verify:** Compare insight results against underlying transactions and existing Analytics totals.
+
+**Step 10 — Report:** Provide an accurate summary of implementation and test results.
+
+Do not stop after writing a plan or implementing only the visual interface.
+
+## 21. STRICT RULES
+
+1. Do not replace the existing Finora project.
+2. Do not reset the database.
+3. Do not delete existing financial records.
+4. Do not use hardcoded sample financial data.
+5. Do not create fake forecasts or recommendations.
+6. Do not confuse projections with actual transactions.
+7. Do not count recurring schedules twice.
+8. Do not count savings contributions twice.
+9. Do not present estimates as guaranteed results.
+10. Do not invent a statistical confidence score.
+11. Do not label unusual spending as confirmed fraud.
+12. Do not expose another user's financial information.
+13. Do not introduce unnecessary external AI services.
+14. Do not create nonfunctional buttons or charts.
+15. Do not claim success without verification.
+16. Do not break existing Analytics or Reports calculations.
+17. Do not change the approved white-and-pale-blue design.
+18. Preserve all existing working features and data.
+19. Document any unsupported or incomplete functionality.
+20. Prioritize transparent formulas, reliable data, and financial integrity over impressive-looking but inaccurate insights.
+
+## 22. FINAL DELIVERY REPORT
+
+After implementation, provide:
+
+### A. Implemented features
+List the insights, forecasts, charts, and recommendations that actually work.
+
+### B. Files changed
+List actual files created or modified.
+
+### C. Calculation methodology
+Document the formulas, assumptions, forecast horizons, and data-sufficiency rules.
+
+### D. API changes
+List implemented or reused endpoints.
+
+### E. Integration
+Explain how insights connect with budgets, savings goals, recurring transactions, analytics, and notifications.
+
+### F. Data integrity
+Explain how duplicate counting and historical-data inconsistencies are prevented.
+
+### G. Test results
+List the tests executed and their actual outcomes.
+
+### H. Performance and security
+Describe relevant authorization and query optimizations.
+
+### I. Manual setup
+Document any required migrations, configuration, or deployment steps.
+
+### J. Known limitations
+Identify anything unfinished or blocked.
+
+### K. Regression verification
+List the existing Finora features checked after implementation.
+
+Do not invent file paths, test results, financial calculations, or successful integrations.
+
+## 23. DEFINITION OF DONE
+
+Phase 10 is complete when:
+
+- The Financial Insights page is integrated into Finora.
+- Overview metrics match the authoritative financial records.
+- Cash-flow forecasts use documented assumptions.
+- Spending trends use real historical data.
+- Budget forecasts follow existing budget rules.
+- Savings projections use actual goal and contribution data.
+- Unusual spending signals are explainable.
+- Recommendations are based on evidence from the user's records.
+- Forecast confidence reflects data sufficiency.
+- Projections are visually distinct from actual results.
+- Notifications respect existing preferences and avoid duplicates.
+- The interface is responsive and accessible.
+- Relevant tests are executed and accurately reported.
+- Existing Finora functionality and data remain intact.
+- Remaining limitations are clearly documented.
+
+**Begin by inspecting my existing Finora project. Then implement Phase 10 directly across the frontend and backend, using the actual database and existing financial modules. Prioritize explainable calculations, transparent assumptions, security, financial integrity, and verifiable results. Do not stop after creating a plan.**

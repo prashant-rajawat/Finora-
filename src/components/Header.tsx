@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Info, ChevronDown, Menu, User as UserIcon, Settings as SettingsIcon, LogOut, Check } from 'lucide-react';
-import { User, NavigationPage, BudgetAlert } from '../types';
+import { Search, Bell, Info, ChevronDown, Menu, User as UserIcon, Settings as SettingsIcon, LogOut, ExternalLink, ArrowRight } from 'lucide-react';
+import { User, NavigationPage, BudgetAlert, AppNotification } from '../types';
+import { api } from '../api';
 
 interface HeaderProps {
   user: User;
@@ -24,11 +25,24 @@ export const Header: React.FC<HeaderProps> = ({
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [unreadCount, setUnreadCount] = useState<number>(3 + (budgetAlerts?.length || 0));
+  const [realNotifications, setRealNotifications] = useState<AppNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+
+  const fetchHeaderNotifications = async () => {
+    try {
+      const res = await api.getNotifications();
+      setRealNotifications(res.notifications.slice(0, 5));
+      setUnreadCount(res.unreadCount);
+    } catch (err) {
+      console.error('Failed to fetch header notifications:', err);
+    }
+  };
 
   useEffect(() => {
-    setUnreadCount(3 + (budgetAlerts?.length || 0));
-  }, [budgetAlerts]);
+    if (user) {
+      fetchHeaderNotifications();
+    }
+  }, [user]);
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const notifDropdownRef = useRef<HTMLDivElement>(null);
@@ -53,40 +67,32 @@ export const Header: React.FC<HeaderProps> = ({
     .substring(0, 2)
     .toUpperCase() || 'U';
 
-  const defaultNotifications = [
-    {
-      id: 'n1',
-      title: 'Salary Credited',
-      time: 'Oct 01, 2026',
-      desc: '+₹40,000 received from Monthly Salary Credit',
-      type: 'income',
-    },
-    {
-      id: 'n2',
-      title: 'Electricity Bill Paid',
-      time: 'Oct 10, 2026',
-      desc: '-₹1,200 payment for Utilities',
-      type: 'expense',
-    },
-    {
-      id: 'n3',
-      title: 'Monthly Spending Update',
-      time: 'Yesterday',
-      desc: 'You have utilized 63% of your estimated monthly budget',
-      type: 'info',
-    },
-  ];
+  const handleMarkAllReadHeader = async () => {
+    try {
+      await api.markAllNotificationsAsRead();
+      setUnreadCount(0);
+      setRealNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    } catch (err) {
+      console.error('Failed to mark all read:', err);
+    }
+  };
 
-  const alertNotifications = (budgetAlerts || []).map((alert, idx) => ({
-    id: `alert-${idx}`,
-    title: alert.level === 'danger' ? `🚨 Budget Exceeded: ${alert.budgetName}` : `⚠️ Budget Alert: ${alert.budgetName}`,
-    time: 'Budget Warning',
-    desc: alert.message,
-    type: alert.level === 'danger' ? 'danger' : 'warning',
-    isBudgetAlert: true,
-  }));
-
-  const allNotifications = [...alertNotifications, ...defaultNotifications];
+  const handleNotificationItemClick = async (notif: AppNotification) => {
+    if (!notif.isRead) {
+      try {
+        await api.markNotificationAsRead(notif.id);
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      } catch (e) {
+        // ignore
+      }
+    }
+    setShowNotifications(false);
+    if (notif.actionTarget) {
+      onNavigate(notif.actionTarget);
+    } else {
+      onNavigate('notifications');
+    }
+  };
 
   return (
     <>
@@ -123,14 +129,16 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => {
                 setShowNotifications(!showNotifications);
-                if (unreadCount > 0) setUnreadCount(0);
+                fetchHeaderNotifications();
               }}
-              className="relative p-2 rounded-xl text-[#718096] hover:text-[#203451] hover:bg-[#F2F7FF] transition-colors focus:outline-none"
-              title="Notifications"
+              className="relative p-2 rounded-xl text-[#718096] hover:text-[#203451] hover:bg-[#F2F7FF] transition-colors focus:outline-none cursor-pointer"
+              title="Notifications Center"
             >
               <Bell size={19} />
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#EF5360] ring-2 ring-white" />
+                <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[#EF5360] text-white font-bold text-[9px] flex items-center justify-center ring-2 ring-white">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
               )}
             </button>
 
@@ -138,43 +146,65 @@ export const Header: React.FC<HeaderProps> = ({
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 md:w-88 bg-white border border-[#DCE6F2] rounded-2xl shadow-xl py-3 z-30">
                 <div className="px-4 py-2 border-b border-[#F2F7FF] flex items-center justify-between">
-                  <span className="font-semibold text-sm text-[#203451]">Notifications</span>
-                  <span
-                    onClick={() => setUnreadCount(0)}
-                    className="text-xs text-[#1677F2] font-medium cursor-pointer hover:underline"
-                  >
-                    Mark all read
-                  </span>
-                </div>
-                <div className="divide-y divide-[#F8FAFC] max-h-72 overflow-y-auto">
-                  {allNotifications.map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        if ((item as any).isBudgetAlert) {
-                          setShowNotifications(false);
-                          onNavigate('budgets');
-                        }
-                      }}
-                      className={`p-3.5 transition-colors ${
-                        (item as any).isBudgetAlert
-                          ? item.type === 'danger'
-                            ? 'bg-rose-50/50 hover:bg-rose-50 cursor-pointer border-l-3 border-[#EF5360]'
-                            : 'bg-amber-50/50 hover:bg-amber-50 cursor-pointer border-l-3 border-amber-500'
-                          : 'hover:bg-[#F8FAFC]'
-                      }`}
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-[#203451]">Notifications</span>
+                    {unreadCount > 0 && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-50 text-[#EF5360] text-[10px] font-bold">
+                        {unreadCount} unread
+                      </span>
+                    )}
+                  </div>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAllReadHeader}
+                      className="text-xs text-[#1677F2] font-semibold cursor-pointer hover:underline"
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className={`text-xs font-semibold ${
-                          item.type === 'danger' ? 'text-[#EF5360]' : item.type === 'warning' ? 'text-amber-800' : 'text-[#203451]'
-                        }`}>
-                          {item.title}
-                        </span>
-                        <span className="text-[11px] text-[#94A3B8]">{item.time}</span>
-                      </div>
-                      <p className="text-xs text-[#718096]">{item.desc}</p>
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+
+                <div className="divide-y divide-[#F8FAFC] max-h-72 overflow-y-auto">
+                  {realNotifications.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-[#718096]">
+                      No notifications yet. You are all caught up!
                     </div>
-                  ))}
+                  ) : (
+                    realNotifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        onClick={() => handleNotificationItemClick(notif)}
+                        className={`p-3.5 transition-colors cursor-pointer text-left ${
+                          !notif.isRead
+                            ? 'bg-[#F2F7FF]/70 hover:bg-[#E5F0FF]/80 border-l-3 border-[#1677F2]'
+                            : 'hover:bg-[#F8FAFC]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`text-xs font-bold ${!notif.isRead ? 'text-[#1677F2]' : 'text-[#203451]'}`}>
+                            {notif.title}
+                          </span>
+                          {!notif.isRead && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#1677F2] shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-xs text-[#718096] line-clamp-2">{notif.message}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="pt-2 px-4 border-t border-[#F2F7FF] text-center">
+                  <button
+                    onClick={() => {
+                      setShowNotifications(false);
+                      onNavigate('notifications');
+                    }}
+                    className="w-full py-1.5 text-xs font-bold text-[#1677F2] hover:underline flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <span>View Notification Center</span>
+                    <ArrowRight size={13} />
+                  </button>
                 </div>
               </div>
             )}

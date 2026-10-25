@@ -108,7 +108,9 @@ export type NavigationPage =
   | 'analytics'
   | 'goals'
   | 'reports'
-  | 'settings';
+  | 'settings'
+  | 'notifications'
+  | 'insights';
 
 // ==================== PHASE 4: ANALYTICS TYPES ====================
 
@@ -377,6 +379,175 @@ export interface UpcomingOccurrenceProjected {
   scheduledDate: string;
   frequency: RecurrenceFrequency;
   paymentMethod?: string;
+}
+
+// ==================== PHASE 9: NOTIFICATIONS & FINANCIAL ALERTS TYPES ====================
+
+export type NotificationCategory =
+  | 'budget_alert'
+  | 'recurring_reminder'
+  | 'recurring_failure'
+  | 'goal_milestone'
+  | 'goal_deadline'
+  | 'weekly_summary'
+  | 'monthly_summary'
+  | 'security_alert'
+  | 'system_info';
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  category: NotificationCategory;
+  title: string;
+  message: string;
+  isRead: boolean;
+  actionTarget?: NavigationPage;
+  actionPayload?: Record<string, any>;
+  dedupeKey: string;
+  createdAt: string; // ISO string
+}
+
+// ==================== PHASE 10: FINANCIAL INSIGHTS & PLANNING TYPES ====================
+
+export type ForecastHorizon = '7d' | '30d' | '3m' | '6m';
+
+export interface FinancialHealthOverview {
+  totalIncome: number;
+  totalExpenses: number;
+  netCashFlow: number;
+  savingsRate: number | null;
+  avgDailyExpenses: number;
+  budgetUtilization: number;
+  activeGoalProgress: number;
+  essentialSpending: number;
+  discretionarySpending: number;
+  healthScore: number;
+  healthScoreLabel: string;
+}
+
+export interface CashFlowForecastPoint {
+  date: string;
+  label: string;
+  actualIncome?: number;
+  actualExpenses?: number;
+  forecastIncome?: number;
+  forecastExpenses?: number;
+  forecastNet?: number;
+  type: 'actual' | 'forecast';
+}
+
+export interface CashFlowForecast {
+  horizon: ForecastHorizon;
+  estimatedIncome: number;
+  estimatedExpenses: number;
+  estimatedNetCashFlow: number;
+  expectedRecurringIncome: number;
+  expectedRecurringExpenses: number;
+  unscheduledEstimatedExpenses: number;
+  forecastPoints: CashFlowForecastPoint[];
+  confidence: 'High' | 'Moderate' | 'Limited';
+}
+
+export interface SpendingTrendItem {
+  category: string;
+  currentAmount: number;
+  previousAmount: number;
+  changeAmount: number;
+  changePercentage: number | null;
+  trend: 'up' | 'down' | 'flat';
+}
+
+export interface HistoricalSpendingTrends {
+  currentPeriodLabel: string;
+  previousPeriodLabel: string;
+  topCategories: SpendingTrendItem[];
+  largestExpenses: TopExpenseItem[];
+  recurringVsNonRecurring: {
+    recurringAmount: number;
+    nonRecurringAmount: number;
+    recurringPercentage: number;
+    nonRecurringPercentage: number;
+  };
+  avgDailySpending: number;
+}
+
+export interface BudgetForecastItem {
+  budgetId: string;
+  budgetName: string;
+  limit: number;
+  actualSpent: number;
+  remainingAmount: number;
+  percentageUsed: number;
+  daysElapsed: number;
+  daysRemaining: number;
+  projectedEndSpending: number;
+  projectedOverage: number;
+  status: 'on_track' | 'warning' | 'near_limit' | 'over_budget' | 'projected_overrun';
+  confidence: 'High' | 'Moderate' | 'Limited';
+}
+
+export interface SavingsGoalProjectionItem {
+  goalId: string;
+  goalName: string;
+  targetAmount: number;
+  savedAmount: number;
+  remainingAmount: number;
+  progressPercentage: number;
+  targetDate?: string;
+  daysRemaining: number | null;
+  requiredMonthlyContribution: number | null;
+  requiredWeeklyContribution: number | null;
+  estimatedCompletionDate: string | null;
+  historicalMonthlyVelocity: number;
+  statusText: string;
+}
+
+export interface UnusualSpendingSignal {
+  id: string;
+  category: string;
+  type: 'large_transaction' | 'category_spike' | 'budget_exceeded' | 'new_recurring';
+  title: string;
+  explanation: string;
+  actualValue: number;
+  baselineValue: number;
+  percentageIncrease: number;
+  transactionId?: string;
+  date: string;
+}
+
+export interface FinancialRecommendation {
+  id: string;
+  title: string;
+  observedPattern: string;
+  supportingData: string;
+  suggestedAction: string;
+  assumptions: string;
+  type: 'budget' | 'recurring' | 'savings' | 'spending' | 'buffer';
+  actionTarget?: NavigationPage;
+  actionPayload?: Record<string, any>;
+}
+
+export interface ForecastConfidenceMeta {
+  level: 'High' | 'Moderate' | 'Limited';
+  description: string;
+  factors: string[];
+  historicalPeriodCount: number;
+  totalTransactionCount: number;
+  recurringScheduleCount: number;
+}
+
+export interface FinancialInsightsData {
+  periodPreset: AnalyticsPeriodPreset;
+  forecastHorizon: ForecastHorizon;
+  lastUpdated: string;
+  healthOverview: FinancialHealthOverview;
+  cashFlowForecast: CashFlowForecast;
+  spendingTrends: HistoricalSpendingTrends;
+  budgetForecasts: BudgetForecastItem[];
+  savingsProjections: SavingsGoalProjectionItem[];
+  unusualSpending: UnusualSpendingSignal[];
+  recommendations: FinancialRecommendation[];
+  confidenceMeta: ForecastConfidenceMeta;
 }
 
 

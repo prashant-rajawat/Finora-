@@ -1,0 +1,922 @@
+{
+  "users": [
+    {
+      "id": "usr_ansh_kumar_001",
+      "fullName": "Ansh Kumar",
+      "email": "ansh@example.com",
+      "passwordHash": "$2b$10$MuzHH5v/3wgQ.GUt47uTmusI9GedgCW8jjSP.YtWYoAN2GYJwjAYW",
+      "createdAt": "2026-09-01T08:00:00.000Z",
+      "updatedAt": "2026-10-24T00:00:00.000Z"
+    },
+    {
+      "id": "usr_1792914795670_bvp1t",
+      "fullName": "Test User Alpha",
+      "email": "test_user_a_1792914795446@example.com",
+      "passwordHash": "$2b$10$6mmKTRwq/DWrgCojBGS.LOH51mY7e0aJ76Dp/RV1EwXrK6YYKHake",
+      "createdAt": "2026-10-25T07:53:15.670Z",
+      "updatedAt": "2026-10-25T07:53:15.670Z"
+    },
+    {
+      "id": "usr_1792914795794_hy7xq",
+      "fullName": "Test User Beta",
+      "email": "test_user_b_1792914795692@example.com",
+      "passwordHash": "$2b$10$LTNErF4DPHmk5Z9kcTFLtussmBkHsoLxRL/9ovvakOVc4ZxBMqjJG",
+      "createdAt": "2026-10-25T07:53:15.794Z",
+      "updatedAt": "2026-10-25T07:53:15.794Z"
+    },
+    {
+      "id": "usr_1792914826739_476vm",
+      "fullName": "Test User Alpha",
+      "email": "test_user_a_1792914826542@example.com",
+      "passwordHash": "$2b$10$lLFv7Pr/Vb7Z7Tg2yPizzuOrrMcStXGdMKtD/BX8bBLmdhSiULkmq",
+      "createdAt": "2026-10-25T07:53:46.739Z",
+      "updatedAt": "2026-10-25T07:53:46.739Z"
+    },
+    {
+      "id": "usr_1792914826866_v2c5o",
+      "fullName": "Test User Beta",
+      "email": "test_user_b_1792914826757@example.com",
+      "passwordHash": "$2b$10$95UDhkcXbWvgtiCaq9Gxbuns2pziWwN9euqhxWOiz1NFrIb32Wi5q",
+      "createdAt": "2026-10-25T07:53:46.866Z",
+      "updatedAt": "2026-10-25T07:53:46.866Z"
+    },
+    {
+      "id": "usr_1792914853171_2bavu",
+      "fullName": "Test User Alpha",
+      "email": "test_user_a_1792914852909@example.com",
+      "passwordHash": "$2b$10$fAJ2YYaw80nyqLVnMTGihO.jIGa1u2HfTHlBXUDoMBdrj9rEAJNmq",
+      "createdAt": "2026-10-25T07:54:13.171Z",
+      "updatedAt": "2026-10-25T07:54:13.171Z"
+    },
+    {
+      "id": "usr_1792914853306_qxfsi",
+      "fullName": "Test User Beta",
+      "email": "test_user_b_1792914853201@example.com",
+      "passwordHash": "$2b$10$KS.FQ7rVEOFg9HiEjmVoEuPUgxP7NzQOEdzxGbn6/nS59Q9Ae4jNa",
+      "createdAt": "2026-10-25T07:54:13.306Z",
+      "updatedAt": "2026-10-25T07:54:13.306Z"
+    },
+    {
+      "id": "usr_1792914893491_n0fja",
+      "fullName": "Test User Alpha",
+      "email": "test_user_a_1792914893255@example.com",
+      "passwordHash": "$2b$10$RgzMdNCjzePjBTGW9kR/x.ifvKknM7YRpAMlcQ.ZxYNg/y4lkkHB.",
+      "createdAt": "2026-10-25T07:54:53.491Z",
+      "updatedAt": "2026-10-25T07:54:53.491Z"
+    },
+    {
+      "id": "usr_1792914893621_yiu46",
+      "fullName": "Test User Beta",
+      "email": "test_user_b_1792914893514@example.com",
+      "passwordHash": "$2b$10$6HoeR2uUpm7gJh6jH.zXBODR1QlwCIbimTS7CrgCF9AXi5j9oDvpq",
+      "createdAt": "2026-10-25T07:54:53.621Z",
+      "updatedAt": "2026-10-25T07:54:53.621Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "tx_01",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 450,
+      "category": "Food & Dining",
+      "date": "2026-10-15",
+      "description": "Zomato dinner",
+      "createdAt": "2026-10-15T19:30:00.000Z",
+      "updatedAt": "2026-10-15T19:30:00.000Z"
+    },
+    {
+      "id": "tx_02",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 320,
+      "category": "Transport",
+      "date": "2026-10-12",
+      "description": "Uber ride",
+      "createdAt": "2026-10-12T09:15:00.000Z",
+      "updatedAt": "2026-10-12T09:15:00.000Z"
+    },
+    {
+      "id": "tx_03",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 1200,
+      "category": "Utilities",
+      "date": "2026-10-10",
+      "description": "Electricity Bill",
+      "createdAt": "2026-10-10T14:00:00.000Z",
+      "updatedAt": "2026-10-10T14:00:00.000Z"
+    },
+    {
+      "id": "tx_04",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 2450,
+      "category": "Shopping",
+      "date": "2026-10-06",
+      "description": "Shopping at mall",
+      "createdAt": "2026-10-06T16:20:00.000Z",
+      "updatedAt": "2026-10-06T16:20:00.000Z"
+    },
+    {
+      "id": "tx_05",
+      "userId": "usr_ansh_kumar_001",
+      "type": "income",
+      "amount": 40000,
+      "category": "Salary",
+      "date": "2026-10-01",
+      "description": "Monthly Salary Credit",
+      "createdAt": "2026-10-01T10:00:00.000Z",
+      "updatedAt": "2026-10-01T10:00:00.000Z"
+    },
+    {
+      "id": "tx_06",
+      "userId": "usr_ansh_kumar_001",
+      "type": "income",
+      "amount": 5000,
+      "category": "Freelance",
+      "date": "2026-10-02",
+      "description": "Freelance UI Design project",
+      "createdAt": "2026-10-02T12:00:00.000Z",
+      "updatedAt": "2026-10-02T12:00:00.000Z"
+    },
+    {
+      "id": "tx_07",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 8654,
+      "category": "Food & Dining",
+      "date": "2026-10-04",
+      "description": "Monthly Groceries & Dining",
+      "createdAt": "2026-10-04T11:00:00.000Z",
+      "updatedAt": "2026-10-04T11:00:00.000Z"
+    },
+    {
+      "id": "tx_08",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 5370,
+      "category": "Transport",
+      "date": "2026-10-08",
+      "description": "Fuel & Metro passes",
+      "createdAt": "2026-10-08T18:00:00.000Z",
+      "updatedAt": "2026-10-08T18:00:00.000Z"
+    },
+    {
+      "id": "tx_09",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 1818,
+      "category": "Shopping",
+      "date": "2026-10-14",
+      "description": "Electronics & Home supplies",
+      "createdAt": "2026-10-14T15:30:00.000Z",
+      "updatedAt": "2026-10-14T15:30:00.000Z"
+    },
+    {
+      "id": "tx_10",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 2214,
+      "category": "Bills & Utilities",
+      "date": "2026-10-11",
+      "description": "Water & Broadband bills",
+      "createdAt": "2026-10-11T08:00:00.000Z",
+      "updatedAt": "2026-10-11T08:00:00.000Z"
+    },
+    {
+      "id": "tx_11",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 2276,
+      "category": "Entertainment",
+      "date": "2026-10-13",
+      "description": "Cinema & Streaming subscriptions",
+      "createdAt": "2026-10-13T20:00:00.000Z",
+      "updatedAt": "2026-10-13T20:00:00.000Z"
+    },
+    {
+      "id": "tx_12",
+      "userId": "usr_ansh_kumar_001",
+      "type": "expense",
+      "amount": 3698,
+      "category": "Others",
+      "date": "2026-10-05",
+      "description": "Healthcare & Personal Care",
+      "createdAt": "2026-10-05T17:00:00.000Z",
+      "updatedAt": "2026-10-05T17:00:00.000Z"
+    },
+    {
+      "id": "tx_1792914795802_2ipe",
+      "userId": "usr_1792914795670_bvp1t",
+      "type": "income",
+      "amount": 50000,
+      "category": "Salary",
+      "date": "2026-10-01",
+      "description": "Main Payroll Credit",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:53:15.802Z",
+      "updatedAt": "2026-10-25T07:53:15.802Z"
+    },
+    {
+      "id": "tx_1792914795805_38lt",
+      "userId": "usr_1792914795670_bvp1t",
+      "type": "expense",
+      "amount": 15000,
+      "category": "Shopping",
+      "date": "2026-10-05",
+      "description": "Smart TV Purchase",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:53:15.805Z",
+      "updatedAt": "2026-10-25T07:53:15.805Z"
+    },
+    {
+      "id": "tx_1792914826872_eoiy",
+      "userId": "usr_1792914826739_476vm",
+      "type": "income",
+      "amount": 50000,
+      "category": "Salary",
+      "date": "2026-10-01",
+      "description": "Main Payroll Credit",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:53:46.872Z",
+      "updatedAt": "2026-10-25T07:53:46.872Z"
+    },
+    {
+      "id": "tx_1792914826876_5blo",
+      "userId": "usr_1792914826739_476vm",
+      "type": "expense",
+      "amount": 15000,
+      "category": "Shopping",
+      "date": "2026-10-05",
+      "description": "Smart TV Purchase",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:53:46.876Z",
+      "updatedAt": "2026-10-25T07:53:46.876Z"
+    },
+    {
+      "id": "tx_1792914853316_ae7b",
+      "userId": "usr_1792914853171_2bavu",
+      "type": "income",
+      "amount": 50000,
+      "category": "Salary",
+      "date": "2026-10-01",
+      "description": "Main Payroll Credit",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:54:13.316Z",
+      "updatedAt": "2026-10-25T07:54:13.316Z"
+    },
+    {
+      "id": "tx_1792914853322_7zsm",
+      "userId": "usr_1792914853171_2bavu",
+      "type": "expense",
+      "amount": 15000,
+      "category": "Shopping",
+      "date": "2026-10-05",
+      "description": "Smart TV Purchase",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:54:13.322Z",
+      "updatedAt": "2026-10-25T07:54:13.322Z"
+    },
+    {
+      "id": "tx_1792914893631_ps5h",
+      "userId": "usr_1792914893491_n0fja",
+      "type": "income",
+      "amount": 50000,
+      "category": "Salary",
+      "date": "2026-10-01",
+      "description": "Main Payroll Credit",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:54:53.631Z",
+      "updatedAt": "2026-10-25T07:54:53.631Z"
+    },
+    {
+      "id": "tx_1792914893635_pmdi",
+      "userId": "usr_1792914893491_n0fja",
+      "type": "expense",
+      "amount": 15000,
+      "category": "Shopping",
+      "date": "2026-10-05",
+      "description": "Smart TV Purchase",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:54:53.635Z",
+      "updatedAt": "2026-10-25T07:54:53.635Z"
+    },
+    {
+      "id": "tx_1792914893683_dfid",
+      "userId": "usr_1792914893491_n0fja",
+      "type": "expense",
+      "amount": 1500,
+      "category": "Bills & Utilities",
+      "date": "2026-10-10",
+      "description": "Internet Fiber Subscription (Automated)",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "createdAt": "2026-10-25T07:54:53.683Z",
+      "updatedAt": "2026-10-25T07:54:53.683Z"
+    }
+  ],
+  "budgets": [
+    {
+      "id": "bgt_01",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Food & Dining Budget",
+      "type": "category",
+      "category": "Food & Dining",
+      "amount": 10000,
+      "period": "2026-10",
+      "notes": "Monthly allowance for restaurants and groceries",
+      "alertThreshold": 90,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_02",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Transport Cap",
+      "type": "category",
+      "category": "Transport",
+      "amount": 6000,
+      "period": "2026-10",
+      "notes": "Fuel, metro pass, and cab rides",
+      "alertThreshold": 90,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_03",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Shopping Allowance",
+      "type": "category",
+      "category": "Shopping",
+      "amount": 5000,
+      "period": "2026-10",
+      "notes": "Apparel, gadgets, and home decor",
+      "alertThreshold": 85,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_04",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Utilities & Bills Limit",
+      "type": "category",
+      "category": "Bills & Utilities",
+      "amount": 4000,
+      "period": "2026-10",
+      "notes": "Electricity, water, and broadband subscriptions",
+      "alertThreshold": 85,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_05",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Overall Monthly Budget",
+      "type": "overall",
+      "amount": 32000,
+      "period": "2026-10",
+      "notes": "Total monthly spending ceiling across all categories",
+      "alertThreshold": 90,
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z"
+    },
+    {
+      "id": "bgt_1792914893647_qcxy",
+      "userId": "usr_1792914893491_n0fja",
+      "name": "Shopping Ceiling",
+      "type": "category",
+      "category": "Shopping",
+      "amount": 20000,
+      "period": "2026-10",
+      "notes": "",
+      "alertThreshold": 90,
+      "createdAt": "2026-10-25T07:54:53.647Z",
+      "updatedAt": "2026-10-25T07:54:53.647Z"
+    }
+  ],
+  "goals": [
+    {
+      "id": "gol_01",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Emergency Safety Net",
+      "category": "Emergency Fund",
+      "targetAmount": 100000,
+      "initialAmount": 20000,
+      "targetDate": "2027-04-30",
+      "description": "6 months of essential living expenses buffer for unforeseen situations.",
+      "color": "#10B981",
+      "icon": "ShieldCheck",
+      "status": "active",
+      "frequencyPreference": "monthly",
+      "createdAt": "2026-09-01T08:00:00.000Z",
+      "updatedAt": "2026-10-02T10:00:00.000Z"
+    },
+    {
+      "id": "gol_02",
+      "userId": "usr_ansh_kumar_001",
+      "name": "MacBook Pro M3 Max",
+      "category": "Tech & Gadgets",
+      "targetAmount": 250000,
+      "initialAmount": 50000,
+      "targetDate": "2027-01-15",
+      "description": "High-performance workstation laptop for freelance UI and coding projects.",
+      "color": "#1677F2",
+      "icon": "Laptop",
+      "status": "active",
+      "frequencyPreference": "monthly",
+      "createdAt": "2026-09-15T08:00:00.000Z",
+      "updatedAt": "2026-10-03T10:00:00.000Z"
+    },
+    {
+      "id": "gol_03",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Goa Beach Retreat",
+      "category": "Travel",
+      "targetAmount": 30000,
+      "initialAmount": 10000,
+      "targetDate": "2026-12-25",
+      "description": "Year-end holiday getaway with friends to relax and unwind.",
+      "color": "#F59E0B",
+      "icon": "Plane",
+      "status": "active",
+      "frequencyPreference": "monthly",
+      "createdAt": "2026-10-05T08:00:00.000Z",
+      "updatedAt": "2026-10-16T10:00:00.000Z"
+    },
+    {
+      "id": "gol_1792914893656_lehhc",
+      "userId": "usr_1792914893491_n0fja",
+      "name": "New Laptop Reserve",
+      "category": "Tech & Gadgets",
+      "targetAmount": 100000,
+      "initialAmount": 0,
+      "targetDate": "2027-06-30",
+      "color": "#1677F2",
+      "icon": "Target",
+      "status": "active",
+      "frequencyPreference": "monthly",
+      "createdAt": "2026-10-25T07:54:53.656Z",
+      "updatedAt": "2026-10-25T07:54:53.661Z"
+    }
+  ],
+  "goalContributions": [
+    {
+      "id": "gc_01",
+      "goalId": "gol_01",
+      "userId": "usr_ansh_kumar_001",
+      "amount": 20000,
+      "date": "2026-09-01",
+      "note": "Initial emergency reserve fund deposit",
+      "source": "Savings Account",
+      "createdAt": "2026-09-01T08:00:00.000Z"
+    },
+    {
+      "id": "gc_02",
+      "goalId": "gol_01",
+      "userId": "usr_ansh_kumar_001",
+      "amount": 15000,
+      "date": "2026-10-02",
+      "note": "Monthly salary allocation to emergency fund",
+      "source": "Bank Transfer",
+      "createdAt": "2026-10-02T10:00:00.000Z"
+    },
+    {
+      "id": "gc_03",
+      "goalId": "gol_02",
+      "userId": "usr_ansh_kumar_001",
+      "amount": 50000,
+      "date": "2026-09-15",
+      "note": "Initial workstation budget allocation",
+      "source": "Savings Account",
+      "createdAt": "2026-09-15T08:00:00.000Z"
+    },
+    {
+      "id": "gc_04",
+      "goalId": "gol_02",
+      "userId": "usr_ansh_kumar_001",
+      "amount": 25000,
+      "date": "2026-10-03",
+      "note": "Freelance client advance dedicated to hardware upgrade",
+      "source": "UPI",
+      "createdAt": "2026-10-03T10:00:00.000Z"
+    },
+    {
+      "id": "gc_05",
+      "goalId": "gol_03",
+      "userId": "usr_ansh_kumar_001",
+      "amount": 10000,
+      "date": "2026-10-05",
+      "note": "Initial vacation fund allocation",
+      "source": "UPI",
+      "createdAt": "2026-10-05T08:00:00.000Z"
+    },
+    {
+      "id": "gc_06",
+      "goalId": "gol_03",
+      "userId": "usr_ansh_kumar_001",
+      "amount": 10000,
+      "date": "2026-10-16",
+      "note": "Flight ticket and accommodation savings",
+      "source": "Bank Transfer",
+      "createdAt": "2026-10-16T10:00:00.000Z"
+    },
+    {
+      "id": "gc_1792914893661_wc1uv",
+      "goalId": "gol_1792914893656_lehhc",
+      "userId": "usr_1792914893491_n0fja",
+      "amount": 25000,
+      "date": "2026-10-25",
+      "note": "Monthly goal deposit",
+      "source": "Manual Contribution",
+      "createdAt": "2026-10-25T07:54:53.661Z"
+    }
+  ],
+  "userPreferences": [
+    {
+      "userId": "usr_ansh_kumar_001",
+      "currency": "INR",
+      "dateFormat": "DD/MM/YYYY",
+      "timezone": "Asia/Kolkata",
+      "tableDensity": "comfortable",
+      "emailAlerts": true,
+      "monthlyDigest": true,
+      "budgetThresholdAlerts": true,
+      "updatedAt": "2026-10-24T00:00:00.000Z"
+    },
+    {
+      "userId": "usr_1792914893491_n0fja",
+      "currency": "INR",
+      "dateFormat": "DD/MM/YYYY",
+      "timezone": "Asia/Kolkata",
+      "tableDensity": "comfortable",
+      "emailAlerts": true,
+      "monthlyDigest": true,
+      "budgetThresholdAlerts": true,
+      "updatedAt": "2026-10-25T07:54:53.690Z"
+    }
+  ],
+  "recurringSchedules": [
+    {
+      "id": "rec_01",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Monthly Salary Credit",
+      "type": "income",
+      "amount": 40000,
+      "category": "Salary",
+      "frequency": "monthly",
+      "startDate": "2026-10-01",
+      "dayOfMonth": 1,
+      "status": "active",
+      "paymentMethod": "Bank Transfer",
+      "merchant": "Acme Corp",
+      "notes": "Primary monthly employment income",
+      "nextRunDate": "2026-11-01",
+      "lastRunDate": "2026-10-01",
+      "completedOccurrences": 1,
+      "createdAt": "2026-09-01T08:00:00.000Z",
+      "updatedAt": "2026-10-01T10:00:00.000Z"
+    },
+    {
+      "id": "rec_02",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Apartment Rent",
+      "type": "expense",
+      "amount": 12000,
+      "category": "Bills & Utilities",
+      "frequency": "monthly",
+      "startDate": "2026-10-01",
+      "dayOfMonth": 1,
+      "status": "active",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "Landlord",
+      "notes": "Monthly residential house rent payment",
+      "nextRunDate": "2026-11-01",
+      "lastRunDate": "2026-10-01",
+      "completedOccurrences": 1,
+      "createdAt": "2026-09-01T08:00:00.000Z",
+      "updatedAt": "2026-10-01T10:00:00.000Z"
+    },
+    {
+      "id": "rec_03",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Netflix & Spotify Premium",
+      "type": "expense",
+      "amount": 800,
+      "category": "Entertainment",
+      "frequency": "monthly",
+      "startDate": "2026-10-05",
+      "dayOfMonth": 5,
+      "status": "active",
+      "paymentMethod": "Credit Card",
+      "merchant": "Netflix Inc",
+      "notes": "Streaming & music subscriptions auto-pay",
+      "nextRunDate": "2026-11-05",
+      "lastRunDate": "2026-10-05",
+      "completedOccurrences": 1,
+      "createdAt": "2026-09-05T08:00:00.000Z",
+      "updatedAt": "2026-10-05T08:00:00.000Z"
+    },
+    {
+      "id": "rec_04",
+      "userId": "usr_ansh_kumar_001",
+      "name": "Airtel Broadband Fiber",
+      "type": "expense",
+      "amount": 1200,
+      "category": "Bills & Utilities",
+      "frequency": "monthly",
+      "startDate": "2026-10-10",
+      "dayOfMonth": 10,
+      "status": "active",
+      "paymentMethod": "UPI",
+      "merchant": "Airtel Payments",
+      "notes": "High speed fiber internet monthly bill",
+      "nextRunDate": "2026-11-10",
+      "lastRunDate": "2026-10-10",
+      "completedOccurrences": 1,
+      "createdAt": "2026-09-10T08:00:00.000Z",
+      "updatedAt": "2026-10-10T08:00:00.000Z"
+    },
+    {
+      "id": "rec_05",
+      "userId": "usr_ansh_kumar_001",
+      "name": "SIP Mutual Fund Auto-Debit",
+      "type": "expense",
+      "amount": 5000,
+      "category": "Investments",
+      "frequency": "monthly",
+      "startDate": "2026-10-15",
+      "dayOfMonth": 15,
+      "status": "active",
+      "paymentMethod": "Bank Auto-Debit",
+      "merchant": "Zerodha Coin",
+      "notes": "Index Fund SIP monthly investment",
+      "nextRunDate": "2026-11-15",
+      "lastRunDate": "2026-10-15",
+      "completedOccurrences": 1,
+      "createdAt": "2026-09-15T08:00:00.000Z",
+      "updatedAt": "2026-10-15T08:00:00.000Z"
+    },
+    {
+      "id": "rec_1792914893677_l8ggt",
+      "userId": "usr_1792914893491_n0fja",
+      "name": "Internet Fiber Subscription",
+      "type": "expense",
+      "amount": 1500,
+      "category": "Bills & Utilities",
+      "frequency": "monthly",
+      "startDate": "2026-10-10",
+      "dayOfMonth": 10,
+      "status": "active",
+      "paymentMethod": "UPI / NetBanking",
+      "merchant": "",
+      "notes": "",
+      "nextRunDate": "2026-11-10",
+      "completedOccurrences": 1,
+      "createdAt": "2026-10-25T07:54:53.677Z",
+      "updatedAt": "2026-10-25T07:54:53.683Z",
+      "lastRunDate": "2026-10-10"
+    }
+  ],
+  "recurringOccurrences": [
+    {
+      "id": "occ_01",
+      "scheduleId": "rec_01",
+      "userId": "usr_ansh_kumar_001",
+      "scheduledDate": "2026-10-01",
+      "processedAt": "2026-10-01T10:00:00.000Z",
+      "status": "generated",
+      "transactionId": "tx_05"
+    },
+    {
+      "id": "occ_03",
+      "scheduleId": "rec_03",
+      "userId": "usr_ansh_kumar_001",
+      "scheduledDate": "2026-10-05",
+      "processedAt": "2026-10-05T08:00:00.000Z",
+      "status": "generated",
+      "transactionId": "tx_11"
+    },
+    {
+      "id": "occ_04",
+      "scheduleId": "rec_04",
+      "userId": "usr_ansh_kumar_001",
+      "scheduledDate": "2026-10-10",
+      "processedAt": "2026-10-10T08:00:00.000Z",
+      "status": "generated",
+      "transactionId": "tx_03"
+    },
+    {
+      "id": "occ_1792914893683_qjepf",
+      "scheduleId": "rec_1792914893677_l8ggt",
+      "userId": "usr_1792914893491_n0fja",
+      "scheduledDate": "2026-10-10",
+      "processedAt": "2026-10-25T07:54:53.683Z",
+      "status": "generated",
+      "transactionId": "tx_1792914893683_dfid"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_01",
+      "userId": "usr_ansh_kumar_001",
+      "category": "budget_alert",
+      "title": "⚠️ Budget Alert: Utilities & Bills Limit",
+      "message": "Utilities & Bills Limit has reached 85% of its allocated ceiling (₹3,414 spent of ₹4,000 allowance).",
+      "isRead": true,
+      "actionTarget": "budgets",
+      "actionPayload": {
+        "budgetId": "bgt_04"
+      },
+      "dedupeKey": "budget:bgt_04:2026-10:85",
+      "createdAt": "2026-10-24T08:30:00.000Z"
+    },
+    {
+      "id": "notif_02",
+      "userId": "usr_ansh_kumar_001",
+      "category": "recurring_reminder",
+      "title": "📅 Upcoming Payment: Apartment Rent",
+      "message": "Apartment Rent payment of ₹12,000 is due on 2026-11-01 (UPI / NetBanking).",
+      "isRead": true,
+      "actionTarget": "recurring",
+      "actionPayload": {
+        "scheduleId": "rec_02"
+      },
+      "dedupeKey": "recurring:rec_02:2026-11-01:7days",
+      "createdAt": "2026-10-24T07:15:00.000Z"
+    },
+    {
+      "id": "notif_03",
+      "userId": "usr_ansh_kumar_001",
+      "category": "goal_milestone",
+      "title": "🎯 Milestone Achieved: Emergency Safety Net",
+      "message": "Awesome progress! You have saved ₹35,000 (35% milestone) towards your Emergency Safety Net target of ₹100,000.",
+      "isRead": true,
+      "actionTarget": "goals",
+      "actionPayload": {
+        "goalId": "gol_01"
+      },
+      "dedupeKey": "goal:gol_01:35pct",
+      "createdAt": "2026-10-23T16:00:00.000Z"
+    },
+    {
+      "id": "notif_04",
+      "userId": "usr_ansh_kumar_001",
+      "category": "monthly_summary",
+      "title": "📊 Monthly Financial Digest: October 2026",
+      "message": "October Overview: Total Income ₹45,000, Total Expenses ₹28,450, Net Balance ₹16,550. Savings rate: 36.8%.",
+      "isRead": true,
+      "actionTarget": "analytics",
+      "actionPayload": {
+        "month": "2026-10"
+      },
+      "dedupeKey": "monthly:usr_ansh_kumar_001:2026-10",
+      "createdAt": "2026-10-22T09:00:00.000Z"
+    },
+    {
+      "id": "notif_05",
+      "userId": "usr_ansh_kumar_001",
+      "category": "security_alert",
+      "title": "🔒 Security Status Verified",
+      "message": "Account security preferences and email notification settings were updated successfully.",
+      "isRead": true,
+      "actionTarget": "settings",
+      "dedupeKey": "security:usr_ansh_kumar_001:verified_20261024",
+      "createdAt": "2026-10-21T14:20:00.000Z"
+    },
+    {
+      "id": "notif_1792871790700_j2fbx",
+      "userId": "usr_ansh_kumar_001",
+      "category": "budget_alert",
+      "title": "⚠️ Budget Alert: Food & Dining Budget",
+      "message": "Food & Dining Budget has reached 91% of its allocated limit (90% threshold alert).",
+      "isRead": true,
+      "actionTarget": "budgets",
+      "actionPayload": {
+        "budgetId": "bgt_01"
+      },
+      "dedupeKey": "budget:bgt_01:2026-10:near_limit:threshold",
+      "createdAt": "2026-10-24T19:56:30.700Z"
+    },
+    {
+      "id": "notif_1792871790702_xcrej",
+      "userId": "usr_ansh_kumar_001",
+      "category": "budget_alert",
+      "title": "⚠️ Budget Alert: Transport Cap",
+      "message": "Transport Cap has reached 95% of its allocated limit (90% threshold alert).",
+      "isRead": true,
+      "actionTarget": "budgets",
+      "actionPayload": {
+        "budgetId": "bgt_02"
+      },
+      "dedupeKey": "budget:bgt_02:2026-10:near_limit:threshold",
+      "createdAt": "2026-10-24T19:56:30.702Z"
+    },
+    {
+      "id": "notif_1792871790703_d9u4b",
+      "userId": "usr_ansh_kumar_001",
+      "category": "budget_alert",
+      "title": "⚠️ Budget Alert: Shopping Allowance",
+      "message": "Shopping Allowance has reached 85% of its allocated limit (85% threshold alert).",
+      "isRead": true,
+      "actionTarget": "budgets",
+      "actionPayload": {
+        "budgetId": "bgt_03"
+      },
+      "dedupeKey": "budget:bgt_03:2026-10:near_limit:threshold",
+      "createdAt": "2026-10-24T19:56:30.703Z"
+    },
+    {
+      "id": "notif_1792871790711_5jkr1",
+      "userId": "usr_ansh_kumar_001",
+      "category": "goal_milestone",
+      "title": "🎯 Milestone Reached: Goa Beach Retreat",
+      "message": "Great job! You crossed the 25% milestone for Goa Beach Retreat (₹20,000 saved).",
+      "isRead": true,
+      "actionTarget": "goals",
+      "actionPayload": {
+        "goalId": "gol_03"
+      },
+      "dedupeKey": "goal:gol_03:25pct",
+      "createdAt": "2026-10-24T19:56:30.711Z"
+    },
+    {
+      "id": "notif_1792871790711_uzfcz",
+      "userId": "usr_ansh_kumar_001",
+      "category": "goal_milestone",
+      "title": "🎯 Milestone Reached: Goa Beach Retreat",
+      "message": "Great job! You crossed the 50% milestone for Goa Beach Retreat (₹20,000 saved).",
+      "isRead": true,
+      "actionTarget": "goals",
+      "actionPayload": {
+        "goalId": "gol_03"
+      },
+      "dedupeKey": "goal:gol_03:50pct",
+      "createdAt": "2026-10-24T19:56:30.711Z"
+    },
+    {
+      "id": "notif_1792871790712_4l0ry",
+      "userId": "usr_ansh_kumar_001",
+      "category": "goal_milestone",
+      "title": "🎯 Milestone Reached: Emergency Safety Net",
+      "message": "Great job! You crossed the 25% milestone for Emergency Safety Net (₹35,000 saved).",
+      "isRead": true,
+      "actionTarget": "goals",
+      "actionPayload": {
+        "goalId": "gol_01"
+      },
+      "dedupeKey": "goal:gol_01:25pct",
+      "createdAt": "2026-10-24T19:56:30.712Z"
+    },
+    {
+      "id": "notif_1792871865079_eerh8",
+      "userId": "usr_ansh_kumar_001",
+      "category": "goal_milestone",
+      "title": "🎯 Milestone Reached: MacBook Pro M3 Max",
+      "message": "Great job! You crossed the 25% milestone for MacBook Pro M3 Max (₹75,000 saved).",
+      "isRead": false,
+      "actionTarget": "goals",
+      "actionPayload": {
+        "goalId": "gol_02"
+      },
+      "dedupeKey": "goal:gol_02:25pct",
+      "createdAt": "2026-10-24T19:57:45.079Z"
+    },
+    {
+      "id": "notif_1792914893690_cxqyx",
+      "userId": "usr_1792914893491_n0fja",
+      "category": "goal_milestone",
+      "title": "🎯 Milestone Reached: New Laptop Reserve",
+      "message": "Great job! You crossed the 25% milestone for New Laptop Reserve (₹25,000 saved).",
+      "isRead": false,
+      "actionTarget": "goals",
+      "actionPayload": {
+        "goalId": "gol_1792914893656_lehhc"
+      },
+      "dedupeKey": "goal:gol_1792914893656_lehhc:25pct",
+      "createdAt": "2026-10-25T07:54:53.690Z"
+    },
+    {
+      "id": "notif_1792914893695_jzjr9",
+      "userId": "usr_1792914893491_n0fja",
+      "category": "monthly_summary",
+      "title": "📊 Monthly Financial Digest: October 2026",
+      "message": "October Financial Overview: Total Income ₹50,000, Total Expenses ₹16,500, Net Cash Flow ₹33,500.",
+      "isRead": false,
+      "actionTarget": "analytics",
+      "actionPayload": {
+        "month": "2026-10"
+      },
+      "dedupeKey": "monthly:usr_1792914893491_n0fja:2026-10",
+      "createdAt": "2026-10-25T07:54:53.695Z"
+    }
+  ]
+}

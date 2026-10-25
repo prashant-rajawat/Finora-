@@ -20,6 +20,8 @@ import { GoalsPage } from './pages/GoalsPage';
 import { RecurringTransactionsPage } from './pages/RecurringTransactionsPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { NotificationsPage } from './pages/NotificationsPage';
+import { InsightsPage } from './pages/InsightsPage';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { TransactionModal } from './components/TransactionModal';
@@ -277,6 +279,8 @@ export default function App() {
       'goals',
       'reports',
       'settings',
+      'notifications',
+      'insights',
     ];
     if (!currentUser && protectedPages.includes(page)) {
       setCurrentPage('login');
@@ -463,6 +467,22 @@ export default function App() {
               user={currentUser}
               onUpdateProfile={handleUpdateProfile}
               onLogout={handleLogout}
+              onShowToast={addToast}
+            />
+          )}
+
+          {currentPage === 'notifications' && (
+            <NotificationsPage
+              user={currentUser}
+              onNavigate={navigateTo}
+              onShowToast={addToast}
+            />
+          )}
+
+          {currentPage === 'insights' && (
+            <InsightsPage
+              user={currentUser}
+              onNavigate={navigateTo}
               onShowToast={addToast}
             />
           )}

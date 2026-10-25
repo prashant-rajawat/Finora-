@@ -1,0 +1,972 @@
+# FINORA — PHASE 11 MASTER IMPLEMENTATION PROMPT
+## Complete Security Audit, Quality Assurance, Performance Optimization & Production Deployment
+
+**Project:** Finora — Personal Finance Tracker  
+**Phase:** 11 — Final QA, Security & Deployment  
+**Implementation:** Full-stack audit and remediation — Frontend + Backend + Database + Testing + Deployment  
+**Design:** Preserve the approved premium white and pale-blue theme, blue primary actions, subtle borders, rounded cards, and clean typography.
+
+---
+
+# 1. PRIMARY OBJECTIVE
+
+Act as a senior full-stack engineer, application security engineer, QA automation engineer, database engineer, performance engineer, and deployment specialist.
+
+Your task is to **audit, fix, test, and stabilize my existing Finora application for production deployment**.
+
+Do not merely generate an audit report, checklist, or recommendations. Inspect the actual project, implement safe fixes, run available tests, and verify the results.
+
+The project may contain functionality from the following phases:
+
+1. Application foundation and core interface.
+2. Authentication, dashboard, transactions, and database integration.
+3. Budget management.
+4. Analytics and financial reports.
+5. Savings goals and contribution tracking.
+6. Reports and CSV/PDF exports.
+7. Settings, profile, preferences, and security management.
+8. Recurring transactions and backend scheduling.
+9. Notifications and financial alerts.
+10. Financial insights, forecasting, and planning.
+
+**Important:** Treat this list as the intended feature inventory, not proof that every feature has been implemented successfully. Verify the actual code and runtime behavior before declaring any phase complete.
+
+Your primary goals are:
+
+- Fix confirmed bugs.
+- Protect user accounts and financial data.
+- Verify financial calculation accuracy.
+- Eliminate broken or misleading UI behavior.
+- Improve reliability and performance.
+- Validate database integrity and authorization.
+- Prepare safe production configuration.
+- Verify the deployment where access is available.
+- Preserve all existing working functionality and data.
+
+Do not rebuild Finora from scratch.
+
+# 2. MANDATORY PROJECT INSPECTION
+
+Before making changes, inspect the complete existing repository.
+
+Identify:
+
+- Frontend framework and build system.
+- Backend framework and runtime.
+- API routes and middleware.
+- Authentication provider and session handling.
+- Database technology and schema.
+- Database migrations and row-level security policies.
+- Environment-variable usage.
+- Transaction and financial calculation utilities.
+- Budget management.
+- Analytics and reports.
+- Savings goals and contribution history.
+- Recurring transaction scheduling.
+- Notification processing and delivery providers.
+- Financial forecasting and insights.
+- File upload and storage mechanisms, if present.
+- CSV/PDF export implementation.
+- Existing tests and test coverage.
+- Deployment configuration.
+- Dependency versions and security-sensitive packages.
+- Error logging and monitoring.
+- Build, lint, type-check, and test commands.
+
+Inspect the repository's actual scripts and documentation rather than assuming particular commands or frameworks.
+
+Establish a baseline before changing anything.
+
+Record which commands pass, which fail, and which cannot run because of missing services or configuration.
+
+Do not hide existing failures by deleting tests, weakening assertions, or suppressing errors.
+
+# 3. BASELINE BUILD AND REGRESSION ASSESSMENT
+
+Run the appropriate existing checks, where supported:
+
+- Dependency and configuration validation.
+- Production frontend build.
+- Backend build or startup checks.
+- Type checking.
+- Linting.
+- Unit tests.
+- Integration tests.
+- End-to-end tests.
+- Database migration validation.
+- Existing security tests.
+
+Create a baseline report of:
+
+- Build failures.
+- Runtime errors.
+- Broken imports.
+- Missing dependencies.
+- Type errors.
+- Failing tests.
+- Missing environment variables.
+- Unavailable external services.
+- Database connection problems.
+- Existing security concerns.
+
+Fix actual issues rather than making cosmetic changes to the test output.
+
+Do not claim a successful build or test run unless the command actually completed successfully.
+
+# 4. AUTHENTICATION AND ACCOUNT SECURITY AUDIT
+
+Audit all authentication and account-management flows.
+
+Verify:
+
+- Registration.
+- Login.
+- Logout.
+- Protected routes.
+- Session persistence.
+- Session expiration.
+- Password recovery.
+- Email verification.
+- Password changes.
+- Profile updates.
+- Authorization checks.
+- Account deletion, if implemented.
+- Session revocation, if supported.
+
+Use the existing authentication provider and security architecture.
+
+### Security requirements
+
+- Never store plaintext passwords.
+- Never expose password hashes, access tokens, refresh tokens, or private authentication credentials.
+- Never trust a client-supplied user ID as the authorization boundary.
+- Verify permissions on the backend or through trusted database policies.
+- Prevent unauthorized profile and role changes.
+- Validate authentication state consistently.
+- Handle expired and invalid sessions safely.
+- Prevent private pages from exposing stale sensitive data after logout.
+- Follow the provider's established recovery and verification workflow.
+- Avoid leaking sensitive authentication details in error responses.
+
+Do not replace a working authentication provider with a custom authentication implementation.
+
+Do not disable security checks to make tests pass.
+
+# 5. API AUTHORIZATION AND DATA ISOLATION
+
+Audit every protected API route and sensitive database operation.
+
+Include:
+
+- Transactions.
+- Budgets.
+- Analytics.
+- Savings goals.
+- Contributions.
+- Reports.
+- CSV and PDF exports.
+- Profile settings.
+- Financial preferences.
+- Recurring schedules.
+- Scheduled transaction occurrences.
+- Notifications.
+- Financial insights.
+- Account-management operations.
+
+For each operation, verify that the authenticated user can access only authorized records.
+
+### Required tests
+
+Simulate at least two separate test users where the test environment supports it.
+
+Verify that:
+
+- User A cannot retrieve User B's transactions.
+- User A cannot modify or delete User B's budgets.
+- User A cannot view User B's savings goals.
+- User A cannot export User B's reports.
+- User A cannot access User B's notifications.
+- User A cannot modify User B's recurring schedules.
+- User A cannot trigger privileged scheduler operations.
+- User A cannot change protected profile or role fields.
+
+Test both direct API requests and UI navigation.
+
+Do not rely on hidden buttons or frontend route guards as the only security controls.
+
+Review database row-level security and ownership constraints where applicable.
+
+# 6. INPUT VALIDATION AND APPLICATION SECURITY
+
+Audit every endpoint and form that accepts user input.
+
+Check:
+
+- Required fields.
+- Type validation.
+- String-length limits.
+- Numeric ranges.
+- Date validity.
+- Date-range boundaries.
+- Enum and status validation.
+- Pagination limits.
+- Sorting-field allowlists.
+- Recurrence-rule validation.
+- Category ownership and validity.
+- File-upload validation, if present.
+- Export parameter validation.
+
+Prevent or appropriately mitigate:
+
+- SQL injection.
+- Cross-site scripting.
+- Cross-site request forgery, where applicable.
+- Broken object-level authorization.
+- Mass assignment.
+- Unsafe redirects.
+- Insecure direct object references.
+- CSV formula injection.
+- Untrusted file uploads.
+- Excessive resource consumption.
+- Unprotected scheduler endpoints.
+- Accidental disclosure of secrets.
+
+Use the existing framework's secure practices and parameterized database operations.
+
+Do not invent custom cryptography.
+
+Do not add security controls that conflict with the existing authentication provider without understanding the architecture.
+
+# 7. FINANCIAL CALCULATION AUDIT
+
+Financial accuracy is a critical requirement.
+
+Review all calculations used by:
+
+- Dashboard summaries.
+- Transactions.
+- Budgets.
+- Analytics.
+- Savings goals.
+- Contributions.
+- Reports.
+- Recurring transaction generation.
+- Notifications.
+- Financial forecasts.
+
+Use authoritative shared calculation utilities where appropriate.
+
+### Required calculation checks
+
+Verify:
+
+- Income totals.
+- Expense totals.
+- Net cash flow.
+- Savings rate.
+- Category totals.
+- Budget utilization.
+- Remaining budget.
+- Savings goal progress.
+- Remaining savings target.
+- Required contributions.
+- Recurrence calculations.
+- Forecast calculations.
+- Reporting-period totals.
+- Exported totals.
+
+Use the existing financial rules unless an actual bug requires correction.
+
+Avoid floating-point rounding errors in monetary calculations. Use the existing decimal-safe or minor-unit representation where appropriate for the current database and currency model.
+
+If the application uses decimal amounts, preserve its established precision and rounding policy.
+
+### Essential edge cases
+
+Test:
+
+- Zero income.
+- Zero expenses.
+- Negative cash flow.
+- Empty transaction history.
+- Large amounts.
+- Decimal amounts.
+- Refunds or reversals, if supported.
+- Deleted transactions.
+- Edited transactions.
+- Different reporting periods.
+- Month-end and year-end boundaries.
+- Leap years.
+- Zero-value budgets.
+- Completed savings goals.
+- Missing target dates.
+- Partial reporting periods.
+
+Do not silently change historical financial data to fix a display or calculation bug.
+
+If a correction requires data migration, create a safe migration and explain the impact before making destructive changes.
+
+# 8. RECURRING TRANSACTIONS AND SCHEDULER AUDIT
+
+If Phase 8 is implemented, inspect the actual recurring transaction scheduler.
+
+Verify:
+
+- Daily, weekly, monthly, and yearly recurrence rules supported by the application.
+- Month-end behavior.
+- Start and end dates.
+- Timezone handling.
+- Paused schedules.
+- Cancelled schedules.
+- Completed schedules.
+- Missed occurrences.
+- Occurrence history.
+- Retry behavior.
+- Concurrent job execution.
+- Scheduler authorization.
+
+### Duplicate prevention
+
+Verify that each scheduled occurrence can create no more than one financial transaction.
+
+Use database uniqueness constraints and transactional or idempotent processing where supported.
+
+Simulate repeated scheduler runs and concurrent processing attempts.
+
+Ensure a failed operation can be retried safely.
+
+Do not mark an occurrence successful before the transaction is durably saved.
+
+### Financial integrity
+
+- Generated transactions must use the existing transaction system.
+- Scheduled estimates must remain separate from actual transactions.
+- Recurring schedules must not appear as completed transactions before generation.
+- Generated transactions must not be included twice in analytics or reports.
+- Pausing or cancelling a schedule must not silently delete historical transactions.
+- Finora must not claim that an external bill was paid simply because a transaction record was generated.
+
+If the scheduler is not configured in the deployed environment, document the exact missing configuration.
+
+Do not claim automatic processing is active unless it has been verified.
+
+# 9. NOTIFICATION SYSTEM AUDIT
+
+If Phase 9 is implemented, audit:
+
+- In-app notification creation.
+- Unread counts.
+- Read and unread state.
+- Mark-all-as-read.
+- Notification preferences.
+- Budget threshold alerts.
+- Recurring transaction reminders.
+- Recurring transaction failure alerts.
+- Savings milestones.
+- Deadline reminders.
+- Weekly or monthly summaries.
+- External email or push delivery, if supported.
+
+Verify that notification events are based on real data.
+
+Prevent duplicate alerts across scheduler runs and retries.
+
+Ensure users cannot retrieve another user's notifications.
+
+Check that notification actions navigate only to valid, authorized destinations.
+
+Do not invent security events, delivery confirmations, or notification history.
+
+For external delivery, distinguish clearly between:
+
+- Event detected.
+- Notification record created.
+- Delivery attempted.
+- Delivery confirmed.
+- Delivery failed.
+
+Use only statuses supported by the actual implementation.
+
+# 10. FINANCIAL INSIGHTS AND FORECAST AUDIT
+
+If Phase 10 is implemented, verify:
+
+- Historical spending trends.
+- Cash-flow projections.
+- Budget forecasts.
+- Savings goal projections.
+- Unusual spending detection.
+- Recommendations.
+- Forecast confidence or data-sufficiency labels.
+
+Check that forecasts:
+
+- Use actual historical data.
+- Separate past results from future estimates.
+- Do not double-count recurring transactions.
+- Do not count savings contributions as ordinary income.
+- Handle missing data.
+- Handle zero baselines.
+- Use documented formulas.
+- Respect selected dates and timezones.
+- Are recalculated when relevant financial records change.
+
+Ensure recommendations are explainable and traceable to real data.
+
+Do not present estimated future values as guaranteed outcomes.
+
+Do not describe an unusual transaction as confirmed fraud without reliable evidence.
+
+# 11. REPORTS AND EXPORT SECURITY
+
+Audit the Reports page and all supported export formats.
+
+### CSV
+
+Verify:
+
+- Correct column headers.
+- Correct filtered records.
+- Correct totals.
+- Proper escaping of commas, quotes, and newlines.
+- UTF-8 encoding.
+- Safe treatment of formula-triggering text.
+- Complete export beyond the visible page.
+- Appropriate filenames.
+- No sensitive internal fields.
+
+### PDF
+
+Verify:
+
+- Valid PDF generation.
+- Correct title and reporting period.
+- Accurate totals.
+- Readable tables.
+- Pagination.
+- No clipped or overlapping text.
+- Correct date and currency formatting.
+- Proper handling of empty reports.
+- No unauthorized records.
+
+Confirm that the report preview and exported files use the same filter logic and financial calculation rules.
+
+Do not claim that a file was successfully generated unless it actually exists and can be opened or otherwise validated.
+
+# 12. DATABASE INTEGRITY AND MIGRATIONS
+
+Inspect the current database schema, constraints, migrations, and access policies.
+
+Verify:
+
+- Foreign-key relationships.
+- Unique constraints.
+- Ownership relationships.
+- Required-field constraints.
+- Appropriate indexes.
+- Migration ordering.
+- Migration compatibility.
+- Transaction consistency.
+- Safe rollback or recovery procedures where supported.
+
+Do not reset or recreate the production database.
+
+Do not drop tables or columns merely to simplify implementation.
+
+Test migrations against a disposable test database or safe staging environment whenever possible.
+
+If a migration could cause data loss, stop and document the risk before applying it to production.
+
+If duplicate or inconsistent records are discovered, investigate their origin before attempting cleanup.
+
+Do not automatically delete financial records as part of the audit.
+
+# 13. DEPENDENCY AND SUPPLY-CHAIN REVIEW
+
+Inspect the actual dependency manifests and lockfiles.
+
+Check for:
+
+- Known security advisories.
+- Unsupported or obsolete dependencies.
+- Incompatible package versions.
+- Unnecessary packages.
+- Duplicate dependencies.
+- Untrusted installation scripts, where relevant.
+- Frontend packages that expose sensitive server-only functionality.
+
+Use the package manager and lockfile already established by the project.
+
+Do not upgrade every dependency indiscriminately.
+
+Prioritize security fixes that are compatible with the existing codebase.
+
+For major-version upgrades, check breaking changes and run the relevant tests.
+
+Do not remove a dependency until confirming that no existing functionality requires it.
+
+Report dependency vulnerabilities that could not be safely resolved.
+
+# 14. PERFORMANCE OPTIMIZATION
+
+Measure and address real bottlenecks instead of performing arbitrary rewrites.
+
+Review:
+
+- Initial application loading.
+- Frontend bundle size.
+- Unnecessary component rerenders.
+- Duplicate API requests.
+- Database query efficiency.
+- N+1 query patterns.
+- Large transaction lists.
+- Report generation performance.
+- Chart rendering.
+- Scheduler processing limits.
+- Notification polling.
+- Unbounded result sets.
+
+Implement suitable improvements such as:
+
+- Pagination.
+- Efficient database aggregation.
+- Appropriate indexes.
+- Lazy loading where useful.
+- Shared calculation utilities.
+- Sensible caching where correctness can be preserved.
+- Debounced search where appropriate.
+- Request cancellation or stale-response protection.
+- Efficient background processing.
+
+Avoid caching sensitive financial responses in unsafe shared caches.
+
+Ensure cached insights or summaries are refreshed after relevant records change.
+
+Do not optimize based only on assumptions. Report actual measurements where tools support them.
+
+# 15. ERROR HANDLING, LOGGING, AND MONITORING
+
+Audit frontend and backend error handling.
+
+Verify:
+
+- API errors are handled consistently.
+- Database errors do not expose sensitive implementation details.
+- Authentication failures are handled safely.
+- Scheduled-job failures can be diagnosed.
+- External provider failures are observable.
+- File-export failures are reported.
+- Unexpected frontend errors do not leave the UI in a broken state.
+
+Implement or improve structured logging using the project's existing logging conventions.
+
+Never log:
+
+- Passwords.
+- Access or refresh tokens.
+- Secret keys.
+- Password-reset tokens.
+- Unnecessary full financial payloads.
+- Sensitive personal information without a justified need.
+
+Where monitoring is supported, add meaningful error and health signals.
+
+Do not claim a monitoring service is configured unless the required integration exists.
+
+# 16. ENVIRONMENT VARIABLES AND SECRET MANAGEMENT
+
+Inspect the frontend and backend environment configuration.
+
+Verify:
+
+- Required environment variables are documented.
+- Production configuration is separated from local development.
+- Secrets are not committed to source control.
+- Private credentials are not exposed in frontend bundles.
+- Example environment files contain placeholders only.
+- Missing variables produce clear startup errors where appropriate.
+- Production URLs and redirect URLs use the intended domains.
+- CORS configuration is appropriately restricted.
+- Cookie settings are appropriate to the current authentication architecture.
+- Database and scheduler credentials have appropriate privileges.
+
+Never print real secret values in the final report.
+
+Do not invent credentials or replace missing secrets with fake values that make the app appear operational.
+
+Do not expose service-role keys or privileged database credentials in browser code.
+
+# 17. PRODUCTION DEPLOYMENT READINESS
+
+Inspect the actual deployment setup.
+
+Identify the current frontend host, backend host, database provider, and supported background-job infrastructure from the project's configuration and documentation.
+
+Do not assume a particular provider unless the project confirms it.
+
+### Frontend
+
+Verify:
+
+- Production build succeeds.
+- API base URL is correct.
+- Routes work after refresh.
+- Authentication redirects use valid production URLs.
+- No localhost-only URLs remain in production configuration.
+- Required environment variables are configured.
+- Responsive layouts work at expected viewport sizes.
+
+### Backend
+
+Verify:
+
+- The application starts successfully.
+- Health checks work, if implemented.
+- Database connections work.
+- Authentication middleware is active.
+- Error handling is appropriate.
+- CORS is configured correctly.
+- Required environment variables are present.
+- Scheduled jobs use production-compatible infrastructure.
+
+### Database
+
+Verify:
+
+- Required migrations are applied in the intended environment.
+- Access policies are active.
+- The application uses appropriate database credentials.
+- Backups and recovery procedures are documented.
+- No destructive development seed or reset command runs in production.
+
+### External integrations
+
+Verify the actual status of:
+
+- Email delivery.
+- Push notifications.
+- Background scheduling.
+- File storage.
+- PDF/CSV exports.
+- Analytics or monitoring integrations.
+
+Do not claim that an integration works merely because its environment variable exists.
+
+If access to the deployment platform is unavailable, complete all local verification that is possible and provide exact manual deployment steps.
+
+# 18. ACCESSIBILITY AND RESPONSIVE QA
+
+Inspect the actual application at desktop, tablet, and mobile sizes.
+
+Verify:
+
+- Navigation.
+- Dashboard cards.
+- Forms.
+- Transaction tables.
+- Budget cards.
+- Charts.
+- Modals.
+- Settings pages.
+- Notification panels.
+- Report previews.
+- Export controls.
+
+Check:
+
+- Horizontal overflow.
+- Overlapping elements.
+- Clipped labels.
+- Unusable dialogs.
+- Tiny touch targets.
+- Unreadable text.
+- Keyboard navigation.
+- Accessible labels.
+- Focus indicators.
+- Color contrast.
+- Screen-reader-friendly status messages where practical.
+
+Preserve the approved Finora visual identity.
+
+Do not redesign the entire application unnecessarily. Make focused fixes that improve consistency and usability.
+
+# 19. END-TO-END TESTING
+
+Implement or extend automated end-to-end tests using the existing testing framework.
+
+Test realistic user journeys.
+
+### Journey A — Account lifecycle
+
+1. Register a test user.
+2. Verify the applicable email-verification flow.
+3. Log in.
+4. Open a protected page.
+5. Log out.
+6. Confirm protected pages no longer expose private data.
+
+### Journey B — Transactions and budgets
+
+1. Create income and expense transactions.
+2. Verify dashboard totals.
+3. Create a budget.
+4. Add an expense.
+5. Verify actual budget usage.
+6. Edit or delete the transaction.
+7. Verify dependent totals update correctly.
+
+### Journey C — Savings goals
+
+1. Create a savings goal.
+2. Add a contribution.
+3. Verify goal progress.
+4. Verify contribution history.
+5. Check that financial totals are not double-counted.
+
+### Journey D — Reports and exports
+
+1. Select a date range.
+2. Generate a report.
+3. Verify the displayed transactions and totals.
+4. Download CSV.
+5. Generate PDF.
+6. Compare exported totals with the preview.
+
+### Journey E — Recurring transactions
+
+1. Create a test schedule.
+2. Process a due occurrence using the real processing logic.
+3. Verify exactly one transaction is created.
+4. Run the processing logic again.
+5. Confirm no duplicate is created.
+6. Pause or cancel the schedule.
+7. Verify future occurrences are handled correctly.
+
+### Journey F — Notifications
+
+1. Trigger a supported test event.
+2. Verify the notification is created.
+3. Verify the unread count.
+4. Mark it as read.
+5. Verify the count updates.
+6. Confirm repeated processing does not create duplicate notifications.
+
+### Journey G — Financial insights
+
+1. Generate insights from known test transactions.
+2. Verify the formulas.
+3. Compare the results with Analytics.
+4. Verify forecast values are clearly distinguished from actuals.
+
+### Journey H — User isolation
+
+1. Create two separate test users.
+2. Populate records for both.
+3. Attempt cross-user access through the API.
+4. Attempt cross-user modification and export.
+5. Verify unauthorized access is rejected.
+
+Use isolated test data. Never run destructive test scenarios against real user records.
+
+# 20. SAFE TEST DATA AND PRODUCTION DATA PROTECTION
+
+Keep test data isolated from real user data.
+
+Requirements:
+
+- Use test databases or isolated test fixtures.
+- Do not create fake financial records in production.
+- Do not delete real transactions during testing.
+- Do not reset production tables.
+- Do not run destructive migration experiments against production.
+- Do not send test notifications or emails to real users.
+- Do not execute real financial payments.
+- Do not expose real financial records in test logs.
+
+If test accounts or staging infrastructure are unavailable, implement the tests and clearly document which scenarios remain unverified.
+
+# 21. FINAL BUG-FIX AND REGRESSION PASS
+
+After the initial audit and remediation, rerun all relevant checks.
+
+Fix confirmed issues such as:
+
+- Broken imports.
+- Invalid routes.
+- Unhandled API failures.
+- Incorrect financial calculations.
+- Duplicate scheduler processing.
+- Missing authorization.
+- Inconsistent date filters.
+- Broken report exports.
+- Nonfunctional controls.
+- Responsive-layout defects.
+- Incorrect notification states.
+- Missing loading or error states.
+- Deployment-specific configuration problems.
+
+Do not introduce broad refactors unless necessary.
+
+After each meaningful fix, rerun the affected tests.
+
+Preserve existing working features.
+
+If a problem cannot be safely fixed, document it and explain its impact rather than hiding it.
+
+# 22. REQUIRED IMPLEMENTATION WORKFLOW
+
+Follow this workflow in order.
+
+**Step 1 — Inspect:** Review the codebase, architecture, deployment configuration, database, and existing tests.
+
+**Step 2 — Establish baseline:** Run available build, lint, type-check, test, and startup commands.
+
+**Step 3 — Prioritize risks:** Classify confirmed issues by severity and impact.
+
+**Step 4 — Fix security issues:** Address authentication, authorization, ownership, secret exposure, and dangerous input handling.
+
+**Step 5 — Fix financial integrity:** Verify calculations, data relationships, recurrence processing, and report consistency.
+
+**Step 6 — Fix functionality:** Resolve broken routes, nonfunctional actions, missing error states, and module integration problems.
+
+**Step 7 — Optimize:** Address measurable performance problems.
+
+**Step 8 — Verify deployment:** Validate production configuration and deployment readiness.
+
+**Step 9 — Run regression tests:** Rerun relevant automated tests and end-to-end journeys.
+
+**Step 10 — Report:** Provide actual changes, results, limitations, and deployment instructions.
+
+Do not stop after the audit or initial plan. Implement safe fixes and verify them.
+
+# 23. STRICT SAFETY RULES
+
+1. Do not replace Finora with a new starter template.
+2. Do not reset the database.
+3. Do not delete existing user data.
+4. Do not remove working features to make tests pass.
+5. Do not disable authentication or authorization to simplify development.
+6. Do not expose secrets in source code or frontend bundles.
+7. Do not invent successful test results.
+8. Do not claim deployment succeeded without verification.
+9. Do not claim an external integration works without testing it.
+10. Do not run destructive tests against production.
+11. Do not send real payments or financial transactions.
+12. Do not use fake financial data in production.
+13. Do not silently rewrite historical financial records.
+14. Do not suppress meaningful errors.
+15. Do not add unnecessary dependencies.
+16. Do not perform broad rewrites without justification.
+17. Do not compromise database security policies.
+18. Do not claim every phase is complete unless its actual functionality has been verified.
+19. Do not change the approved white-and-pale-blue theme unnecessarily.
+20. Preserve backwards compatibility wherever possible.
+21. Document unresolved high-risk issues clearly.
+22. Prioritize user data protection over superficial completion.
+
+# 24. FINAL DELIVERY REPORT
+
+After the audit and remediation, produce a specific report.
+
+### A. Executive summary
+
+State whether Finora is ready for production, ready only for staging, or not yet ready.
+
+Base the conclusion on actual verification.
+
+### B. Features verified
+
+List the modules and user journeys that were actually tested.
+
+### C. Security findings
+
+For each important issue, report:
+
+- Severity.
+- Impact.
+- Whether it was fixed.
+- What verification was performed.
+- Any remaining risk.
+
+Do not expose secrets in the report.
+
+### D. Files changed
+
+List the actual files created or modified and briefly describe each change.
+
+### E. Database and migration changes
+
+Explain migrations, constraints, indexes, and security-policy updates.
+
+### F. Financial integrity
+
+Summarize calculation checks and any corrections made.
+
+### G. Test results
+
+Report actual results for:
+
+- Build.
+- Lint.
+- Type checking.
+- Unit tests.
+- Integration tests.
+- End-to-end tests.
+- Security tests.
+- Migration checks.
+
+Clearly label tests as passed, failed, blocked, or not run.
+
+### H. Performance
+
+Report measured improvements where measurements are available.
+
+### I. Deployment status
+
+Identify:
+
+- Frontend status.
+- Backend status.
+- Database status.
+- Scheduler status.
+- Email/push status.
+- Required environment configuration.
+- Any manual steps remaining.
+
+### J. Known limitations
+
+List unresolved issues and their impact.
+
+### K. Production readiness decision
+
+Use one of these conclusions:
+
+- **Ready for production:** Critical workflows and required security checks are verified, and no known blocking issue remains.
+- **Ready for staging only:** The application is functional, but production-specific checks or integrations remain unverified.
+- **Not ready for deployment:** Important security, data-integrity, functionality, or build issues remain.
+
+Explain the decision using evidence from the checks performed.
+
+Do not claim production readiness solely because the frontend looks correct or the build succeeds.
+
+# 25. DEFINITION OF DONE
+
+Phase 11 is complete when:
+
+- The existing application has been audited.
+- Confirmed high-impact bugs have been fixed where safe.
+- Authentication and authorization have been verified.
+- User data isolation has been tested.
+- Financial calculations are consistent.
+- Recurring transaction processing is idempotent where implemented.
+- Notifications avoid duplicate events where implemented.
+- Reports and exports are accurate and secure.
+- Existing modules pass relevant regression tests.
+- Responsive UI issues have been checked.
+- Production configuration has been reviewed.
+- Database changes are safe and documented.
+- Build and test results are reported accurately.
+- Remaining risks and limitations are documented.
+- The final production-readiness decision is evidence-based.
+
+**Begin by inspecting my current Finora project. Perform the complete Phase 11 audit, implement actual safe fixes, run available tests, verify existing functionality, and prepare the application for production deployment. Preserve all working features and user data. Do not stop after producing a checklist or audit report.**

@@ -19,6 +19,10 @@ import {
   RecurringSummary,
   UpcomingOccurrenceProjected,
   RecurrenceFrequency,
+  AppNotification,
+  NotificationCategory,
+  FinancialInsightsData,
+  ForecastHorizon,
 } from './types';
 
 const TOKEN_KEY = 'finora_auth_token';
@@ -626,6 +630,81 @@ export const api = {
       }
     );
     return res.result;
+  },
+
+  // Notifications & Financial Alerts
+  async getNotifications(filters?: {
+    unreadOnly?: boolean;
+    category?: string;
+    search?: string;
+  }): Promise<{ notifications: AppNotification[]; unreadCount: number }> {
+    const params = new URLSearchParams();
+    if (filters?.unreadOnly) params.append('unreadOnly', 'true');
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.search) params.append('search', filters.search);
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const res = await apiFetch<{
+      success: boolean;
+      unreadCount: number;
+      notifications: AppNotification[];
+    }>(`/api/notifications${query}`);
+    return { notifications: res.notifications, unreadCount: res.unreadCount };
+  },
+
+  async getUnreadNotificationCount(): Promise<number> {
+    const res = await apiFetch<{ success: boolean; unreadCount: number }>('/api/notifications/unread-count');
+    return res.unreadCount;
+  },
+
+  async markNotificationAsRead(id: string): Promise<AppNotification> {
+    const res = await apiFetch<{
+      success: boolean;
+      notification: AppNotification;
+      unreadCount: number;
+    }>(`/api/notifications/${id}/read`, { method: 'PATCH' });
+    return res.notification;
+  },
+
+  async markAllNotificationsAsRead(): Promise<number> {
+    const res = await apiFetch<{
+      success: boolean;
+      updatedCount: number;
+      unreadCount: number;
+    }>('/api/notifications/mark-all-read', { method: 'POST' });
+    return res.updatedCount;
+  },
+
+  async deleteNotification(id: string): Promise<boolean> {
+    const res = await apiFetch<{ success: boolean; message: string }>(`/api/notifications/${id}`, {
+      method: 'DELETE',
+    });
+    return res.success;
+  },
+
+  async triggerEventDetection(): Promise<{ createdCount: number; unreadCount: number }> {
+    const res = await apiFetch<{
+      success: boolean;
+      createdCount: number;
+      unreadCount: number;
+    }>('/api/notifications/process-events', { method: 'POST' });
+    return { createdCount: res.createdCount, unreadCount: res.unreadCount };
+  },
+
+  // Financial Insights & Planning
+  async getFinancialInsights(params?: {
+    periodPreset?: AnalyticsPeriodPreset;
+    forecastHorizon?: ForecastHorizon;
+  }): Promise<FinancialInsightsData> {
+    const searchParams = new URLSearchParams();
+    if (params?.periodPreset) searchParams.append('periodPreset', params.periodPreset);
+    if (params?.forecastHorizon) searchParams.append('forecastHorizon', params.forecastHorizon);
+
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    const res = await apiFetch<{ success: boolean; insights: FinancialInsightsData }>(
+      `/api/insights${query}`
+    );
+    return res.insights;
   },
 };
 
